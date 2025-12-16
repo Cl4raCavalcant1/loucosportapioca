@@ -1,5 +1,5 @@
 // --- CONFIGURAÇÃO DA LOJA ---
-const phoneStore = '5581999999999'; // Seu WhatsApp
+const phoneStore = '5581991243260'; // Seu WhatsApp
 const horarioFuncionamento = { inicio: 10, fim: 23 }; // Horário
 const TAXA_ENTREGA = 5.00;
 
@@ -64,18 +64,18 @@ const produtos = [
 let carrinho = [];
 let categoriaAtual = 'mais_pedidos';
 let lojaAberta = true;
-let termoBusca = ''; // Novo: para busca
+let termoBusca = '';
 
 // --- INICIALIZAÇÃO ---
 window.onload = function() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
   
   verificarHorario();
-  injetarBarraPesquisa(); // Novo: Injeta barra de busca
+  injetarBarraPesquisa();
   carregarCarrinho();
   configurarAbas();
   renderProdutos();
-  injetarModalCarrinho();
+  injetarModalCarrinho(); // Cria a estrutura do carrinho (agora corrigida)
 };
 
 // --- NAVEGAÇÃO E EXIBIÇÃO ---
@@ -91,16 +91,18 @@ function configurarAbas() {
       btn.className = 'text-brand-brown font-bold border-b-2 border-brand-yellow pb-2 px-2 transition-colors';
       
       categoriaAtual = categorias[index];
-      termoBusca = ''; // Limpa busca ao trocar categoria
-      document.getElementById('input-busca').value = '';
+      termoBusca = '';
+      const inputBusca = document.getElementById('input-busca');
+      if(inputBusca) inputBusca.value = '';
       renderProdutos();
     });
   });
 }
 
-// Injeta a barra de pesquisa visualmente antes das categorias
 function injetarBarraPesquisa() {
   const nav = document.querySelector('nav');
+  if (!nav) return; // Segurança
+  
   const divBusca = document.createElement('div');
   divBusca.className = 'max-w-md mx-auto px-4 mt-4 mb-2';
   divBusca.innerHTML = `
@@ -127,9 +129,8 @@ function renderProdutos() {
   
   container.innerHTML = '';
   
-  // Lógica de Filtro Combinado (Categoria + Busca)
   let produtosFiltrados = produtos.filter(p => {
-    const correspondeCategoria = termoBusca ? true : p.categoria === categoriaAtual; // Se busca existe, ignora categoria
+    const correspondeCategoria = termoBusca ? true : p.categoria === categoriaAtual;
     const correspondeBusca = p.nome.toLowerCase().includes(termoBusca) || p.descricao.toLowerCase().includes(termoBusca);
     return correspondeCategoria && correspondeBusca;
   });
@@ -183,7 +184,8 @@ function renderProdutos() {
 
 function limparBusca() {
   termoBusca = '';
-  document.getElementById('input-busca').value = '';
+  const input = document.getElementById('input-busca');
+  if(input) input.value = '';
   renderProdutos();
 }
 
@@ -256,48 +258,48 @@ function atualizarCarrinhoUI() {
 
 // --- MODAL, CHECKOUT E LÓGICA FINANCEIRA ---
 
-// Função Helper para agrupar itens iguais no carrinho
 function agruparItensCarrinho() {
   const grupos = {};
-  
   carrinho.forEach(item => {
-    // Chave única baseada no ID e na Observação (se a obs for diferente, separa)
     const chave = `${item.id}-${item.observacao || ''}`;
-    
     if (!grupos[chave]) {
       grupos[chave] = {
         ...item,
         quantidade: 0,
-        idsRemocao: [] // Guarda os uniqueIds para permitir remoção um a um
+        idsRemocao: [] 
       };
     }
     grupos[chave].quantidade += 1;
     grupos[chave].idsRemocao.push(item.uniqueId);
   });
-
   return Object.values(grupos);
 }
 
-// Salva dados do cliente no LocalStorage
 function salvarDadosCliente() {
-  const nome = document.getElementById('cliente-nome').value;
-  const endereco = document.getElementById('cliente-endereco').value;
-  if(nome) localStorage.setItem('cliente_nome', nome);
-  if(endereco) localStorage.setItem('cliente_endereco', endereco);
+  const nomeInput = document.getElementById('cliente-nome');
+  const endInput = document.getElementById('cliente-endereco');
+  if(nomeInput && nomeInput.value) localStorage.setItem('cliente_nome', nomeInput.value);
+  if(endInput && endInput.value) localStorage.setItem('cliente_endereco', endInput.value);
 }
 
-// Carrega dados ao abrir modal
 function preencherDadosCliente() {
   const nomeSalvo = localStorage.getItem('cliente_nome');
   const enderecoSalvo = localStorage.getItem('cliente_endereco');
+  const nomeInput = document.getElementById('cliente-nome');
+  const endInput = document.getElementById('cliente-endereco');
   
-  if (nomeSalvo) document.getElementById('cliente-nome').value = nomeSalvo;
-  if (enderecoSalvo) document.getElementById('cliente-endereco').value = enderecoSalvo;
+  if (nomeSalvo && nomeInput) nomeInput.value = nomeSalvo;
+  if (enderecoSalvo && endInput) endInput.value = enderecoSalvo;
 }
 
 window.atualizarModalState = function() {
-  const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
-  const formaPagamento = document.getElementById('cliente-pagamento').value;
+  const tipoEntregaEl = document.querySelector('input[name="tipoEntrega"]:checked');
+  const formaPagamentoEl = document.getElementById('cliente-pagamento');
+  
+  if(!tipoEntregaEl || !formaPagamentoEl) return;
+
+  const tipoEntrega = tipoEntregaEl.value;
+  const formaPagamento = formaPagamentoEl.value;
   
   const divEndereco = document.getElementById('div-endereco');
   const divTroco = document.getElementById('div-troco');
@@ -319,7 +321,10 @@ window.atualizarModalState = function() {
 
 function atualizarTotaisModal() {
   const subtotal = carrinho.reduce((acc, item) => acc + item.preco, 0);
-  const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
+  const tipoEntregaEl = document.querySelector('input[name="tipoEntrega"]:checked');
+  if(!tipoEntregaEl) return;
+
+  const tipoEntrega = tipoEntregaEl.value;
   
   const spanSubtotal = document.getElementById('resumo-subtotal');
   const divTaxa = document.getElementById('resumo-taxa');
@@ -342,15 +347,19 @@ function atualizarTotaisModal() {
   spanTotalFinal.innerText = formatarMoeda(totalFinal);
 }
 
+// INJETAR MODAL CORRIGIDO
 function injetarModalCarrinho() {
+  // Evita criar modal duplicado se já existir
+  if (document.getElementById('modal-carrinho')) return;
+
   const modalHTML = `
     <div id="modal-carrinho" class="fixed inset-0 z-[60] hidden font-sans">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="fecharModal()"></div>
       
       <div class="absolute bottom-0 sm:top-1/2 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:w-[450px] bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col h-[90vh] sm:h-auto sm:max-h-[90vh]">
         
-        <!-- Cabeçalho -->
-        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+        <!-- Cabeçalho (Fixo) -->
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl flex-none">
           <h2 class="font-bold text-lg text-gray-800">Seu Pedido</h2>
           <div class="flex gap-2">
             <button onclick="limparCarrinho()" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded transition-colors" title="Limpar tudo">Limpar</button>
@@ -358,15 +367,16 @@ function injetarModalCarrinho() {
           </div>
         </div>
 
-        <!-- Lista de Itens -->
+        <!-- Lista de Itens (Flexível - Ocupa o espaço que sobra) -->
         <div id="modal-lista-itens" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50">
           <!-- JS injeta itens aqui -->
         </div>
 
-        <!-- Formulário -->
-        <div class="p-4 bg-white border-t border-gray-100 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-10 overflow-y-auto max-h-[45vh]">
+        <!-- Formulário (Fixo no fundo - flex-none para não sumir) -->
+        <div class="flex-none p-4 bg-white border-t border-gray-100 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-10 overflow-y-auto max-h-[50vh]">
           <div class="space-y-3 mb-4">
             
+            <!-- Tipo Entrega -->
             <div>
               <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Tipo de Entrega</label>
               <div class="flex gap-4">
@@ -381,16 +391,19 @@ function injetarModalCarrinho() {
               </div>
             </div>
 
+            <!-- Nome (SEMPRE VISÍVEL) -->
             <div>
               <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Seu Nome *</label>
-              <input type="text" id="cliente-nome" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow" placeholder="Seu nome">
+              <input type="text" id="cliente-nome" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow" placeholder="Digite seu nome">
             </div>
 
+            <!-- Endereço (Condicional) -->
             <div id="div-endereco">
               <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Endereço de Entrega *</label>
               <input type="text" id="cliente-endereco" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow" placeholder="Rua, Número, Bairro...">
             </div>
 
+            <!-- Pagamento e Troco -->
             <div class="flex gap-3">
               <div class="flex-1">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pagamento *</label>
@@ -408,6 +421,7 @@ function injetarModalCarrinho() {
             </div>
           </div>
 
+          <!-- Resumo Financeiro -->
           <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4 text-sm space-y-1">
             <div class="flex justify-between text-gray-500">
               <span>Subtotal:</span>
@@ -424,7 +438,7 @@ function injetarModalCarrinho() {
           </div>
           
           <button onclick="enviarWhatsApp()" class="w-full bg-brand-green hover:bg-green-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-500/20 flex justify-center items-center gap-2 transition-all active:scale-95">
-            <span>Enviar Pedido</span>
+            <span>Enviar Pedido no Zap</span>
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
           </button>
         </div>
@@ -441,19 +455,27 @@ function finalizarPedido() {
   }
   
   const modal = document.getElementById('modal-carrinho');
-  modal.classList.remove('hidden');
-  renderizarItensModal();
-  preencherDadosCliente(); // Auto-preenche os dados
-  atualizarModalState();
+  if(modal) {
+    modal.classList.remove('hidden');
+    renderizarItensModal();
+    preencherDadosCliente();
+    atualizarModalState();
+  } else {
+    // Caso de emergência: recria o modal se ele sumiu
+    injetarModalCarrinho();
+    finalizarPedido();
+  }
 }
 
 function fecharModal() {
-  document.getElementById('modal-carrinho').classList.add('hidden');
+  const modal = document.getElementById('modal-carrinho');
+  if(modal) modal.classList.add('hidden');
 }
 
 function renderizarItensModal() {
   const container = document.getElementById('modal-lista-itens');
-  
+  if(!container) return;
+
   if(carrinho.length === 0) {
     container.innerHTML = `
       <div class="flex flex-col items-center justify-center h-40 text-gray-400">
@@ -464,12 +486,10 @@ function renderizarItensModal() {
     return;
   }
 
-  // Usa o agrupamento para mostrar "2x Item"
   const itensAgrupados = agruparItensCarrinho();
   
   let html = '';
   itensAgrupados.forEach(grupo => {
-    // Pegamos o ultimo ID do grupo para remoção (remove um por um)
     const idParaRemover = grupo.idsRemocao[grupo.idsRemocao.length - 1];
     
     html += `
@@ -494,24 +514,29 @@ function renderizarItensModal() {
 }
 
 function enviarWhatsApp() {
-  const nome = document.getElementById('cliente-nome').value.trim();
-  const pagamento = document.getElementById('cliente-pagamento').value;
-  const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
-  const enderecoInput = document.getElementById('cliente-endereco');
-  const endereco = enderecoInput.value.trim();
-  const trocoInput = document.getElementById('cliente-troco');
-  const troco = trocoInput.value.trim();
+  const nomeEl = document.getElementById('cliente-nome');
+  const pagEl = document.getElementById('cliente-pagamento');
+  const tipoEntregaEl = document.querySelector('input[name="tipoEntrega"]:checked');
+  const endEl = document.getElementById('cliente-endereco');
+  const trocoEl = document.getElementById('cliente-troco');
+
+  if(!nomeEl || !pagEl || !tipoEntregaEl) return;
+
+  const nome = nomeEl.value.trim();
+  const pagamento = pagEl.value;
+  const tipoEntrega = tipoEntregaEl.value;
+  const endereco = endEl ? endEl.value.trim() : '';
+  const troco = trocoEl ? trocoEl.value.trim() : '';
 
   if (!nome) { alert('Informe seu Nome!'); return; }
   if (tipoEntrega === 'Entrega' && !endereco) { alert('Informe o Endereço!'); return; }
   if (pagamento === 'Dinheiro' && !troco) { alert('Informe para quanto é o troco!'); return; }
 
-  salvarDadosCliente(); // Salva para a próxima
+  salvarDadosCliente(); 
 
   let mensagem = `🍽 *PEDIDO - LOUCOS POR TAPIOCA*\n`;
   mensagem += `--------------------------------\n`;
 
-  // Itens Agrupados no WhatsApp também!
   const itensAgrupados = agruparItensCarrinho();
   let subtotal = 0;
 
@@ -581,3 +606,4 @@ function verificarHorario() {
   } else {
     lojaAberta = true;
   }
+}
