@@ -1,6 +1,6 @@
 // --- CONFIGURAÇÃO DA LOJA ---
 const phoneStore = '5581991243260'; // Seu WhatsApp
-const horarioFuncionamento = { inicio: 10, fim: 23 }; // Horário
+const horarioFuncionamento = { inicio: 10, fim: 01 }; // Horário
 const TAXA_ENTREGA = 5.00;
 
 // --- DADOS DOS PRODUTOS ---
