@@ -1,7 +1,7 @@
 // --- CONFIGURAÇÃO DA LOJA ---
 const phoneStore = '5581999999999'; // Seu WhatsApp
-const horarioFuncionamento = { inicio: 10, fim: 23 }; // Horário de abertura/fechamento
-const TAXA_ENTREGA = 5.00; // Valor da taxa de entrega
+const horarioFuncionamento = { inicio: 10, fim: 23 }; // Horário
+const TAXA_ENTREGA = 5.00;
 
 // --- DADOS DOS PRODUTOS ---
 const produtos = [
@@ -63,13 +63,15 @@ const produtos = [
 // --- ESTADO GLOBAL ---
 let carrinho = [];
 let categoriaAtual = 'mais_pedidos';
-let lojaAberta = true; // Controle de estado da loja
+let lojaAberta = true;
+let termoBusca = ''; // Novo: para busca
 
 // --- INICIALIZAÇÃO ---
 window.onload = function() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
   
-  verificarHorario(); // Verifica primeiro para bloquear botões se necessário
+  verificarHorario();
+  injetarBarraPesquisa(); // Novo: Injeta barra de busca
   carregarCarrinho();
   configurarAbas();
   renderProdutos();
@@ -83,17 +85,40 @@ function configurarAbas() {
 
   botoes.forEach((btn, index) => {
     btn.addEventListener('click', () => {
-      // Remove classe ativa de todos
       botoes.forEach(b => {
         b.className = 'text-gray-400 font-medium hover:text-brand-brown pb-2 px-2 transition-colors';
       });
-      // Adiciona classe ativa no clicado
       btn.className = 'text-brand-brown font-bold border-b-2 border-brand-yellow pb-2 px-2 transition-colors';
       
       categoriaAtual = categorias[index];
+      termoBusca = ''; // Limpa busca ao trocar categoria
+      document.getElementById('input-busca').value = '';
       renderProdutos();
     });
   });
+}
+
+// Injeta a barra de pesquisa visualmente antes das categorias
+function injetarBarraPesquisa() {
+  const nav = document.querySelector('nav');
+  const divBusca = document.createElement('div');
+  divBusca.className = 'max-w-md mx-auto px-4 mt-4 mb-2';
+  divBusca.innerHTML = `
+    <div class="relative">
+      <input type="text" id="input-busca" placeholder="O que você procura hoje?" 
+        class="w-full pl-10 pr-4 py-3 rounded-full bg-white border border-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-transparent text-sm"
+        onkeyup="filtrarProdutos(this.value)">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </div>
+  `;
+  nav.parentNode.insertBefore(divBusca, nav);
+}
+
+function filtrarProdutos(valor) {
+  termoBusca = valor.toLowerCase();
+  renderProdutos();
 }
 
 function renderProdutos() {
@@ -101,15 +126,24 @@ function renderProdutos() {
   if (!container) return;
   
   container.innerHTML = '';
-  const produtosFiltrados = produtos.filter(p => p.categoria === categoriaAtual);
+  
+  // Lógica de Filtro Combinado (Categoria + Busca)
+  let produtosFiltrados = produtos.filter(p => {
+    const correspondeCategoria = termoBusca ? true : p.categoria === categoriaAtual; // Se busca existe, ignora categoria
+    const correspondeBusca = p.nome.toLowerCase().includes(termoBusca) || p.descricao.toLowerCase().includes(termoBusca);
+    return correspondeCategoria && correspondeBusca;
+  });
 
   if (produtosFiltrados.length === 0) {
-    container.innerHTML = '<p class="text-center text-gray-400 mt-10">Nenhum produto nesta categoria.</p>';
+    container.innerHTML = `
+      <div class="text-center text-gray-400 mt-10 flex flex-col items-center">
+        <p>Nenhum produto encontrado.</p>
+        ${termoBusca ? '<button onclick="limparBusca()" class="text-brand-brown underline text-sm mt-2">Limpar busca</button>' : ''}
+      </div>`;
     return;
   }
 
   produtosFiltrados.forEach(produto => {
-    // Se loja fechada, desabilita botão e input
     const disabledAttr = !lojaAberta ? 'disabled' : '';
     const btnClass = lojaAberta 
       ? 'bg-brand-yellow hover:bg-yellow-500 text-white active:scale-95' 
@@ -147,6 +181,12 @@ function renderProdutos() {
   });
 }
 
+function limparBusca() {
+  termoBusca = '';
+  document.getElementById('input-busca').value = '';
+  renderProdutos();
+}
+
 // --- LÓGICA DO CARRINHO ---
 function adicionarAoCarrinho(id) {
   if (!lojaAberta) {
@@ -172,7 +212,16 @@ function adicionarAoCarrinho(id) {
 function removerDoCarrinho(uniqueId) {
   carrinho = carrinho.filter(item => item.uniqueId !== uniqueId);
   salvarCarrinho();
-  renderizarItensModal(); // Re-renderiza para atualizar totais
+  renderizarItensModal(); 
+}
+
+function limparCarrinho() {
+  if(confirm('Tem certeza que deseja limpar todo o carrinho?')) {
+    carrinho = [];
+    salvarCarrinho();
+    fecharModal();
+    mostrarToast('Carrinho limpo!');
+  }
 }
 
 function salvarCarrinho() {
@@ -199,7 +248,6 @@ function atualizarCarrinhoUI() {
   if (totalDisplay) totalDisplay.innerText = formatarMoeda(total);
   if (qtdDisplay) qtdDisplay.innerText = `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
 
-  // Animação visual na barra
   if (cartBar) {
     cartBar.classList.add('bg-yellow-50');
     setTimeout(() => cartBar.classList.remove('bg-yellow-50'), 200);
@@ -208,7 +256,45 @@ function atualizarCarrinhoUI() {
 
 // --- MODAL, CHECKOUT E LÓGICA FINANCEIRA ---
 
-// Controla visibilidade de campos e recalcula total
+// Função Helper para agrupar itens iguais no carrinho
+function agruparItensCarrinho() {
+  const grupos = {};
+  
+  carrinho.forEach(item => {
+    // Chave única baseada no ID e na Observação (se a obs for diferente, separa)
+    const chave = `${item.id}-${item.observacao || ''}`;
+    
+    if (!grupos[chave]) {
+      grupos[chave] = {
+        ...item,
+        quantidade: 0,
+        idsRemocao: [] // Guarda os uniqueIds para permitir remoção um a um
+      };
+    }
+    grupos[chave].quantidade += 1;
+    grupos[chave].idsRemocao.push(item.uniqueId);
+  });
+
+  return Object.values(grupos);
+}
+
+// Salva dados do cliente no LocalStorage
+function salvarDadosCliente() {
+  const nome = document.getElementById('cliente-nome').value;
+  const endereco = document.getElementById('cliente-endereco').value;
+  if(nome) localStorage.setItem('cliente_nome', nome);
+  if(endereco) localStorage.setItem('cliente_endereco', endereco);
+}
+
+// Carrega dados ao abrir modal
+function preencherDadosCliente() {
+  const nomeSalvo = localStorage.getItem('cliente_nome');
+  const enderecoSalvo = localStorage.getItem('cliente_endereco');
+  
+  if (nomeSalvo) document.getElementById('cliente-nome').value = nomeSalvo;
+  if (enderecoSalvo) document.getElementById('cliente-endereco').value = enderecoSalvo;
+}
+
 window.atualizarModalState = function() {
   const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
   const formaPagamento = document.getElementById('cliente-pagamento').value;
@@ -216,21 +302,18 @@ window.atualizarModalState = function() {
   const divEndereco = document.getElementById('div-endereco');
   const divTroco = document.getElementById('div-troco');
   
-  // 1. Endereço
   if (tipoEntrega === 'Entrega') {
     divEndereco.classList.remove('hidden');
   } else {
     divEndereco.classList.add('hidden');
   }
 
-  // 2. Troco
   if (formaPagamento === 'Dinheiro') {
     divTroco.classList.remove('hidden');
   } else {
     divTroco.classList.add('hidden');
   }
 
-  // 3. Recalcular Totais
   atualizarTotaisModal();
 }
 
@@ -269,7 +352,10 @@ function injetarModalCarrinho() {
         <!-- Cabeçalho -->
         <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
           <h2 class="font-bold text-lg text-gray-800">Seu Pedido</h2>
-          <button onclick="fecharModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-500 font-bold transition-colors">✕</button>
+          <div class="flex gap-2">
+            <button onclick="limparCarrinho()" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded transition-colors" title="Limpar tudo">Limpar</button>
+            <button onclick="fecharModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-500 font-bold transition-colors">✕</button>
+          </div>
         </div>
 
         <!-- Lista de Itens -->
@@ -277,12 +363,10 @@ function injetarModalCarrinho() {
           <!-- JS injeta itens aqui -->
         </div>
 
-        <!-- Formulário de Checkout -->
+        <!-- Formulário -->
         <div class="p-4 bg-white border-t border-gray-100 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-10 overflow-y-auto max-h-[45vh]">
-          
           <div class="space-y-3 mb-4">
             
-            <!-- Tipo de Entrega -->
             <div>
               <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Tipo de Entrega</label>
               <div class="flex gap-4">
@@ -297,7 +381,6 @@ function injetarModalCarrinho() {
               </div>
             </div>
 
-            <!-- Dados Pessoais -->
             <div>
               <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Seu Nome *</label>
               <input type="text" id="cliente-nome" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow" placeholder="Seu nome">
@@ -308,7 +391,6 @@ function injetarModalCarrinho() {
               <input type="text" id="cliente-endereco" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow" placeholder="Rua, Número, Bairro...">
             </div>
 
-            <!-- Pagamento e Troco -->
             <div class="flex gap-3">
               <div class="flex-1">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pagamento *</label>
@@ -326,7 +408,6 @@ function injetarModalCarrinho() {
             </div>
           </div>
 
-          <!-- Resumo Financeiro -->
           <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4 text-sm space-y-1">
             <div class="flex justify-between text-gray-500">
               <span>Subtotal:</span>
@@ -362,7 +443,8 @@ function finalizarPedido() {
   const modal = document.getElementById('modal-carrinho');
   modal.classList.remove('hidden');
   renderizarItensModal();
-  atualizarModalState(); // Garante estado inicial correto
+  preencherDadosCliente(); // Auto-preenche os dados
+  atualizarModalState();
 }
 
 function fecharModal() {
@@ -382,16 +464,25 @@ function renderizarItensModal() {
     return;
   }
 
+  // Usa o agrupamento para mostrar "2x Item"
+  const itensAgrupados = agruparItensCarrinho();
+  
   let html = '';
-  carrinho.forEach(item => {
+  itensAgrupados.forEach(grupo => {
+    // Pegamos o ultimo ID do grupo para remoção (remove um por um)
+    const idParaRemover = grupo.idsRemocao[grupo.idsRemocao.length - 1];
+    
     html += `
       <div class="flex justify-between items-start bg-white p-3 rounded-lg border border-gray-100 shadow-sm relative pr-8">
         <div class="flex-1">
-          <h4 class="font-bold text-sm text-gray-800">${item.nome}</h4>
-          ${item.observacao ? `<p class="text-xs text-brand-yellow font-medium mt-0.5">📝 ${item.observacao}</p>` : ''}
-          <p class="text-xs text-gray-500 mt-1">${formatarMoeda(item.preco)}</p>
+          <div class="flex items-center gap-2">
+            <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded">${grupo.quantidade}x</span>
+            <h4 class="font-bold text-sm text-gray-800">${grupo.nome}</h4>
+          </div>
+          ${grupo.observacao ? `<p class="text-xs text-brand-yellow font-medium mt-0.5 ml-8">📝 ${grupo.observacao}</p>` : ''}
+          <p class="text-xs text-gray-500 mt-1 ml-8">${formatarMoeda(grupo.preco * grupo.quantidade)}</p>
         </div>
-        <button onclick="removerDoCarrinho(${item.uniqueId})" class="absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1 transition-colors" title="Remover item">
+        <button onclick="removerDoCarrinho(${idParaRemover})" class="absolute top-3 right-2 text-gray-300 hover:text-red-500 p-1 transition-colors" title="Remover 1 unidade">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
@@ -411,21 +502,26 @@ function enviarWhatsApp() {
   const trocoInput = document.getElementById('cliente-troco');
   const troco = trocoInput.value.trim();
 
-  // VALIDAÇÕES
   if (!nome) { alert('Informe seu Nome!'); return; }
   if (tipoEntrega === 'Entrega' && !endereco) { alert('Informe o Endereço!'); return; }
-  if (pagamento === 'Dinheiro' && !troco) { alert('Informe para quanto é o troco (ou digite "sem troco")!'); return; }
+  if (pagamento === 'Dinheiro' && !troco) { alert('Informe para quanto é o troco!'); return; }
 
-  // MENSAGEM WHATSAPP
+  salvarDadosCliente(); // Salva para a próxima
+
   let mensagem = `🍽 *PEDIDO - LOUCOS POR TAPIOCA*\n`;
   mensagem += `--------------------------------\n`;
 
+  // Itens Agrupados no WhatsApp também!
+  const itensAgrupados = agruparItensCarrinho();
   let subtotal = 0;
-  carrinho.forEach((item, index) => {
-    subtotal += item.preco;
-    mensagem += `*${index + 1}x ${item.nome}*\n`;
-    if (item.observacao) mensagem += `   📝 _${item.observacao}_\n`;
-    mensagem += `   💲 ${formatarMoeda(item.preco)}\n`;
+
+  itensAgrupados.forEach(grupo => {
+    const totalItem = grupo.preco * grupo.quantidade;
+    subtotal += totalItem;
+    
+    mensagem += `*${grupo.quantidade}x ${grupo.nome}*\n`;
+    if (grupo.observacao) mensagem += `   📝 _${grupo.observacao}_\n`;
+    mensagem += `   💲 ${formatarMoeda(totalItem)}\n`;
   });
 
   let totalFinal = subtotal;
@@ -438,7 +534,6 @@ function enviarWhatsApp() {
   }
   
   mensagem += `💰 *TOTAL FINAL: ${formatarMoeda(totalFinal)}*\n\n`;
-  
   mensagem += `👤 *Cliente:* ${nome}\n`;
   
   if (tipoEntrega === 'Entrega') {
@@ -480,11 +575,9 @@ function formatarMoeda(valor) {
 function verificarHorario() {
   const agora = new Date();
   const hora = agora.getHours();
-  // Se hora atual for menor que inicio OU maior/igual ao fim
   if (hora < horarioFuncionamento.inicio || hora >= horarioFuncionamento.fim) {
     lojaAberta = false;
     mostrarToast(`Loja Fechada! Horário: ${horarioFuncionamento.inicio}h às ${horarioFuncionamento.fim}h`, true);
   } else {
     lojaAberta = true;
   }
-}
