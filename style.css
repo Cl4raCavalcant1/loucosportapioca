@@ -1,0 +1,36 @@
+/* Arquivo: style.css
+  Descrição: Contém apenas estilos globais e animações que complementam o Tailwind.
+*/
+
+/* Scroll suave ao clicar em links âncora */
+html { 
+  scroll-behavior: smooth; 
+}
+
+/* Animação "Fade In"
+  Faz os produtos aparecerem suavemente de baixo para cima 
+*/
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); /* Começa um pouco mais abaixo */
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); /* Termina na posição original */
+  }
+}
+
+/* Se você precisar sobrescrever alguma cor do Tailwind ou 
+  adicionar estilos muito específicos, pode colocar aqui.
+  Por exemplo, para garantir que o input de observação tenha foco visível:
+*/
+input:focus {
+  outline: none;
+  /* A borda amarela já é aplicada via classes do Tailwind (ring-brand-yellow),
+     mas aqui garantimos que o outline padrão do navegador não atrapalhe. */
+}

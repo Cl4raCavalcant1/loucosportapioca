@@ -1,0 +1,108 @@
+
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Loucos por Tapioca - Delivery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Estilo Externo (Animações) -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Fontes Google -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS (Estilização visual) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Configuração das cores da marca -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              yellow: '#F2B705',
+              brown: '#6b4a3b',
+              brownDark: '#4a2e23',
+              green: '#2ecc71',
+              light: '#f8f8f8'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Ícones -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 pb-24">
+
+  <!-- Cabeçalho -->
+  <header class="bg-brand-yellow text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold leading-tight">LOUCOS <span class="block text-sm font-normal opacity-90">por Tapioca</span></h1>
+      </div>
+      <div class="bg-white/20 p-2 rounded-full">
+        <i data-lucide="utensils" class="w-6 h-6 text-white"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Info Loja -->
+  <section class="max-w-md mx-auto mt-4 px-4 text-center">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+      <p class="flex items-center justify-center gap-2 text-sm text-gray-600 mb-2">
+        <i data-lucide="map-pin" class="w-4 h-4 text-brand-brown"></i> R. Equador, 23 - Moreno/PE
+      </p>
+      <div class="flex justify-center items-center gap-4 text-sm font-medium">
+        <span class="flex items-center gap-1 text-gray-600">
+          <i data-lucide="clock" class="w-4 h-4"></i> 40-70 min
+        </span>
+        <span class="bg-brand-green text-white px-3 py-1 rounded-full text-xs uppercase tracking-wide">Aberto</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navegação -->
+  <nav class="max-w-md mx-auto mt-6 px-4">
+    <div class="flex gap-4 border-b border-gray-200 pb-1">
+      <button class="text-brand-brown font-bold border-b-2 border-brand-yellow pb-2 px-2 transition-colors">Mais Pedidos</button>
+      <button class="text-gray-400 font-medium hover:text-brand-brown pb-2 px-2 transition-colors">Pratos do Dia</button>
+      <button class="text-gray-400 font-medium hover:text-brand-brown pb-2 px-2 transition-colors">Bebidas</button>
+    </div>
+  </nav>
+
+  <!-- Lista de Produtos (Preenchida pelo JS) -->
+  <section class="max-w-md mx-auto mt-6 px-4 space-y-4" id="produtos-lista">
+  </section>
+
+  <!-- Barra do Carrinho -->
+  <footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 p-4" id="cart-bar">
+    <div class="max-w-md mx-auto flex justify-between items-center">
+      <div class="flex flex-col">
+        <span class="text-xs text-gray-500 uppercase font-semibold">Total do Pedido</span>
+        <strong class="text-xl text-brand-brown" id="total-display">R$ 0,00</strong>
+        <span class="text-xs text-brand-yellow font-medium" id="qtd-display">0 itens</span>
+      </div>
+      <button onclick="finalizarPedido()" class="bg-brand-green hover:bg-green-600 text-white px-6 py-3 rounded-full font-bold shadow-lg transform active:scale-95 transition-all flex items-center gap-2">
+        <span>Concluir</span>
+        <i data-lucide="message-circle" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Toast Notificação -->
+  <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-50 transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px] flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-5 h-5 text-brand-green"></i>
+    <span id="toast-msg">Item adicionado!</span>
+  </div>
+
+  <!-- Lógica do App -->
+  <script src="script.js"></script>
+</body>
+</html>
