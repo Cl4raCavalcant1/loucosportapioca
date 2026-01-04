@@ -2,36 +2,115 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Carrinho - Loucos Por Tapioca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loucos Por Tapioca</title>
+    
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <header class="header-carrinho">
-        <a href="index.html" class="btn-voltar">
-            <i class="fa-solid fa-chevron-left"></i>
-        </a>
-        <span class="titulo-voltar">Voltar</span>
-        
-        <div class="info-sacola">
-            <span class="texto-sacola">Sua Sacola</span>
-            <span class="valor-sacola">R$ 0,00</span>
+    <div id="tela-inicial">
+        <div class="logo-capa">
+            <img src="Tela Inicial.jpg" alt="Logo">
         </div>
+        <div class="info-capa">
+            <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio</p>
+            <div class="status-badge">
+                <span class="pulsar"></span> Estamos Abertos
+            </div>
+            <p style="font-size: 14px; margin-top: 10px;">Entrega <strong>40 - 70 Min.</strong></p>
+        </div>
+        <button class="btn-inicio" onclick="entrarApp()">Fazer Pedido</button>
+        <a href="https://wa.me/5581991243260" target="_blank" class="btn-inicio">Whatsapp</a>
+        <a href="https://www.instagram.com/loucosportapiocaoficial" target="_blank" class="btn-inicio">Instagram</a>
+    </div>
+
+    <header>
+        <div class="btn-header" onclick="abrirInfo()"><i class="fa-solid fa-circle-info"></i></div>
+        <div class="logo-header">
+            <img src="Tela Inicial.jpg" alt="Logo Header"> 
+        </div>
+        <div class="btn-header" onclick="abrirMenu()"><i class="fa-solid fa-bars"></i></div>
     </header>
 
-    <main class="container-carrinho">
-        <div id="lista-carrinho"></div>
+    <nav class="categorias">
+        <a href="#" class="ativo" onclick="filtrar('todos', this)">Todos</a>
+        <a href="#" onclick="filtrar('pratos', this)">Pratos</a>
+        <a href="#" onclick="filtrar('tapioca-grande', this)">Tapioca G</a>
+        <a href="#" onclick="filtrar('tapioca-media', this)">Tapioca M</a>
+        <a href="#" onclick="filtrar('bebidas', this)">Bebidas</a>
+    </nav>
+
+    <main>
+        <div id="itens-cardapio" class="lista-produtos">
+            <div class="loading-area"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+        </div>
     </main>
 
-    <footer class="footer-carrinho">
-        <a href="pagamento.html" class="btn-prosseguir" style="text-decoration: none; display: inline-block;">
-            Prosseguir <i class="fa-solid fa-chevron-right"></i>
-        </a>
-    </footer>
+    <div class="sticky-footer">
+        <div>
+            <span class="qtd-itens">0 Produtos</span>
+            <span class="total-valor">R$ 0,00</span>
+        </div>
+        <a href="carrinho.html" class="btn-ver-pedido">Ver Sacola</a>
+    </div>
 
+    <div id="menu-overlay" class="menu-overlay" onclick="fecharMenu()"></div>
+    <div id="menu-lateral" class="menu-lateral">
+        <div style="text-align:right; margin-bottom:20px;">
+            <i class="fa-solid fa-xmark" onclick="fecharMenu()" style="font-size:30px; cursor:pointer; color:var(--brown-dark);"></i>
+        </div>
+        <a href="#" onclick="fecharMenu()"><i class="fa-solid fa-utensils"></i> Cardápio</a>
+        <a href="carrinho.html"><i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
+        </div>
+
+    <div id="modal-info" class="modal-fundo" onclick="fecharInfo(event)">
+        <div class="modal-box">
+            <span class="fechar-modal" onclick="fecharInfo(null)">&times;</span>
+            <h3 style="color:#5A3E34;">Horários 🕒</h3>
+            <p>Seg-Sex: 16h as 22h</p>
+            <p>Sab-Dom: 16h as 23h</p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+            authDomain: "loucosportapioca-57964.firebaseapp.com",
+            projectId: "loucosportapioca-57964",
+            storageBucket: "loucosportapioca-57964.firebasestorage.app",
+            messagingSenderId: "371332659198",
+            appId: "1:371332659198:web:330626357653acc00772af"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Carrega produtos
+        db.collection("produtos").onSnapshot((qs) => {
+            menuGlobal = [];
+            qs.forEach((doc) => menuGlobal.push({id: doc.id, ...doc.data()}));
+            if(window.renderizarMenu) window.renderizarMenu('todos');
+        });
+
+        // Funções de tela
+        function entrarApp() { document.getElementById('tela-inicial').style.top = "-100%"; }
+        function abrirMenu() { document.getElementById('menu-lateral').classList.add('aberto'); document.getElementById('menu-overlay').classList.add('visivel'); }
+        function fecharMenu() { document.getElementById('menu-lateral').classList.remove('aberto'); document.getElementById('menu-overlay').classList.remove('visivel'); }
+        function abrirInfo() { document.getElementById('modal-info').style.display = 'flex'; }
+        function fecharInfo(e) { if(!e || e.target.id === 'modal-info' || e.target.classList.contains('fechar-modal')) document.getElementById('modal-info').style.display = 'none'; }
+        function filtrar(cat, el) {
+            document.querySelectorAll('.categorias a').forEach(a => a.classList.remove('ativo'));
+            el.classList.add('ativo');
+            window.renderizarMenu(cat);
+        }
+    </script>
+    
     <script src="script.js"></script>
 
 </body>

@@ -2,7 +2,7 @@
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 let menuGlobal = []; 
 
-// 1. ATUALIZAR INTERFACE (Calcula Totais)
+// 1. CALCULA E ATUALIZA TELA
 function atualizarInterface() {
     const labelQtd = document.querySelector('.qtd-itens');
     const labelTotal = document.querySelector('.total-valor');
@@ -14,12 +14,12 @@ function atualizarInterface() {
     let total = 0;
 
     carrinho.forEach(item => {
-        // Garante que quantidade e preço sejam números
-        let q = Number(item.quantidade) || 1;
-        let p = Number(item.preco) || 0;
+        // CORREÇÃO DO CÁLCULO: Força conversão para número
+        let quantidade = Number(item.quantidade) || 1;
+        let preco = Number(item.preco) || 0;
         
-        qtd += q;
-        total += p * q;
+        qtd += quantidade;
+        total += preco * quantidade;
     });
 
     const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -38,42 +38,44 @@ function atualizarInterface() {
 
     localStorage.setItem('carrinho', JSON.stringify(carrinho));
 
-    // Se estiver na página do carrinho, redesenha a lista
+    // Se estiver na página do carrinho, redesenha
     if(containerCarrinho) {
         renderizarListaCarrinho(containerCarrinho);
     }
 }
 
-// 2. ADICIONAR (Do Cardápio)
+// 2. ADICIONAR (Tela Inicial)
 window.adicionarAoCarrinho = function(id) {
-    const produto = menuGlobal.find(p => p.id == id); // Usa == para evitar erro de tipo
+    // Usa == para evitar erro de texto vs numero
+    const produto = menuGlobal.find(p => p.id == id);
 
     if (produto) {
         const itemNoCarrinho = carrinho.find(item => item.id == id);
         if (itemNoCarrinho) {
-            itemNoCarrinho.quantidade = (itemNoCarrinho.quantidade || 1) + 1;
+            itemNoCarrinho.quantidade = Number(itemNoCarrinho.quantidade) + 1;
         } else {
             carrinho.push({ ...produto, quantidade: 1 });
         }
         atualizarInterface();
-        // Feedback visual simples ou alert
-        alert(`👍 ${produto.nome} adicionado!`);
+        alert(`😋 ${produto.nome} adicionado!`);
+    } else {
+        console.error("Produto não encontrado no menuGlobal");
     }
 }
 
-// 3. DESENHAR CARRINHO (Com Botões + e -)
+// 3. DESENHAR CARRINHO (Tela Carrinho)
 function renderizarListaCarrinho(container) {
     container.innerHTML = '';
 
     if (carrinho.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;"><i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i><p>Sua sacola está vazia...</p></div>';
+        container.innerHTML = '<div style="text-align:center; padding:50px; color:#666;"><i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i><p>Sua sacola está vazia.</p></div>';
         return;
     }
 
     carrinho.forEach(item => {
         const img = item.imagem || "https://via.placeholder.com/150";
-        // Garante quantidade para exibição
-        const qtdAtual = item.quantidade || 1;
+        // Garante que a quantidade existe
+        const qtdItem = item.quantidade || 1;
 
         container.innerHTML += `
             <div class="card-carrinho">
@@ -83,12 +85,12 @@ function renderizarListaCarrinho(container) {
                 <div class="info-carrinho">
                     <div>
                         <h3>${item.nome}</h3>
-                        <p class="price">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+                        <p class="price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</p>
                     </div>
                     
                     <div class="controles-carrinho">
                         <button class="btn-qtd" onclick="alterarQtd('${item.id}', -1)">-</button>
-                        <span class="qtd-numero">${qtdAtual}</span>
+                        <span class="qtd-numero">${qtdItem}</span>
                         <button class="btn-qtd" onclick="alterarQtd('${item.id}', 1)">+</button>
                     </div>
 
@@ -99,15 +101,14 @@ function renderizarListaCarrinho(container) {
     });
 }
 
-// 4. ALTERAR QUANTIDADE (+ ou -)
+// 4. MUDAR QUANTIDADE (+ e -)
 window.alterarQtd = function(id, mudanca) {
     const item = carrinho.find(i => i.id == id);
     if (item) {
-        if(typeof item.quantidade !== 'number') item.quantidade = 1;
-        item.quantidade += mudanca;
+        item.quantidade = Number(item.quantidade) + mudanca;
         
         if (item.quantidade <= 0) {
-            removerItem(id);
+            removerItem(id); // Remove se zerar
         } else {
             atualizarInterface();
         }
@@ -116,13 +117,13 @@ window.alterarQtd = function(id, mudanca) {
 
 // 5. REMOVER
 window.removerItem = function(id) {
-    if(confirm("Remover este item?")) {
+    if(confirm("Deseja remover este item?")) {
         carrinho = carrinho.filter(item => item.id != id);
         atualizarInterface();
     }
 }
 
-// 6. RENDERIZAR MENU (Index)
+// 6. RENDERIZAR MENU (Tela Inicial)
 window.renderizarMenu = function(filtro = 'todos') {
     const container = document.getElementById('itens-cardapio');
     if (!container) return;
@@ -130,12 +131,11 @@ window.renderizarMenu = function(filtro = 'todos') {
 
     const lista = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
     
-    // Remove loading
     const loading = document.querySelector('.loading-area');
     if(loading) loading.remove();
 
     if (lista.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">Nenhum item encontrado.</p>';
+        container.innerHTML = '<p style="text-align:center; padding:30px; color:#5A3E34;">Nenhum item nesta categoria.</p>';
         return;
     }
 
@@ -152,7 +152,7 @@ window.renderizarMenu = function(filtro = 'todos') {
                         <p class="desc">${item.descricao || ''}</p>
                     </div>
                     <div>
-                        <p class="price">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+                        <p class="price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</p>
                         <button class="btn-add" onclick="adicionarAoCarrinho('${item.id}')">
                             Adicionar ao carrinho
                         </button>
