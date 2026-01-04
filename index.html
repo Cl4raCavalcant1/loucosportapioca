@@ -6,11 +6,9 @@
     <title>Loucos Por Tapioca</title>
     
     <link rel="stylesheet" href="style.css">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -38,14 +36,13 @@
         <p class="horario-texto">Fechamos as 22H</p>
     </header>
 
-   <nav class="categorias">
-    <a href="#" class="ativo" onclick="filtrar('todos', this)">Todos</a>
-    
-    <a href="#" onclick="filtrar('pratos', this)">Pratos</a>
-    <a href="#" onclick="filtrar('tapioca-grande', this)">Tapioca Grande</a>
-    <a href="#" onclick="filtrar('tapioca-media', this)">Tapioca Média</a>
-    <a href="#" onclick="filtrar('bebidas', this)">Bebidas</a>
-</nav>
+    <nav class="categorias">
+        <a href="#" class="ativo" onclick="filtrar('todos', this)">Todos</a>
+        <a href="#" onclick="filtrar('pratos', this)">Pratos</a>
+        <a href="#" onclick="filtrar('tapioca-grande', this)">Tapioca Grande</a>
+        <a href="#" onclick="filtrar('tapioca-media', this)">Tapioca Média</a>
+        <a href="#" onclick="filtrar('bebidas', this)">Bebidas</a>
+    </nav>
 
     <main>
         <div class="section-title">
@@ -53,7 +50,10 @@
         </div>
 
         <div class="lista-produtos" id="itens-cardapio">
-            <p style="text-align:center; color:#666;">Carregando delícias...</p>
+            <div style="text-align:center; padding: 40px; color: #888;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 30px;"></i>
+                <p>Carregando cardápio...</p>
+            </div>
         </div>
     </main>
 
@@ -67,7 +67,42 @@
         </a>
     </div>
 
-    <script src="cardapio.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        // --- CONEXÃO COM A NUVEM (SUAS CHAVES) ---
+        const firebaseConfig = {
+            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+            authDomain: "loucosportapioca-57964.firebaseapp.com",
+            projectId: "loucosportapioca-57964",
+            storageBucket: "loucosportapioca-57964.firebasestorage.app",
+            messagingSenderId: "371332659198",
+            appId: "1:371332659198:web:330626357653acc00772af"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Variável global que vai substituir o antigo cardapio.js
+        let menu = [];
+
+        // BUSCA OS DADOS NO FIREBASE EM TEMPO REAL
+        db.collection("produtos").onSnapshot((querySnapshot) => {
+            menu = []; // Limpa a lista local antes de encher de novo
+            
+            querySnapshot.forEach((doc) => {
+                // Pega os dados e adiciona o ID
+                menu.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Chama a função de desenhar do script.js
+            if(typeof renderizarMenu === 'function') {
+                renderizarMenu('todos'); 
+            }
+        });
+    </script>
+    
     <script src="script.js"></script>
 
 </body>

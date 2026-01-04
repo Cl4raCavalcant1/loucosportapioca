@@ -3,163 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo</title>
+    <title>Admin - Nuvem ☁️</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Estilos do Admin */
         .container-admin { padding: 20px; max-width: 800px; margin: 0 auto; background: white; min-height: 100vh; }
         .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn-sair { background: red; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
         
-        /* Formulário de Adicionar */
         .form-add { background: #f4f4f4; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; }
-        .form-add input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .form-add input, .form-add select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .btn-salvar:hover { background: #00a844; }
 
-        /* Lista de Itens */
         .item-lista { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .item-info { flex-grow: 1; }
-        .btn-remove { color: red; cursor: pointer; margin-left: 10px; }
-
-        /* Caixa de Código Final */
-        .box-codigo { margin-top: 30px; background: #333; color: #00ff00; padding: 15px; border-radius: 5px; display: none; }
-        .box-codigo textarea { width: 100%; height: 200px; background: #222; color: #fff; border: none; font-family: monospace; }
-        .btn-gerar { background: var(--brown-dark); color: white; padding: 15px; width: 100%; border: none; font-size: 16px; cursor: pointer; border-radius: 8px; margin-top: 20px;}
+        .badge-cat { background: #EEB91B; color: #5A3E34; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .btn-remove { color: red; cursor: pointer; margin-left: 10px; font-size: 18px; }
+        
+        .loading { text-align: center; color: #666; margin-top: 20px; }
     </style>
 </head>
 <body>
 
     <div class="container-admin">
         <div class="header-admin">
-            <h2>Gerenciador de Cardápio 📝</h2>
-            <button class="btn-sair" onclick="sair()">Sair</button>
+            <h2>Gerenciador na Nuvem ☁️</h2>
+            <button onclick="sair()" style="background:red; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Sair</button>
         </div>
 
         <div class="form-add">
             <h3>Adicionar Novo Produto</h3>
-            <input type="text" id="novo-nome" placeholder="Nome do Produto (ex: Tapioca Doce)">
-            <input type="text" id="novo-desc" placeholder="Descrição (ex: Coco com leite condensado)">
-            <input type="number" id="novo-preco" placeholder="Preço (ex: 15.00)">
+            <input type="text" id="novo-nome" placeholder="Nome do Produto (ex: Tapioca de Carne)">
+            
+            <select id="novo-categoria">
+                <option value="" disabled selected>Selecione a Categoria...</option>
+                <option value="pratos">Pratos do Dia</option>
+                <option value="tapioca-grande">Tapioca Grande</option>
+                <option value="tapioca-media">Tapioca Média</option>
+                <option value="bebidas">Bebidas</option>
+            </select>
+
+            <input type="text" id="novo-desc" placeholder="Descrição (ex: Queijo e Presunto)">
+            <input type="number" id="novo-preco" placeholder="Preço (ex: 15.50)">
             <input type="text" id="novo-img" placeholder="Link da Imagem (URL)">
-            <button class="btn-salvar" onclick="adicionarItem()">Adicionar na Lista</button>
+            
+            <button class="btn-salvar" onclick="salvarNoBanco()">
+                <i class="fa-solid fa-cloud-arrow-up"></i> SALVAR NA NUVEM
+            </button>
         </div>
 
-        <h3>Itens Atuais:</h3>
+        <h3>Cardápio Atual (Ao Vivo)</h3>
         <div id="lista-admin">
-            </div>
-
-        <button class="btn-gerar" onclick="gerarCodigoFinal()">
-            <i class="fa-solid fa-code"></i> FINALIZAR E GERAR CÓDIGO
-        </button>
-
-        <div class="box-codigo" id="area-codigo">
-            <p>Copie o código abaixo e cole no seu arquivo <strong>cardapio.js</strong>:</p>
-            <textarea id="codigo-resultado"></textarea>
-            <button onclick="copiarTexto()" style="margin-top:10px; padding:5px;">Copiar Código</button>
+            <p class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Conectando ao banco de dados...</p>
         </div>
     </div>
 
-    <script src="cardapio.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // 1. Verifica Segurança (Login)
+        // --- SUAS CONFIGURAÇÕES JÁ CORRIGIDAS ---
+        const firebaseConfig = {
+            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+            authDomain: "loucosportapioca-57964.firebaseapp.com",
+            projectId: "loucosportapioca-57964",
+            storageBucket: "loucosportapioca-57964.firebasestorage.app",
+            messagingSenderId: "371332659198",
+            appId: "1:371332659198:web:330626357653acc00772af"
+        };
+        // ----------------------------------------
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 1. Verifica se está logado
         if (sessionStorage.getItem('logado') !== 'sim') {
-            alert("Você precisa fazer login!");
             window.location.href = "login.html";
         }
 
-        // Variável local para editar o menu
-        let menuEditavel = typeof menu !== 'undefined' ? menu : [];
-
-        // 2. Renderiza a lista na tela
-        function renderizarAdmin() {
+        // 2. LER DADOS (Ouve o banco em tempo real)
+        db.collection("produtos").onSnapshot((querySnapshot) => {
             const container = document.getElementById('lista-admin');
-            container.innerHTML = '';
-
-            menuEditavel.forEach((item, index) => {
-                container.innerHTML += `
-                    <div class="item-lista">
-                        <div class="item-info">
-                            <strong>${item.nome}</strong> - R$ ${item.preco.toFixed(2)}<br>
-                            <small>${item.descricao}</small>
-                        </div>
-                        <div class="acoes">
-                            <i class="fa-solid fa-trash btn-remove" onclick="removerItem(${index})"></i>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // 3. Adicionar Item
-        function adicionarItem() {
-            const nome = document.getElementById('novo-nome').value;
-            const desc = document.getElementById('novo-desc').value;
-            const preco = parseFloat(document.getElementById('novo-preco').value);
-            const img = document.getElementById('novo-img').value || "https://via.placeholder.com/150";
-
-            if (!nome || !preco) {
-                alert("Preencha pelo menos nome e preço!");
+            container.innerHTML = ''; // Limpa a lista
+            
+            if (querySnapshot.empty) {
+                container.innerHTML = '<p style="text-align:center; margin-top:20px;">Nenhum produto cadastrado ainda.</p>';
                 return;
             }
 
-            const novoId = menuEditavel.length > 0 ? menuEditavel[menuEditavel.length - 1].id + 1 : 1;
+            querySnapshot.forEach((doc) => {
+                const item = doc.data();
+                const id = doc.id; // ID único do Firebase
 
-            const novoItem = {
-                id: novoId,
+                container.innerHTML += `
+                    <div class="item-lista">
+                        <div style="flex-grow:1;">
+                            <strong>${item.nome}</strong> <span class="badge-cat">${item.categoria}</span><br>
+                            <small>R$ ${item.preco} - ${item.descricao}</small>
+                        </div>
+                        <i class="fa-solid fa-trash btn-remove" onclick="apagarDoBanco('${id}')" title="Apagar item"></i>
+                    </div>
+                `;
+            });
+        }, (error) => {
+            console.error("Erro ao ler:", error);
+            document.getElementById('lista-admin').innerHTML = '<p style="color:red">Erro ao carregar. Verifique se as Regras do Firebase estão como "true".</p>';
+        });
+
+        // 3. SALVAR (Envia para a nuvem)
+        function salvarNoBanco() {
+            const nome = document.getElementById('novo-nome').value;
+            const cat = document.getElementById('novo-categoria').value;
+            const desc = document.getElementById('novo-desc').value;
+            const preco = parseFloat(document.getElementById('novo-preco').value);
+            const img = document.getElementById('novo-img').value;
+
+            if(!nome || !preco || !cat) {
+                alert("Por favor, preencha Nome, Preço e Categoria!");
+                return;
+            }
+
+            // Desabilita botão para não clicar duas vezes
+            const btn = document.querySelector('.btn-salvar');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = 'Salvando...';
+            btn.disabled = true;
+
+            db.collection("produtos").add({
                 nome: nome,
+                categoria: cat,
                 descricao: desc,
                 preco: preco,
                 imagem: img
-            };
-
-            menuEditavel.push(novoItem);
-            renderizarAdmin();
-            
-            // Limpa campos
-            document.getElementById('novo-nome').value = '';
-            document.getElementById('novo-desc').value = '';
-            document.getElementById('novo-preco').value = '';
+            }).then(() => {
+                alert("Produto salvo com sucesso!");
+                // Limpa campos
+                document.getElementById('novo-nome').value = '';
+                document.getElementById('novo-desc').value = '';
+                document.getElementById('novo-preco').value = '';
+                // Volta o botão
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            }).catch((error) => {
+                console.error("Erro: ", error);
+                alert("Erro ao salvar: " + error.message);
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            });
         }
 
-        // 4. Remover Item
-        function removerItem(index) {
-            if(confirm("Tem certeza que deseja apagar?")) {
-                menuEditavel.splice(index, 1);
-                renderizarAdmin();
+        // 4. APAGAR
+        function apagarDoBanco(id) {
+            if(confirm("Tem certeza que deseja apagar este item?")) {
+                db.collection("produtos").doc(id).delete().then(() => {
+                    // Não precisa dar alert, a lista atualiza sozinha
+                }).catch((error) => {
+                    alert("Erro ao apagar: " + error.message);
+                });
             }
-        }
-
-        // 5. Mágica: Gerar o Código JS
-        function gerarCodigoFinal() {
-            const caixa = document.getElementById('area-codigo');
-            const textarea = document.getElementById('codigo-resultado');
-
-            // Transforma o array em texto formatado
-            const codigoJS = `const menu = ${JSON.stringify(menuEditavel, null, 4)};`;
-
-            textarea.value = codigoJS;
-            caixa.style.display = 'block';
-            
-            alert("Código gerado! Copie o texto abaixo e substitua tudo no seu arquivo cardapio.js");
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-
-        function copiarTexto() {
-            const copyText = document.getElementById("codigo-resultado");
-            copyText.select();
-            document.execCommand("copy");
-            alert("Código copiado! Agora vá no arquivo cardapio.js, apague tudo e cole isso.");
         }
 
         function sair() {
             sessionStorage.removeItem('logado');
             window.location.href = "login.html";
         }
-
-        // Inicia
-        renderizarAdmin();
     </script>
-
 </body>
 </html>
