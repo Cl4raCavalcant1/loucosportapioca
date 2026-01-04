@@ -13,7 +13,7 @@
 
     <div id="tela-inicial">
         <div class="logo-capa">
-            <img src="Tela Inicial.jpg.png" alt="Logo">
+            <img src="Tela Inicial.jpg" alt="Logo">
         </div>
         <div class="info-capa">
             <h3>Loucos Por Tapioca</h3>
@@ -40,7 +40,7 @@
             <i class="fa-solid fa-info"></i>
         </div>
         <div class="logo-header">
-            <img src="Tela Inicial.jpg.png" alt="Logo Peq" style="height: 85px;"> 
+            <img src="Tela Inicial.jpg" alt="Logo Header" style="height: 100px;"> 
         </div>
         <div class="btn-header" onclick="abrirMenu()">
             <i class="fa-solid fa-bars"></i>
@@ -81,7 +81,7 @@
         </div>
         <a href="#" onclick="fecharMenu()" style="color: var(--marrom);"><i class="fa-solid fa-utensils"></i> Cardápio</a>
         <a href="carrinho.html" style="color: var(--marrom);"><i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
-        </div>
+    </div>
 
     <div id="modal-info" class="modal-fundo" onclick="fecharInfo(event)">
         <div class="modal-box">
@@ -113,6 +113,7 @@
             if(window.renderizarMenu) window.renderizarMenu('todos');
         });
 
+        // Funções básicas de interface
         function entrarApp() { document.getElementById('tela-inicial').style.top = "-100%"; }
         function abrirMenu() { document.getElementById('menu-lateral').classList.add('aberto'); document.getElementById('menu-overlay').classList.add('visivel'); }
         function fecharMenu() { document.getElementById('menu-lateral').classList.remove('aberto'); document.getElementById('menu-overlay').classList.remove('visivel'); }

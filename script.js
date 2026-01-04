@@ -1,16 +1,14 @@
 // VARIÁVEIS GLOBAIS
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-const containerProdutos = document.getElementById('itens-cardapio');
 let menuGlobal = []; // Guarda os dados do Firebase
 
-// 1. ATUALIZAR BARRA INFERIOR E CARRINHO
-function atualizarBarraInferior() {
+// 1. ATUALIZAR TUDO (Barrinha e Página Carrinho)
+function atualizarInterface() {
     const labelQtd = document.querySelector('.qtd-itens');
     const labelTotal = document.querySelector('.total-valor');
-    
-    // Se estiver na página do carrinho, atualiza lá também
     const labelTotalSacola = document.querySelector('.valor-sacola');
     const labelQtdSacola = document.querySelector('.texto-sacola');
+    const containerCarrinho = document.getElementById('lista-carrinho');
 
     let qtd = 0;
     let total = 0;
@@ -22,24 +20,27 @@ function atualizarBarraInferior() {
 
     const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+    // Atualiza a barrinha fixa do Index
     if(labelQtd && labelTotal) {
         labelQtd.innerText = `${qtd} Produtos`;
         labelTotal.innerText = totalFormatado;
     }
+
+    // Atualiza o cabeçalho do Carrinho
     if(labelTotalSacola && labelQtdSacola) {
         labelTotalSacola.innerText = totalFormatado;
         labelQtdSacola.innerText = `${qtd} itens na sacola`;
     }
 
     localStorage.setItem('carrinho', JSON.stringify(carrinho));
-    
-    // Se estiver na página do carrinho, redesenha os itens
-    if (window.location.pathname.includes('carrinho.html')) {
-        renderizarCarrinho();
+
+    // Se estivermos na página do carrinho, desenhamos a lista com os botões +/-
+    if(containerCarrinho) {
+        renderizarListaCarrinho(containerCarrinho);
     }
 }
 
-// 2. FUNÇÃO ADICIONAR (Página Inicial)
+// 2. FUNÇÃO ADICIONAR (Do Cardápio)
 window.adicionarAoCarrinho = function(id) {
     const produto = menuGlobal.find(p => p.id === id);
 
@@ -50,81 +51,17 @@ window.adicionarAoCarrinho = function(id) {
         } else {
             carrinho.push({ ...produto, quantidade: 1 });
         }
-        atualizarBarraInferior();
+        atualizarInterface();
         alert(`😋 ${produto.nome} adicionado!`);
     }
 }
 
-// 3. RENDERIZAR CARDÁPIO (Página Inicial)
-window.renderizarMenu = function(filtro = 'todos') {
-    if (!containerProdutos) return;
-    containerProdutos.innerHTML = '';
-
-    const lista = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
-    document.querySelector('.loading-area')?.remove();
-
-    if (lista.length === 0) {
-        containerProdutos.innerHTML = '<p style="text-align:center; padding:40px; color: var(--marrom);">Nenhuma delícia encontrada nessa categoria... 😢</p>';
-        return;
-    }
-
-    lista.forEach(item => {
-        const img = item.imagem || "https://via.placeholder.com/150";
-        containerProdutos.innerHTML += `
-            <div class="card-produto">
-                <div class="img-wrapper">
-                    <img src="${img}" alt="${item.nome}">
-                </div>
-                <div class="info-wrapper">
-                    <div>
-                        <h3>${item.nome}</h3>
-                        <p class="desc">${item.descricao || ''}</p>
-                    </div>
-                    <div>
-                        <p class="price">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
-                        <button class="btn-add" onclick="adicionarAoCarrinho('${item.id}')">
-                            Adicionar ao carrinho
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-}
-
-// =================================================================
-// FUNÇÕES ESPECÍFICAS DA PÁGINA CARRINHO
-// =================================================================
-
-// Alterar Quantidade (+ e -)
-window.alterarQtd = function(id, mudanca) {
-    const item = carrinho.find(i => i.id === id);
-    if (item) {
-        item.quantidade += mudanca;
-        if (item.quantidade <= 0) {
-            removerItem(id); // Se zerar, remove
-        } else {
-            atualizarBarraInferior(); // Atualiza e redesenha
-        }
-    }
-}
-
-// Remover Item (Lixeira)
-window.removerItem = function(id) {
-    if(confirm("Quer mesmo tirar essa delícia da sacola? 🥺")) {
-        carrinho = carrinho.filter(item => item.id !== id);
-        atualizarBarraInferior();
-    }
-}
-
-// Desenhar Itens no Carrinho HTML
-function renderizarCarrinho() {
-    const container = document.getElementById('lista-carrinho');
-    if (!container) return;
+// 3. FUNÇÃO DESENHAR O CARRINHO (Com + e -)
+function renderizarListaCarrinho(container) {
     container.innerHTML = '';
 
     if (carrinho.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">Sua sacola está vazia... Que fome! 😋</p>';
+        container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">Sua sacola está vazia... Que fome! 😢</p>';
         return;
     }
 
@@ -154,9 +91,68 @@ function renderizarCarrinho() {
     });
 }
 
-// Inicializa
-atualizarBarraInferior();
-// Se estiver na página do carrinho, já desenha os itens
-if (window.location.pathname.includes('carrinho.html')) {
-    renderizarCarrinho();
+// 4. ALTERAR QUANTIDADE (+ ou -)
+window.alterarQtd = function(id, mudanca) {
+    const item = carrinho.find(i => i.id === id);
+    if (item) {
+        item.quantidade += mudanca;
+        if (item.quantidade <= 0) {
+            // Se zerar, pergunta se quer excluir
+            removerItem(id);
+        } else {
+            atualizarInterface();
+        }
+    }
 }
+
+// 5. REMOVER ITEM
+window.removerItem = function(id) {
+    if(confirm("Tirar esse item da sacola?")) {
+        carrinho = carrinho.filter(item => item.id !== id);
+        atualizarInterface();
+    }
+}
+
+// 6. RENDERIZAR CARDÁPIO (Index)
+window.renderizarMenu = function(filtro = 'todos') {
+    const container = document.getElementById('itens-cardapio');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const lista = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
+    
+    // Remove loading se existir
+    const loading = document.querySelector('.loading-area');
+    if(loading) loading.remove();
+
+    if (lista.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:40px; color: var(--marrom);">Nada por aqui nesta categoria... 😢</p>';
+        return;
+    }
+
+    lista.forEach(item => {
+        const img = item.imagem || "https://via.placeholder.com/150";
+        container.innerHTML += `
+            <div class="card-produto">
+                <div class="img-wrapper">
+                    <img src="${img}" alt="${item.nome}">
+                </div>
+                <div class="info-wrapper">
+                    <div>
+                        <h3>${item.nome}</h3>
+                        <p class="desc">${item.descricao || ''}</p>
+                    </div>
+                    <div>
+                        <p class="price">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+                        <button class="btn-add" onclick="adicionarAoCarrinho('${item.id}')">
+                            Adicionar ao carrinho
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// Inicializa ao carregar
+atualizarInterface();
