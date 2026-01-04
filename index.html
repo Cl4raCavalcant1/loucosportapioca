@@ -2,116 +2,95 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Loucos Por Tapioca</title>
     
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="tela-inicial">
-        <div class="conteudo-capa">
-            
-            <div class="logo-capa-container">
-                <img src="Tela Inicial.jpg" alt="Logo Gigante">
-            </div>
-
-            <div class="info-capa">
-                <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio</p>
-                <div class="status-badge">
-                    <span class="pulsar"></span> Estamos Abertos
-                </div>
-                <p class="txt-entrega">Entrega <strong>40 - 70 Min.</strong></p>
-            </div>
-
-            <div class="botoes-capa">
-                <button class="btn-inicio principal" onclick="entrarNoCardapio()">
-                    Fazer Pedido
-                </button>
-
-                <a href="https://wa.me/5581999999999" target="_blank" class="btn-inicio secundario">
-                    <i class="fa-brands fa-whatsapp"></i> Whatsapp
-                </a>
-
-                <a href="https://www.instagram.com/loucosportapiocaoficial" target="_blank" class="btn-inicio secundario">
-                    <i class="fa-brands fa-instagram"></i> Instagram
-                </a>
-            </div>
+        <div class="logo-capa">
+            <img src="Tela Inicial.jpg" alt="Logo">
         </div>
+        <div class="info-capa">
+            <h3>Loucos Por Tapioca</h3>
+            <p>R. Equador, 23 - Alto Santo Antonio</p>
+            <span style="background:white; color:green; padding:5px 15px; border-radius:15px; font-weight:bold; font-size:12px;">Estamos Abertos</span>
+        </div>
+        
+        <button class="btn-inicio" onclick="entrarApp()">
+            Fazer Pedido
+        </button>
+        <a href="https://wa.me/5581999999999" class="btn-inicio">
+            <i class="fa-brands fa-whatsapp"></i> Whatsapp
+        </a>
+        <a href="https://instagram.com" class="btn-inicio">
+            <i class="fa-brands fa-instagram"></i> Instagram
+        </a>
     </div>
 
     <header>
-        <div class="header-grid">
-            <div class="icone-lado">
-                <i class="fa-solid fa-circle-info btn-header" onclick="abrirInfo()"></i>
-            </div>
-
-            <div class="logo-header">
-                <img src="Tela Inicial.jpg" alt="Logo Pequena">
-            </div>
-
-            <div class="icone-lado">
-                <i class="fa-solid fa-bars btn-header" onclick="abrirMenu()"></i>
-            </div>
+        <div class="btn-header" onclick="abrirInfo()">
+            <i class="fa-solid fa-info"></i>
         </div>
-
-        <div class="badge-bem-vindo">Cardápio Digital</div>
+        <div class="logo-header">
+            <img src="Tela Inicial.jpg" alt="Logo Peq">
+        </div>
+        <div class="btn-header" onclick="abrirMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </div>
     </header>
 
     <nav class="categorias">
         <a href="#" class="ativo" onclick="filtrar('todos', this)">Todos</a>
         <a href="#" onclick="filtrar('pratos', this)">Pratos</a>
         <a href="#" onclick="filtrar('tapioca-grande', this)">Tapioca G</a>
-        <a href="#" onclick="filtrar('tapioca-media', this)">Tapioca M</a>
         <a href="#" onclick="filtrar('bebidas', this)">Bebidas</a>
     </nav>
 
     <main>
-        <div class="lista-produtos" id="itens-cardapio">
-            <div class="loading-area">
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                <p>Carregando delícias...</p>
-            </div>
+        <div id="itens-cardapio">
+            <p style="text-align:center; padding:50px;">Carregando cardápio...</p>
         </div>
     </main>
 
     <div class="sticky-footer">
-        <div class="resumo-pedido">
-            <span class="qtd-itens">0 Produtos</span>
+        <div>
+            <span class="qtd-itens">0 Produtos</span><br>
             <span class="total-valor">R$ 0,00</span>
         </div>
         <a href="carrinho.html" class="btn-ver-pedido">
-            Ver Sacola <i class="fa-solid fa-bag-shopping"></i>
+            Ver Sacola
         </a>
     </div>
 
-    <div class="menu-overlay" id="menu-overlay" onclick="fecharMenu()"></div>
-    <div class="menu-lateral" id="menu-lateral">
-        <div class="menu-head">
-            <h3>Menu</h3>
-            <span onclick="fecharMenu()">&times;</span>
+    <div id="menu-lateral" class="menu-lateral">
+        <div style="text-align:right; margin-bottom:20px;">
+            <i class="fa-solid fa-xmark" onclick="fecharMenu()" style="font-size:30px;"></i>
         </div>
         <a href="#" onclick="fecharMenu()"><i class="fa-solid fa-utensils"></i> Cardápio</a>
         <a href="carrinho.html"><i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
         <a href="admin.html"><i class="fa-solid fa-lock"></i> Admin</a>
     </div>
 
-    <div class="modal-fundo" id="modal-info" onclick="fecharModais(event)">
+    <div id="modal-info" class="modal-fundo" onclick="fecharInfo(event)">
         <div class="modal-box">
-            <span class="fechar-modal" onclick="document.getElementById('modal-info').style.display='none'">&times;</span>
             <h3>Horários 🕒</h3>
-            <p>Seg-Sex: 16h às 22h<br>Sáb-Dom: 16h às 23h</p>
+            <p>Seg-Sex: 16h as 22h</p>
+            <p>Sab-Dom: 16h as 23h</p>
+            <br>
+            <button onclick="fecharInfo(null)" style="padding:10px; background:#eee; border:none; border-radius:5px;">Fechar</button>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script>
-        // CONFIGURAÇÃO FIREBASE (Coloque suas chaves aqui se sumirem)
+        // CONFIG DO FIREBASE (SUAS CHAVES)
         const firebaseConfig = {
             apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
             authDomain: "loucosportapioca-57964.firebaseapp.com",
@@ -123,29 +102,31 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Lógica de Interface
-        function entrarNoCardapio() {
-            document.getElementById('tela-inicial').style.top = "-100%"; // Sobe a tela
-        }
-
-        function abrirMenu() {
-            document.getElementById('menu-lateral').classList.add('aberto');
-            document.getElementById('menu-overlay').classList.add('visivel');
-        }
-        function fecharMenu() {
-            document.getElementById('menu-lateral').classList.remove('aberto');
-            document.getElementById('menu-overlay').classList.remove('visivel');
-        }
-        function abrirInfo() { document.getElementById('modal-info').style.display = 'flex'; }
-        function fecharModais(e) { if(e.target.id === 'modal-info') document.getElementById('modal-info').style.display = 'none'; }
-
-        // Carregar Produtos
-        let menu = [];
+        // 1. CARREGAR DADOS
         db.collection("produtos").onSnapshot((qs) => {
-            menu = [];
-            qs.forEach((doc) => menu.push({id: doc.id, ...doc.data()}));
-            if(typeof renderizarMenu === 'function') renderizarMenu('todos');
+            menuGlobal = [];
+            qs.forEach((doc) => menuGlobal.push({id: doc.id, ...doc.data()}));
+            // Chama a função do script.js para desenhar
+            if(window.renderizarMenu) window.renderizarMenu('todos');
         });
+
+        // 2. FUNÇÕES VISUAIS
+        function entrarApp() {
+            document.getElementById('tela-inicial').style.top = "-100%";
+        }
+        function abrirMenu() { document.getElementById('menu-lateral').classList.add('aberto'); }
+        function fecharMenu() { document.getElementById('menu-lateral').classList.remove('aberto'); }
+        function abrirInfo() { document.getElementById('modal-info').style.display = 'flex'; }
+        function fecharInfo(e) { 
+            if(!e || e.target.id === 'modal-info') document.getElementById('modal-info').style.display = 'none'; 
+        }
+
+        // 3. FILTRO
+        function filtrar(cat, el) {
+            document.querySelectorAll('.categorias a').forEach(a => a.classList.remove('ativo'));
+            el.classList.add('ativo');
+            window.renderizarMenu(cat);
+        }
     </script>
     <script src="script.js"></script>
 </body>
