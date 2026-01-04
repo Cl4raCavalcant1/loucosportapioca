@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loucos Por Tapioca</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="top-icons">
+            <i class="fa-solid fa-circle-info btn-icon"></i>
+            <i class="fa-solid fa-bars btn-icon"></i>
+        </div>
+
+        <div class="logo-area">
+            <h1>LOUCOS <br> <span class="sub-logo">POR TAPIOCA</span></h1>
+        </div>
+
+        <div class="badge-bem-vindo">Bem vindos</div>
+
+        <div class="info-loja">
+            <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio, Moreno - PE</p>
+            <p><i class="fa-regular fa-clock"></i> Entrega <strong>40 - 70 Min.</strong></p>
+        </div>
+
+        <div class="status-loja">
+            <span class="dot"></span> Estamos Abertos
+        </div>
+        <p class="horario-texto">Fechamos as 22H</p>
+    </header>
+
+   <nav class="categorias">
+    <a href="#" class="ativo" onclick="filtrar('todos', this)">Todos</a>
+    
+    <a href="#" onclick="filtrar('pratos', this)">Pratos</a>
+    <a href="#" onclick="filtrar('tapioca-grande', this)">Tapioca Grande</a>
+    <a href="#" onclick="filtrar('tapioca-media', this)">Tapioca Média</a>
+    <a href="#" onclick="filtrar('bebidas', this)">Bebidas</a>
+</nav>
+
+    <main>
+        <div class="section-title">
+            <h2>Cardápio</h2>
+        </div>
+
+        <div class="lista-produtos" id="itens-cardapio">
+            <p style="text-align:center; color:#666;">Carregando delícias...</p>
+        </div>
+    </main>
+
+    <div class="sticky-footer">
+        <div class="resumo-pedido">
+            <span class="qtd-itens">0 Produtos</span>
+            <span class="total-valor">R$ 0,00</span>
+        </div>
+        <a href="carrinho.html" class="btn-ver-pedido" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">
+            Ver Meu Pedido!
+        </a>
+    </div>
+
+    <script src="cardapio.js"></script> 
+    <script src="script.js"></script>
+
+</body>
+</html>

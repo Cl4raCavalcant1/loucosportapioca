@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento - Loucos Por Tapioca</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="header-carrinho">
+        <a href="carrinho.html" class="btn-voltar">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <span class="titulo-voltar">Voltar</span>
+        
+        <div class="info-sacola">
+            <span class="texto-sacola">Sua Sacola</span>
+            <span class="valor-sacola">R$ 25,60</span>
+        </div>
+    </header>
+
+    <main class="container-pagamento">
+        
+        <h2 class="titulo-secao">Escolha uma das opções abaixo:</h2>
+        
+        <form id="form-pagamento">
+            
+            <label class="opcao-card">
+                <div class="info-opcao">
+                    <strong>Retirada <i class="fa-solid fa-bag-shopping"></i></strong>
+                    <p>Loucos Por Tapioca<br>R. Equador, 23 - Alto Santo Antonio</p>
+                </div>
+                <input type="radio" name="entrega" value="retirada">
+                <span class="checkmark"></span>
+            </label>
+
+            <label class="opcao-card">
+                <div class="info-opcao">
+                    <strong>Entrega <i class="fa-solid fa-motorcycle"></i></strong>
+                    <p>Entregar no meu Endereço</p>
+                </div>
+                <input type="radio" name="entrega" value="entrega" checked>
+                <span class="checkmark"></span>
+            </label>
+            
+            <div id="campo-endereco-container" style="display:block; margin: 0 0 20px 0;">
+                <input type="text" id="endereco-cliente" placeholder="Digite sua Rua, Número e Bairro..." 
+                       style="width:100%; padding:15px; border:1px solid #ddd; border-radius:8px; background:#f9f9f9;">
+            </div>
+
+            <div class="divisor-linha"></div>
+
+            <h2 class="titulo-secao-link">Escolha a Forma de Pagamento</h2>
+
+            <label class="opcao-card">
+                <div class="info-opcao">
+                    <strong>Pix</strong>
+                    <p>Realize o pagamento no final</p>
+                </div>
+                <input type="radio" name="pagamento" value="pix">
+                <span class="checkmark"></span>
+            </label>
+
+            <label class="opcao-card">
+                <div class="info-opcao">
+                    <strong>Cartão</strong>
+                    <p>Realize o pagamento na retirada ou na entrega</p>
+                </div>
+                <input type="radio" name="pagamento" value="cartao" checked>
+                <span class="checkmark"></span>
+            </label>
+
+            <div class="sub-opcoes-cartao">
+                <button type="button" class="btn-tipo-cartao">Débito</button>
+                <button type="button" class="btn-tipo-cartao">Crédito</button>
+            </div>
+
+            <label class="opcao-card">
+                <div class="info-opcao">
+                    <strong>Dinheiro</strong>
+                    <p>Realize o pagamento no final</p>
+                </div>
+                <input type="radio" name="pagamento" value="dinheiro">
+                <span class="checkmark"></span>
+            </label>
+
+            <div class="campo-troco">
+                <input type="text" placeholder="Precisa de Troco: R$XX,XX">
+            </div>
+
+        </form>
+    </main>
+
+    <footer class="footer-pagamento">
+        <button class="btn-finalizar">
+            Finalizar Pedido
+        </button>
+    </footer>
+
+    <script>
+        const SEU_NUMERO = "5581999999999"; // <-- COLOQUE SEU NÚMERO AQUI
+
+        // Lógica para mostrar/esconder o endereço
+        const radiosEntrega = document.getElementsByName('entrega');
+        const divEndereco = document.getElementById('campo-endereco-container');
+
+        // Garante o estado inicial correto ao carregar a página
+        function verificarEstadoInicial() {
+            const selecionado = document.querySelector('input[name="entrega"]:checked').value;
+            if (selecionado === 'entrega') {
+                divEndereco.style.display = 'block';
+            } else {
+                divEndereco.style.display = 'none';
+            }
+        }
+        verificarEstadoInicial();
+
+        // Monitora mudanças
+        radiosEntrega.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'entrega') {
+                    divEndereco.style.display = 'block';
+                } else {
+                    divEndereco.style.display = 'none';
+                }
+            });
+        });
+
+        // Lógica do Botão Finalizar
+        document.querySelector('.btn-finalizar').addEventListener('click', () => {
+            const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+            
+            if (carrinho.length === 0) {
+                alert("Carrinho vazio!");
+                return;
+            }
+
+            const opcaoEntrega = document.querySelector('input[name="entrega"]:checked').value;
+            const endereco = document.getElementById('endereco-cliente').value;
+            const opcaoPagamento = document.querySelector('input[name="pagamento"]:checked').value;
+            const troco = document.querySelector('input[placeholder*="Troco"]').value;
+
+            // Validação simples
+            if (opcaoEntrega === 'entrega' && endereco.trim() === "") {
+                alert("Por favor, digite seu endereço para entrega.");
+                return;
+            }
+
+            const total = carrinho.reduce((sum, item) => sum + item.preco, 0);
+            const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            let mensagem = `*PEDIDO APP LOUCOS POR TAPIOCA* 🌵\n\n`;
+            
+            carrinho.forEach(item => {
+                mensagem += `✅ ${item.nome} - R$ ${item.preco.toFixed(2)}\n`;
+            });
+            
+            mensagem += `\n💰 *Total: ${totalFormatado}*\n`;
+            mensagem += `------------------------------\n`;
+            
+            if(opcaoEntrega === 'entrega') {
+                mensagem += `📍 *Entrega em:*\n${endereco}\n`;
+            } else {
+                mensagem += `👜 *Retirada no Balcão*\n`;
+            }
+
+            mensagem += `💳 *Pagamento:* ${opcaoPagamento.toUpperCase()}\n`;
+            if(opcaoPagamento === 'dinheiro' && troco) {
+                mensagem += `(Troco para ${troco})\n`;
+            }
+
+            // Limpa o carrinho após o pedido (Opcional)
+            localStorage.removeItem('carrinho');
+
+            const linkZap = `https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(mensagem)}`;
+            window.open(linkZap, '_blank');
+        });
+    </script>
+</body>
+</html>

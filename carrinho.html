@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Carrinho - Loucos Por Tapioca</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="header-carrinho">
+        <a href="index.html" class="btn-voltar">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <span class="titulo-voltar">Voltar</span>
+        
+        <div class="info-sacola">
+            <span class="texto-sacola">Sua Sacola</span>
+            <span class="valor-sacola">R$ 0,00</span>
+        </div>
+    </header>
+
+    <main class="container-carrinho">
+        <div id="lista-itens"></div>
+    </main>
+
+    <footer class="footer-carrinho">
+        <a href="pagamento.html" class="btn-prosseguir" style="text-decoration: none; display: inline-block;">
+            Prosseguir <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    </footer>
+
+    <script>
+        function renderizarCarrinho() {
+            const container = document.getElementById('lista-itens');
+            const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+            const infoSacolaValor = document.querySelector('.valor-sacola');
+            const btnProsseguir = document.querySelector('.btn-prosseguir');
+            
+            // Limpa a tela antes de desenhar
+            container.innerHTML = '';
+
+            // Se o carrinho estiver vazio
+            if (carrinho.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#666;">
+                        <i class="fa-solid fa-basket-shopping" style="font-size: 50px; color: #ccc; margin-bottom: 15px;"></i>
+                        <p>Seu carrinho está vazio 😢</p>
+                        <a href="index.html" style="color: var(--brown-dark); font-weight:bold; text-decoration:underline;">Voltar ao cardápio</a>
+                    </div>
+                `;
+                infoSacolaValor.innerText = "R$ 0,00";
+                
+                // Opcional: Esconder botão prosseguir se estiver vazio
+                if(btnProsseguir) btnProsseguir.style.display = 'none';
+                return;
+            }
+
+            // Se tiver itens, mostra o botão prosseguir
+            if(btnProsseguir) btnProsseguir.style.display = 'inline-block';
+
+            let total = 0;
+
+            // Para cada item salvo, cria o HTML na tela
+            carrinho.forEach((item, index) => {
+                total += item.preco;
+                
+                // Verifica se tem imagem, se não tiver usa uma padrão cinza
+                const imagemSrc = item.imagem ? item.imagem : 'https://via.placeholder.com/100';
+
+                // Cria o card do produto dinamicamente
+                container.innerHTML += `
+                    <div class="card-carrinho">
+                        <div class="img-carrinho">
+                            <img src="${imagemSrc}" alt="${item.nome}">
+                        </div>
+                        <div class="info-carrinho">
+                            <h3>${item.nome}</h3>
+                            <p class="price">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+                            
+                            <div class="controles" style="margin-top:10px;">
+                                <i class="fa-solid fa-trash btn-lixo" onclick="removerItem(${index})" title="Remover item"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Atualiza o total lá em cima no cabeçalho
+            infoSacolaValor.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Função para deletar um item
+        function removerItem(index) {
+            let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+            carrinho.splice(index, 1); // Remove o item da lista pelo índice
+            localStorage.setItem('carrinho', JSON.stringify(carrinho)); // Salva a lista atualizada
+            renderizarCarrinho(); // Redesenha a tela
+        }
+
+        // Chama a função assim que a tela abre
+        renderizarCarrinho();
+    </script>
+
+</body>
+</html>

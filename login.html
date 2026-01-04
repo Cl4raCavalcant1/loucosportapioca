@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - Loucos Por Tapioca</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-box {
+            background: white; padding: 30px; border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; width: 300px;
+        }
+        .login-box input {
+            width: 100%; padding: 10px; margin: 10px 0;
+            border: 1px solid #ccc; border-radius: 5px;
+        }
+        .btn-entrar {
+            background-color: var(--brown-dark); color: white; border: none;
+            padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2 style="color: var(--brown-dark);">Área Restrita 🔒</h2>
+        <input type="text" id="usuario" placeholder="Usuário">
+        <input type="password" id="senha" placeholder="Senha">
+        <button class="btn-entrar" onclick="fazerLogin()">Entrar</button>
+    </div>
+
+    <script>
+        function fazerLogin() {
+            const user = document.getElementById('usuario').value;
+            const pass = document.getElementById('senha').value;
+
+            // DEFINA AQUI SEU LOGIN E SENHA
+            if (user === "admin" && pass === "1234") {
+                // Salva que está logado
+                sessionStorage.setItem('logado', 'sim');
+                window.location.href = "admin.html";
+            } else {
+                alert("Login ou senha incorretos!");
+            }
+        }
+    </script>
+</body>
+</html>
