@@ -132,8 +132,159 @@ main { padding: 0 15px; }
 
 /* --- ADMIN --- */
 .container-admin { padding: 30px 20px; background: white; min-height: 100vh; }
+
 .form-add { background: #f8f8f8; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #ddd; }
 .form-add input, .form-add select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; }
-.btn-salvar { background: #00C851; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.item-lista { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-.img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px; }
+.btn-salvar 
+{ background: #00C851; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.item-lista 
+{ 
+    display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+.img-preview
+ {
+     width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px; 
+    }
+    /* =========================================
+   VARIÁVEIS (SUAS CORES)
+   ========================================= */
+:root {
+    --bg-primary: #EEB91B;
+    --brown-dark: #5A3E34;
+    --brown-light: #7A5C50;
+    --yellow-btn: #ECA809;
+    --white: #ffffff;
+    --cinza-claro: #f7f7f7;
+    --cinza-borda: #e0e0e0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+body { background-color: var(--bg-primary); padding-bottom: 90px; }
+
+/* REUTILIZANDO O HEADER DO CARRINHO */
+.header-carrinho { background-color: var(--bg-primary); padding: 15px 20px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.btn-voltar { background: var(--brown-dark); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; margin-right: 15px; }
+.titulo-voltar { font-weight: 700; font-size: 18px; color: var(--brown-dark); flex-grow: 1; }
+.info-sacola { text-align: right; }
+.texto-sacola { display: block; font-size: 10px; color: #555; }
+.valor-sacola { font-weight: 800; font-size: 16px; color: var(--brown-dark); }
+
+/* --- ÁREA DE PAGAMENTO --- */
+.container-pagamento {
+    padding: 20px;
+    background-color: #fff; /* Fundo branco para limpeza visual */
+    min-height: 85vh;
+    border-radius: 20px 20px 0 0; /* Arredondado no topo */
+    margin-top: -10px; /* Sobe um pouco para cobrir o header */
+    position: relative;
+    z-index: 2;
+}
+
+.titulo-secao {
+    color: var(--brown-dark);
+    font-size: 16px;
+    margin: 20px 0 10px 0;
+    display: flex; align-items: center; gap: 8px;
+}
+
+.divisor { height: 1px; background: #eee; margin: 25px 0; }
+
+/* CARDS DE OPÇÃO (Rádio Escondido) */
+.grupo-opcoes { display: flex; flex-direction: column; gap: 12px; }
+
+.card-opcao {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Esconde a bolinha padrão do rádio */
+.card-opcao input { display: none; }
+
+/* O desenho do card */
+.conteudo-card {
+    display: flex; align-items: center; gap: 15px;
+    padding: 15px;
+    border: 2px solid var(--cinza-borda);
+    border-radius: 12px;
+    background: white;
+    transition: 0.2s all;
+}
+
+.icone-card { font-size: 20px; color: #888; width: 30px; text-align: center; }
+.texto-card strong { display: block; font-size: 15px; color: #333; }
+.texto-card p { font-size: 12px; color: #888; margin: 0; }
+.check-icon { margin-left: auto; color: transparent; font-size: 20px; }
+
+/* ESTILO QUANDO SELECIONADO */
+.card-opcao input:checked + .conteudo-card {
+    border-color: var(--bg-primary); /* Borda Amarela */
+    background-color: #fffdf5; /* Fundo levemente amarelo */
+    box-shadow: 0 4px 10px rgba(238, 185, 27, 0.2);
+}
+
+.card-opcao input:checked + .conteudo-card .icone-card { color: var(--brown-dark); }
+.card-opcao input:checked + .conteudo-card .check-icon { color: var(--bg-primary); }
+
+/* INPUTS DE TEXTO (ENDEREÇO E TROCO) */
+.box-input-animado { animation: fadeIn 0.3s ease; margin-top: 10px; }
+.box-input-animado label { font-size: 13px; font-weight: 600; color: var(--brown-dark); margin-bottom: 5px; display: block; }
+
+.input-icon {
+    position: relative;
+    display: flex; align-items: center;
+}
+.input-icon i { position: absolute; left: 15px; color: #888; }
+.input-icon input {
+    width: 100%; padding: 15px 15px 15px 45px; /* Espaço pro icone */
+    border: 1px solid #ddd; border-radius: 10px;
+    font-size: 14px; outline: none; background: #fafafa;
+}
+.input-icon input:focus { border-color: var(--bg-primary); background: white; }
+
+/* FOOTER FIXO */
+.footer-pagamento {
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    background: white; padding: 20px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 100;
+}
+.btn-finalizar {
+    background-color: var(--verde-on, #00C851); /* Verde Sucesso */
+    color: white; width: 100%; padding: 16px;
+    border: none; border-radius: 12px;
+    font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,200,81,0.3);
+}
+.btn-finalizar:hover { background-color: #00963c; }
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+/* Linha para colocar inputs lado a lado (ex: numero e bairro) */
+.row-inputs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+/* Ajuste fino para inputs não ficarem colados */
+.box-input-animado {
+    margin-bottom: 15px;
+}
+
+/* Melhoria no botão do WhatsApp */
+.btn-finalizar {
+    background-color: #25D366; /* Verde WhatsApp */
+    color: white;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-finalizar:hover {
+    background-color: #1ebd59;
+}

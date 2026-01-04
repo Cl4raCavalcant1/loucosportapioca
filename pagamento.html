@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/imask"></script>
 </head>
 <body>
 
@@ -14,170 +16,243 @@
         <a href="carrinho.html" class="btn-voltar">
             <i class="fa-solid fa-chevron-left"></i>
         </a>
-        <span class="titulo-voltar">Voltar</span>
-        
+        <span class="titulo-voltar">Finalizar</span>
         <div class="info-sacola">
-            <span class="texto-sacola">Sua Sacola</span>
-            <span class="valor-sacola">R$ 25,60</span>
+            <span class="texto-sacola">Total</span>
+            <span class="valor-sacola" id="valor-total-header">R$ 0,00</span>
         </div>
     </header>
 
     <main class="container-pagamento">
         
-        <h2 class="titulo-secao">Escolha uma das opções abaixo:</h2>
+        <h3 class="titulo-secao"><i class="fa-regular fa-user"></i> Seus Dados</h3>
         
-        <form id="form-pagamento">
-            
-            <label class="opcao-card">
-                <div class="info-opcao">
-                    <strong>Retirada <i class="fa-solid fa-bag-shopping"></i></strong>
-                    <p>Loucos Por Tapioca<br>R. Equador, 23 - Alto Santo Antonio</p>
+        <div class="box-input-animado">
+            <label>Seu Nome:</label>
+            <div class="input-icon">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="cliente-nome" placeholder="Como podemos te chamar?">
+            </div>
+        </div>
+
+        <div class="box-input-animado">
+            <label>Seu Telefone / WhatsApp:</label>
+            <div class="input-icon">
+                <i class="fa-brands fa-whatsapp"></i>
+                <input type="tel" id="cliente-tel" placeholder="(81) 90000-0000">
+            </div>
+        </div>
+
+        <div class="divisor"></div>
+
+        <h3 class="titulo-secao"><i class="fa-solid fa-map-location-dot"></i> Entrega ou Retirada?</h3>
+        
+        <div class="grupo-opcoes">
+            <label class="card-opcao">
+                <input type="radio" name="entrega" value="entrega" checked onchange="toggleEndereco()">
+                <div class="conteudo-card">
+                    <div class="icone-card"><i class="fa-solid fa-motorcycle"></i></div>
+                    <div class="texto-card">
+                        <strong>Entrega</strong>
+                        <p>Receber em casa</p>
+                    </div>
+                    <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
-                <input type="radio" name="entrega" value="retirada">
-                <span class="checkmark"></span>
             </label>
 
-            <label class="opcao-card">
-                <div class="info-opcao">
-                    <strong>Entrega <i class="fa-solid fa-motorcycle"></i></strong>
-                    <p>Entregar no meu Endereço</p>
+            <label class="card-opcao">
+                <input type="radio" name="entrega" value="retirada" onchange="toggleEndereco()">
+                <div class="conteudo-card">
+                    <div class="icone-card"><i class="fa-solid fa-bag-shopping"></i></div>
+                    <div class="texto-card">
+                        <strong>Retirada</strong>
+                        <p>Buscar no local</p>
+                    </div>
+                    <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
-                <input type="radio" name="entrega" value="entrega" checked>
-                <span class="checkmark"></span>
             </label>
+        </div>
+
+        <div id="box-endereco" style="display:block;">
             
-            <div id="campo-endereco-container" style="display:block; margin: 0 0 20px 0;">
-                <input type="text" id="endereco-cliente" placeholder="Digite sua Rua, Número e Bairro..." 
-                       style="width:100%; padding:15px; border:1px solid #ddd; border-radius:8px; background:#f9f9f9;">
+            <div class="box-input-animado">
+                <label>Rua / Avenida:</label>
+                <div class="input-icon">
+                    <i class="fa-solid fa-road"></i>
+                    <input type="text" id="end-rua" placeholder="Nome da rua">
+                </div>
             </div>
 
-            <div class="divisor-linha"></div>
-
-            <h2 class="titulo-secao-link">Escolha a Forma de Pagamento</h2>
-
-            <label class="opcao-card">
-                <div class="info-opcao">
-                    <strong>Pix</strong>
-                    <p>Realize o pagamento no final</p>
+            <div class="row-inputs">
+                <div class="box-input-animado" style="flex: 1;">
+                    <label>Número:</label>
+                    <div class="input-icon">
+                        <i class="fa-solid fa-hashtag"></i>
+                        <input type="text" id="end-num" placeholder="Nº ou S/N">
+                    </div>
                 </div>
+                <div class="box-input-animado" style="flex: 2;">
+                    <label>Bairro:</label>
+                    <div class="input-icon">
+                        <i class="fa-solid fa-map-pin"></i>
+                        <input type="text" id="end-bairro" placeholder="Bairro">
+                    </div>
+                </div>
+            </div>
+
+            <div class="box-input-animado">
+                <label>Ponto de Referência (Opcional):</label>
+                <div class="input-icon">
+                    <i class="fa-regular fa-flag"></i>
+                    <input type="text" id="end-ref" placeholder="Ex: Próximo à praça...">
+                </div>
+            </div>
+        </div>
+
+        <div class="divisor"></div>
+
+        <h3 class="titulo-secao"><i class="fa-regular fa-credit-card"></i> Pagamento</h3>
+
+        <div class="grupo-opcoes">
+            <label class="card-opcao">
                 <input type="radio" name="pagamento" value="pix">
-                <span class="checkmark"></span>
+                <div class="conteudo-card">
+                    <div class="icone-card" style="color:#00bfa5;"><i class="fa-brands fa-pix"></i></div>
+                    <div class="texto-card">
+                        <strong>Pix</strong>
+                        <p>Pagamento instantâneo</p>
+                    </div>
+                    <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
             </label>
 
-            <label class="opcao-card">
-                <div class="info-opcao">
-                    <strong>Cartão</strong>
-                    <p>Realize o pagamento na retirada ou na entrega</p>
-                </div>
+            <label class="card-opcao">
                 <input type="radio" name="pagamento" value="cartao" checked>
-                <span class="checkmark"></span>
-            </label>
-
-            <div class="sub-opcoes-cartao">
-                <button type="button" class="btn-tipo-cartao">Débito</button>
-                <button type="button" class="btn-tipo-cartao">Crédito</button>
-            </div>
-
-            <label class="opcao-card">
-                <div class="info-opcao">
-                    <strong>Dinheiro</strong>
-                    <p>Realize o pagamento no final</p>
+                <div class="conteudo-card">
+                    <div class="icone-card" style="color:#2979ff;"><i class="fa-regular fa-credit-card"></i></div>
+                    <div class="texto-card">
+                        <strong>Cartão</strong>
+                        <p>Leva a maquineta</p>
+                    </div>
+                    <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
-                <input type="radio" name="pagamento" value="dinheiro">
-                <span class="checkmark"></span>
             </label>
 
-            <div class="campo-troco">
-                <input type="text" placeholder="Precisa de Troco: R$XX,XX">
-            </div>
+            <label class="card-opcao">
+                <input type="radio" name="pagamento" value="dinheiro" onchange="toggleTroco()">
+                <div class="conteudo-card">
+                    <div class="icone-card" style="color:#4caf50;"><i class="fa-solid fa-money-bill-wave"></i></div>
+                    <div class="texto-card">
+                        <strong>Dinheiro</strong>
+                        <p>Pagamento em espécie</p>
+                    </div>
+                    <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+            </label>
+        </div>
 
-        </form>
+        <div id="box-troco" class="box-input-animado" style="display:none;">
+            <label>Troco para quanto?</label>
+            <div class="input-icon">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                <input type="tel" id="troco-cliente" placeholder="Ex: 50,00">
+            </div>
+        </div>
+
     </main>
 
     <footer class="footer-pagamento">
-        <button class="btn-finalizar">
-            Finalizar Pedido
+        <button class="btn-finalizar" onclick="finalizarPedido()">
+            Enviar Pedido via WhatsApp <i class="fa-brands fa-whatsapp"></i>
         </button>
     </footer>
 
     <script>
-        const SEU_NUMERO = "5581991243260"; // <-- COLOQUE SEU NÚMERO AQUI
+        const SEU_NUMERO = "5581991243260"; 
 
-        // Lógica para mostrar/esconder o endereço
-        const radiosEntrega = document.getElementsByName('entrega');
-        const divEndereco = document.getElementById('campo-endereco-container');
-
-        // Garante o estado inicial correto ao carregar a página
-        function verificarEstadoInicial() {
-            const selecionado = document.querySelector('input[name="entrega"]:checked').value;
-            if (selecionado === 'entrega') {
-                divEndereco.style.display = 'block';
-            } else {
-                divEndereco.style.display = 'none';
-            }
-        }
-        verificarEstadoInicial();
-
-        // Monitora mudanças
-        radiosEntrega.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if (e.target.value === 'entrega') {
-                    divEndereco.style.display = 'block';
-                } else {
-                    divEndereco.style.display = 'none';
-                }
-            });
+        // Máscara para o telefone ficar bonito (Ex: (81) 9...)
+        document.addEventListener('DOMContentLoaded', () => {
+            const elPhone = document.getElementById('cliente-tel');
+            IMask(elPhone, { mask: '(00) 00000-0000' });
+            
+            // Atualiza total
+            const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+            const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+            document.getElementById('valor-total-header').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         });
 
-        // Lógica do Botão Finalizar
-        document.querySelector('.btn-finalizar').addEventListener('click', () => {
+        function toggleEndereco() {
+            const tipo = document.querySelector('input[name="entrega"]:checked').value;
+            const box = document.getElementById('box-endereco');
+            box.style.display = (tipo === 'entrega') ? 'block' : 'none';
+        }
+
+        function toggleTroco() {
+            const tipo = document.querySelector('input[name="pagamento"]:checked').value;
+            const box = document.getElementById('box-troco');
+            box.style.display = (tipo === 'dinheiro') ? 'block' : 'none';
+        }
+        
+        // Monitora todos os radios de pagamento
+        document.querySelectorAll('input[name="pagamento"]').forEach(r => r.addEventListener('change', toggleTroco));
+
+        function finalizarPedido() {
             const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-            
-            if (carrinho.length === 0) {
-                alert("Carrinho vazio!");
-                return;
+            if(carrinho.length === 0) return alert("Seu carrinho está vazio!");
+
+            // Captura os dados
+            const nome = document.getElementById('cliente-nome').value.trim();
+            const telefone = document.getElementById('cliente-tel').value.trim();
+            const entrega = document.querySelector('input[name="entrega"]:checked').value;
+            const pagamento = document.querySelector('input[name="pagamento"]:checked').value;
+            const troco = document.getElementById('troco-cliente').value;
+
+            // Validações
+            if(!nome) return alert("Por favor, digite seu Nome!");
+            if(telefone.length < 14) return alert("Digite um telefone válido com DDD!");
+
+            let enderecoMsg = "";
+            if(entrega === 'entrega') {
+                const rua = document.getElementById('end-rua').value.trim();
+                const num = document.getElementById('end-num').value.trim();
+                const bairro = document.getElementById('end-bairro').value.trim();
+                const ref = document.getElementById('end-ref').value.trim();
+
+                if(!rua || !num || !bairro) return alert("Preencha o endereço completo (Rua, Número e Bairro)!");
+                
+                enderecoMsg = `🏠 *Endereço de Entrega:*\n${rua}, Nº ${num}\nBairro: ${bairro}`;
+                if(ref) enderecoMsg += `\n(Ref: ${ref})`;
+            } else {
+                enderecoMsg = `👜 *Vou retirar no local*`;
             }
 
-            const opcaoEntrega = document.querySelector('input[name="entrega"]:checked').value;
-            const endereco = document.getElementById('endereco-cliente').value;
-            const opcaoPagamento = document.querySelector('input[name="pagamento"]:checked').value;
-            const troco = document.querySelector('input[placeholder*="Troco"]').value;
-
-            // Validação simples
-            if (opcaoEntrega === 'entrega' && endereco.trim() === "") {
-                alert("Por favor, digite seu endereço para entrega.");
-                return;
-            }
-
-            const total = carrinho.reduce((sum, item) => sum + item.preco, 0);
+            // Monta o Pedido
+            const total = carrinho.reduce((sum, i) => sum + (i.preco * i.quantidade), 0);
             const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            let mensagem = `*PEDIDO APP LOUCOS POR TAPIOCA* 🌵\n\n`;
+            let msg = `*NOVO PEDIDO - LOUCOS POR TAPIOCA* 🌵\n\n`;
+            msg += `👤 *Cliente:* ${nome}\n`;
+            msg += `📞 *Tel:* ${telefone}\n\n`;
+            msg += `*ITENS DO PEDIDO:*\n`;
             
-            carrinho.forEach(item => {
-                mensagem += `✅ ${item.nome} - R$ ${item.preco.toFixed(2)}\n`;
+            carrinho.forEach(i => {
+                msg += `▪️ ${i.quantidade}x ${i.nome}\n`;
             });
-            
-            mensagem += `\n💰 *Total: ${totalFormatado}*\n`;
-            mensagem += `------------------------------\n`;
-            
-            if(opcaoEntrega === 'entrega') {
-                mensagem += `📍 *Entrega em:*\n${endereco}\n`;
-            } else {
-                mensagem += `👜 *Retirada no Balcão*\n`;
-            }
 
-            mensagem += `💳 *Pagamento:* ${opcaoPagamento.toUpperCase()}\n`;
-            if(opcaoPagamento === 'dinheiro' && troco) {
-                mensagem += `(Troco para ${troco})\n`;
-            }
+            msg += `\n💰 *Valor Total: ${totalFormatado}*\n`;
+            msg += `--------------------------------\n`;
+            msg += `${enderecoMsg}\n`;
+            msg += `--------------------------------\n`;
+            msg += `💳 *Pagamento:* ${pagamento.toUpperCase()}\n`;
+            if(pagamento === 'dinheiro' && troco) msg += `💵 *Troco para:* ${troco}\n`;
 
-            // Limpa o carrinho após o pedido (Opcional)
+            // Envia
+            window.open(`https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
+            
+            // Limpa carrinho
             localStorage.removeItem('carrinho');
-
-            const linkZap = `https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(mensagem)}`;
-            window.open(linkZap, '_blank');
-        });
+            window.location.href = "index.html";
+        }
     </script>
 </body>
 </html>
