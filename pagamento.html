@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/imask"></script>
+    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
 
@@ -74,38 +76,23 @@
         </div>
 
         <div id="box-endereco" style="display:block;">
-            
             <div class="box-input-animado">
                 <label>Rua / Avenida:</label>
-                <div class="input-icon">
-                    <i class="fa-solid fa-road"></i>
-                    <input type="text" id="end-rua" placeholder="Nome da rua">
-                </div>
+                <div class="input-icon"><i class="fa-solid fa-road"></i><input type="text" id="end-rua" placeholder="Nome da rua"></div>
             </div>
-
             <div class="row-inputs">
                 <div class="box-input-animado" style="flex: 1;">
                     <label>Número:</label>
-                    <div class="input-icon">
-                        <i class="fa-solid fa-hashtag"></i>
-                        <input type="text" id="end-num" placeholder="Nº ou S/N">
-                    </div>
+                    <div class="input-icon"><i class="fa-solid fa-hashtag"></i><input type="text" id="end-num" placeholder="Nº"></div>
                 </div>
                 <div class="box-input-animado" style="flex: 2;">
                     <label>Bairro:</label>
-                    <div class="input-icon">
-                        <i class="fa-solid fa-map-pin"></i>
-                        <input type="text" id="end-bairro" placeholder="Bairro">
-                    </div>
+                    <div class="input-icon"><i class="fa-solid fa-map-pin"></i><input type="text" id="end-bairro" placeholder="Bairro"></div>
                 </div>
             </div>
-
             <div class="box-input-animado">
-                <label>Ponto de Referência (Opcional):</label>
-                <div class="input-icon">
-                    <i class="fa-regular fa-flag"></i>
-                    <input type="text" id="end-ref" placeholder="Ex: Próximo à praça...">
-                </div>
+                <label>Referência (Opcional):</label>
+                <div class="input-icon"><i class="fa-regular fa-flag"></i><input type="text" id="end-ref" placeholder="Próximo a..."></div>
             </div>
         </div>
 
@@ -118,34 +105,23 @@
                 <input type="radio" name="pagamento" value="pix">
                 <div class="conteudo-card">
                     <div class="icone-card" style="color:#00bfa5;"><i class="fa-brands fa-pix"></i></div>
-                    <div class="texto-card">
-                        <strong>Pix</strong>
-                        <p>Pagamento instantâneo</p>
-                    </div>
+                    <div class="texto-card"><strong>Pix</strong><p>Pagamento instantâneo</p></div>
                     <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
             </label>
-
             <label class="card-opcao">
                 <input type="radio" name="pagamento" value="cartao" checked>
                 <div class="conteudo-card">
                     <div class="icone-card" style="color:#2979ff;"><i class="fa-regular fa-credit-card"></i></div>
-                    <div class="texto-card">
-                        <strong>Cartão</strong>
-                        <p>Leva a maquineta</p>
-                    </div>
+                    <div class="texto-card"><strong>Cartão</strong><p>Leva a maquineta</p></div>
                     <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
             </label>
-
             <label class="card-opcao">
                 <input type="radio" name="pagamento" value="dinheiro" onchange="toggleTroco()">
                 <div class="conteudo-card">
                     <div class="icone-card" style="color:#4caf50;"><i class="fa-solid fa-money-bill-wave"></i></div>
-                    <div class="texto-card">
-                        <strong>Dinheiro</strong>
-                        <p>Pagamento em espécie</p>
-                    </div>
+                    <div class="texto-card"><strong>Dinheiro</strong><p>Pagamento em espécie</p></div>
                     <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
             </label>
@@ -163,19 +139,32 @@
 
     <footer class="footer-pagamento">
         <button class="btn-finalizar" onclick="finalizarPedido()">
-            Enviar Pedido via WhatsApp <i class="fa-brands fa-whatsapp"></i>
+            <span id="txt-btn">Enviar Pedido via WhatsApp</span> <i class="fa-brands fa-whatsapp"></i>
         </button>
     </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
         const SEU_NUMERO = "5581991243260"; 
 
-        // Máscara para o telefone ficar bonito (Ex: (81) 9...)
+        const firebaseConfig = {
+            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+            authDomain: "loucosportapioca-57964.firebaseapp.com",
+            projectId: "loucosportapioca-57964",
+            storageBucket: "loucosportapioca-57964.firebasestorage.app",
+            messagingSenderId: "371332659198",
+            appId: "1:371332659198:web:330626357653acc00772af"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         document.addEventListener('DOMContentLoaded', () => {
             const elPhone = document.getElementById('cliente-tel');
             IMask(elPhone, { mask: '(00) 00000-0000' });
             
-            // Atualiza total
             const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
             const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
             document.getElementById('valor-total-header').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -183,24 +172,21 @@
 
         function toggleEndereco() {
             const tipo = document.querySelector('input[name="entrega"]:checked').value;
-            const box = document.getElementById('box-endereco');
-            box.style.display = (tipo === 'entrega') ? 'block' : 'none';
+            document.getElementById('box-endereco').style.display = (tipo === 'entrega') ? 'block' : 'none';
         }
 
         function toggleTroco() {
             const tipo = document.querySelector('input[name="pagamento"]:checked').value;
-            const box = document.getElementById('box-troco');
-            box.style.display = (tipo === 'dinheiro') ? 'block' : 'none';
+            document.getElementById('box-troco').style.display = (tipo === 'dinheiro') ? 'block' : 'none';
         }
         
-        // Monitora todos os radios de pagamento
         document.querySelectorAll('input[name="pagamento"]').forEach(r => r.addEventListener('change', toggleTroco));
 
         function finalizarPedido() {
             const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
             if(carrinho.length === 0) return alert("Seu carrinho está vazio!");
 
-            // Captura os dados
+            // Captura
             const nome = document.getElementById('cliente-nome').value.trim();
             const telefone = document.getElementById('cliente-tel').value.trim();
             const entrega = document.querySelector('input[name="entrega"]:checked').value;
@@ -209,48 +195,77 @@
 
             // Validações
             if(!nome) return alert("Por favor, digite seu Nome!");
-            if(telefone.length < 14) return alert("Digite um telefone válido com DDD!");
+            if(telefone.length < 14) return alert("Digite um telefone válido!");
 
-            let enderecoMsg = "";
+            let enderecoCompleto = "Retirada no Local";
             if(entrega === 'entrega') {
                 const rua = document.getElementById('end-rua').value.trim();
                 const num = document.getElementById('end-num').value.trim();
                 const bairro = document.getElementById('end-bairro').value.trim();
                 const ref = document.getElementById('end-ref').value.trim();
 
-                if(!rua || !num || !bairro) return alert("Preencha o endereço completo (Rua, Número e Bairro)!");
-                
-                enderecoMsg = `🏠 *Endereço de Entrega:*\n${rua}, Nº ${num}\nBairro: ${bairro}`;
-                if(ref) enderecoMsg += `\n(Ref: ${ref})`;
-            } else {
-                enderecoMsg = `👜 *Vou retirar no local*`;
+                if(!rua || !num || !bairro) return alert("Preencha o endereço completo!");
+                enderecoCompleto = `${rua}, Nº ${num}, ${bairro} ${ref ? '('+ref+')' : ''}`;
             }
 
-            // Monta o Pedido
+            // Calcula Total
             const total = carrinho.reduce((sum, i) => sum + (i.preco * i.quantidade), 0);
-            const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            let msg = `*NOVO PEDIDO - LOUCOS POR TAPIOCA* 🌵\n\n`;
-            msg += `👤 *Cliente:* ${nome}\n`;
-            msg += `📞 *Tel:* ${telefone}\n\n`;
-            msg += `*ITENS DO PEDIDO:*\n`;
+            // 1. SALVAR NO FIREBASE
+            const btn = document.querySelector('.btn-finalizar');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+            btn.disabled = true;
+
+            const pedido = {
+                data: new Date(),
+                status: 'pendente', // pendente, pronto, entregue
+                cliente: { nome: nome, telefone: telefone },
+                entrega: { tipo: entrega, endereco: enderecoCompleto },
+                pagamento: { metodo: pagamento, troco: troco || "" },
+                itens: carrinho,
+                total: total
+            };
+
+            db.collection("pedidos").add(pedido).then((docRef) => {
+                // 2. SUCESSO -> MANDAR ZAP
+                enviarZap(pedido, docRef.id);
+            }).catch((error) => {
+                console.error("Erro ao salvar:", error);
+                alert("Erro de conexão. Tente novamente.");
+                btn.disabled = false;
+                btn.innerHTML = 'Enviar Pedido via WhatsApp';
+            });
+        }
+
+        function enviarZap(pedido, idPedido) {
+            const totalFormatado = pedido.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const idCurto = idPedido.slice(0, 5).toUpperCase();
+
+            let msg = `*PEDIDO #${idCurto}* 🌵\n`;
+            msg += `👤 ${pedido.cliente.nome}\n`;
+            msg += `📞 ${pedido.cliente.telefone}\n\n`;
             
-            carrinho.forEach(i => {
+            pedido.itens.forEach(i => {
                 msg += `▪️ ${i.quantidade}x ${i.nome}\n`;
             });
 
-            msg += `\n💰 *Valor Total: ${totalFormatado}*\n`;
+            msg += `\n💰 *Total: ${totalFormatado}*\n`;
             msg += `--------------------------------\n`;
-            msg += `${enderecoMsg}\n`;
-            msg += `--------------------------------\n`;
-            msg += `💳 *Pagamento:* ${pagamento.toUpperCase()}\n`;
-            if(pagamento === 'dinheiro' && troco) msg += `💵 *Troco para:* ${troco}\n`;
-
-            // Envia
-            window.open(`https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
             
-            // Limpa carrinho
+            if(pedido.entrega.tipo === 'entrega') {
+                msg += `🏠 *Entrega:*\n${pedido.entrega.endereco}\n`;
+            } else {
+                msg += `👜 *Retirada no Balcão*\n`;
+            }
+
+            msg += `💳 *Pagamento:* ${pedido.pagamento.metodo.toUpperCase()}\n`;
+            if(pedido.pagamento.troco) msg += `💵 *Troco para:* ${pedido.pagamento.troco}\n`;
+
+            // Limpa e Envia
             localStorage.removeItem('carrinho');
+            
+            const linkZap = `https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(msg)}`;
+            window.open(linkZap, '_blank');
             window.location.href = "index.html";
         }
     </script>

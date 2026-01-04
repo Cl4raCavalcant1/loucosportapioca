@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cozinha - Pedidos em Tempo Real</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #eee; font-family: 'Poppins', sans-serif; padding: 20px; }
+        .header-pedidos { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h2 { color: #333; margin: 0; }
+        
+        .grid-pedidos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card-pedido {
+            background: white; border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid #ccc;
+            animation: slideIn 0.3s ease;
+        }
+        
+        /* Cores por status */
+        .status-pendente { border-left-color: #ffbb33; }
+        .status-pronto { border-left-color: #00C851; }
+
+        .pedido-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .pedido-id { font-weight: 900; color: #555; }
+        .pedido-hora { font-size: 12px; color: #999; }
+
+        .info-cliente { font-size: 14px; margin-bottom: 10px; color: #333; }
+        .info-cliente strong { display: block; font-size: 16px; }
+
+        .lista-itens { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .item { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; border-bottom: 1px dashed #ddd; padding-bottom: 5px; }
+        .item-qtd { font-weight: bold; margin-right: 10px; }
+
+        .pedido-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .total { font-size: 18px; font-weight: 900; color: #333; }
+
+        .btn-acao { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-pronto { background: #00C851; }
+        .btn-arquivar { background: #333; }
+
+        @keyframes slideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="header-pedidos">
+        <div>
+            <h2>Cozinha / Pedidos 👨‍🍳</h2>
+            <small>Atualização em tempo real</small>
+        </div>
+        <a href="admin.html" style="text-decoration:none; color:#333;">Voltar pro Admin</a>
+    </div>
+
+    <div id="container-pedidos" class="grid-pedidos">
+        <p style="text-align:center; width:100%; color:#999;">Aguardando pedidos...</p>
+    </div>
+
+    <audio id="som-notificacao" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+            authDomain: "loucosportapioca-57964.firebaseapp.com",
+            projectId: "loucosportapioca-57964",
+            storageBucket: "loucosportapioca-57964.firebasestorage.app",
+            messagingSenderId: "371332659198",
+            appId: "1:371332659198:web:330626357653acc00772af"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Escuta Pedidos em Tempo Real
+        db.collection("pedidos").orderBy("data", "desc").onSnapshot((snapshot) => {
+            const container = document.getElementById('container-pedidos');
+            container.innerHTML = '';
+
+            // Toca som se tiver pedido novo (adicionado recentemente)
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added" && !change.doc.metadata.fromCache) {
+                    // Tenta tocar som (navegadores bloqueiam as vezes se não houver interação antes)
+                    document.getElementById('som-notificacao').play().catch(e => console.log("Som bloqueado"));
+                }
+            });
+
+            if(snapshot.empty) {
+                container.innerHTML = '<p>Nenhum pedido hoje.</p>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const p = doc.data();
+                const id = doc.id;
+                const data = p.data.toDate().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                const statusClass = p.status === 'pendente' ? 'status-pendente' : 'status-pronto';
+                
+                // Monta HTML dos itens
+                let itensHtml = '';
+                p.itens.forEach(i => {
+                    itensHtml += `<div class="item"><span class="item-qtd">${i.quantidade}x</span> <span>${i.nome}</span></div>`;
+                });
+
+                // Botão de ação muda conforme status
+                let btnAcao = '';
+                if(p.status === 'pendente') {
+                    btnAcao = `<button class="btn-acao btn-pronto" onclick="mudarStatus('${id}', 'pronto')">✅ Pronto</button>`;
+                } else {
+                    btnAcao = `<button class="btn-acao btn-arquivar" onclick="arquivar('${id}')">📁 Arquivar</button>`;
+                }
+
+                container.innerHTML += `
+                    <div class="card-pedido ${statusClass}">
+                        <div class="pedido-header">
+                            <span class="pedido-id">#${id.slice(0,5).toUpperCase()}</span>
+                            <span class="pedido-hora">${data}</span>
+                        </div>
+                        <div class="info-cliente">
+                            <strong>${p.cliente.nome}</strong>
+                            <small>${p.entrega.tipo === 'entrega' ? '🛵 Entrega' : '👜 Retirada'}</small>
+                            <div style="font-size:12px; color:#666; margin-top:5px;">${p.entrega.endereco}</div>
+                        </div>
+                        
+                        <div class="lista-itens">
+                            ${itensHtml}
+                        </div>
+
+                        <div class="pedido-footer">
+                            <span class="total">R$ ${p.total.toFixed(2)}</span>
+                            ${btnAcao}
+                        </div>
+                        <div style="margin-top:10px; font-size:12px; color:#888;">
+                            Pagamento: ${p.pagamento.metodo.toUpperCase()} ${p.pagamento.troco ? '(Troco: '+p.pagamento.troco+')' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        function mudarStatus(id, status) {
+            db.collection("pedidos").doc(id).update({ status: status });
+        }
+
+        function arquivar(id) {
+            if(confirm("Arquivar este pedido? Ele sumirá da tela.")) {
+                db.collection("pedidos").doc(id).delete();
+            }
+        }
+    </script>
+</body>
+</html>
