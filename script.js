@@ -1,8 +1,8 @@
 // VARIÁVEIS GLOBAIS
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-let menuGlobal = []; // Guarda os dados do Firebase
+let menuGlobal = []; 
 
-// 1. ATUALIZAR TUDO (Barrinha e Página Carrinho)
+// 1. ATUALIZAR INTERFACE (Calcula Totais)
 function atualizarInterface() {
     const labelQtd = document.querySelector('.qtd-itens');
     const labelTotal = document.querySelector('.total-valor');
@@ -14,19 +14,23 @@ function atualizarInterface() {
     let total = 0;
 
     carrinho.forEach(item => {
-        qtd += item.quantidade;
-        total += item.preco * item.quantidade;
+        // Garante que quantidade e preço sejam números
+        let q = Number(item.quantidade) || 1;
+        let p = Number(item.preco) || 0;
+        
+        qtd += q;
+        total += p * q;
     });
 
     const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-    // Atualiza a barrinha fixa do Index
+    // Atualiza barra do Index
     if(labelQtd && labelTotal) {
         labelQtd.innerText = `${qtd} Produtos`;
         labelTotal.innerText = totalFormatado;
     }
 
-    // Atualiza o cabeçalho do Carrinho
+    // Atualiza cabeçalho do Carrinho
     if(labelTotalSacola && labelQtdSacola) {
         labelTotalSacola.innerText = totalFormatado;
         labelQtdSacola.innerText = `${qtd} itens na sacola`;
@@ -34,39 +38,43 @@ function atualizarInterface() {
 
     localStorage.setItem('carrinho', JSON.stringify(carrinho));
 
-    // Se estivermos na página do carrinho, desenhamos a lista com os botões +/-
+    // Se estiver na página do carrinho, redesenha a lista
     if(containerCarrinho) {
         renderizarListaCarrinho(containerCarrinho);
     }
 }
 
-// 2. FUNÇÃO ADICIONAR (Do Cardápio)
+// 2. ADICIONAR (Do Cardápio)
 window.adicionarAoCarrinho = function(id) {
-    const produto = menuGlobal.find(p => p.id === id);
+    const produto = menuGlobal.find(p => p.id == id); // Usa == para evitar erro de tipo
 
     if (produto) {
-        const itemNoCarrinho = carrinho.find(item => item.id === id);
+        const itemNoCarrinho = carrinho.find(item => item.id == id);
         if (itemNoCarrinho) {
-            itemNoCarrinho.quantidade += 1;
+            itemNoCarrinho.quantidade = (itemNoCarrinho.quantidade || 1) + 1;
         } else {
             carrinho.push({ ...produto, quantidade: 1 });
         }
         atualizarInterface();
-        alert(`😋 ${produto.nome} adicionado!`);
+        // Feedback visual simples ou alert
+        alert(`👍 ${produto.nome} adicionado!`);
     }
 }
 
-// 3. FUNÇÃO DESENHAR O CARRINHO (Com + e -)
+// 3. DESENHAR CARRINHO (Com Botões + e -)
 function renderizarListaCarrinho(container) {
     container.innerHTML = '';
 
     if (carrinho.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">Sua sacola está vazia... Que fome! 😢</p>';
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;"><i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i><p>Sua sacola está vazia...</p></div>';
         return;
     }
 
     carrinho.forEach(item => {
         const img = item.imagem || "https://via.placeholder.com/150";
+        // Garante quantidade para exibição
+        const qtdAtual = item.quantidade || 1;
+
         container.innerHTML += `
             <div class="card-carrinho">
                 <div class="img-carrinho">
@@ -80,7 +88,7 @@ function renderizarListaCarrinho(container) {
                     
                     <div class="controles-carrinho">
                         <button class="btn-qtd" onclick="alterarQtd('${item.id}', -1)">-</button>
-                        <span class="qtd-numero">${item.quantidade}</span>
+                        <span class="qtd-numero">${qtdAtual}</span>
                         <button class="btn-qtd" onclick="alterarQtd('${item.id}', 1)">+</button>
                     </div>
 
@@ -93,11 +101,12 @@ function renderizarListaCarrinho(container) {
 
 // 4. ALTERAR QUANTIDADE (+ ou -)
 window.alterarQtd = function(id, mudanca) {
-    const item = carrinho.find(i => i.id === id);
+    const item = carrinho.find(i => i.id == id);
     if (item) {
+        if(typeof item.quantidade !== 'number') item.quantidade = 1;
         item.quantidade += mudanca;
+        
         if (item.quantidade <= 0) {
-            // Se zerar, pergunta se quer excluir
             removerItem(id);
         } else {
             atualizarInterface();
@@ -105,15 +114,15 @@ window.alterarQtd = function(id, mudanca) {
     }
 }
 
-// 5. REMOVER ITEM
+// 5. REMOVER
 window.removerItem = function(id) {
-    if(confirm("Tirar esse item da sacola?")) {
-        carrinho = carrinho.filter(item => item.id !== id);
+    if(confirm("Remover este item?")) {
+        carrinho = carrinho.filter(item => item.id != id);
         atualizarInterface();
     }
 }
 
-// 6. RENDERIZAR CARDÁPIO (Index)
+// 6. RENDERIZAR MENU (Index)
 window.renderizarMenu = function(filtro = 'todos') {
     const container = document.getElementById('itens-cardapio');
     if (!container) return;
@@ -121,12 +130,12 @@ window.renderizarMenu = function(filtro = 'todos') {
 
     const lista = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
     
-    // Remove loading se existir
+    // Remove loading
     const loading = document.querySelector('.loading-area');
     if(loading) loading.remove();
 
     if (lista.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:40px; color: var(--marrom);">Nada por aqui nesta categoria... 😢</p>';
+        container.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">Nenhum item encontrado.</p>';
         return;
     }
 
@@ -154,5 +163,5 @@ window.renderizarMenu = function(filtro = 'todos') {
     });
 }
 
-// Inicializa ao carregar
+// Inicializa
 atualizarInterface();
