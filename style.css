@@ -1,308 +1,281 @@
-/* =================================================================
-   1. VARIÁVEIS E RESET GERAL
-   ================================================================= */
+/* =========================================
+   VARIÁVEIS E RESET GERAL
+   ========================================= */
 :root {
-    --bg-primary: #EEB91B;     /* Amarelo Ouro */
-    --brown-dark: #5A3E34;     /* Marrom Escuro */
-    --brown-light: #7A5C50;    /* Marrom Claro */
-    --yellow-btn: #ECA809;     /* Amarelo Botão */
-    --white: #ffffff;
-    --text-grey: #cccccc;
+    --amarelo: #EEB91B;
+    --marrom: #5A3E34;
+    --marrom-claro: #7A5C50;
+    --amarelo-escuro: #ECA809;
+    --branco: #ffffff;
     --cinza-fundo: #f5f5f5;
-    --verde-sucesso: #00C851;
-    --vermelho-erro: #ff4444;
+    --verde: #00C851;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
 body { 
-    background-color: var(--bg-primary); 
-    padding-bottom: 100px; /* Espaço para o rodapé não cobrir conteúdo */
-    overflow-x: hidden; /* Evita rolagem lateral indesejada */
+    background-color: var(--amarelo); 
+    padding-bottom: 100px; 
+    overflow-x: hidden;
 }
 
-/* =================================================================
-   2. TELA INICIAL (CAPA) - Estilo Novo
-   ================================================================= */
+/* =========================================
+   1. TELA INICIAL (CAPA)
+   ========================================= */
 #tela-inicial {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: var(--bg-primary);
-    z-index: 9999; /* Fica acima de tudo */
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center;
-    padding: 20px;
-    overflow-y: auto;
-    transition: top 0.5s ease-in-out; /* Animação suave ao subir */
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: var(--amarelo); z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 20px; overflow-y: auto;
+    transition: top 0.5s ease-in-out;
 }
 
-.logo-capa {
-    margin-bottom: 20px;
-    width: 100%;
-    display: flex; justify-content: center;
-}
-
-/* CORREÇÃO DO TAMANHO DA LOGO */
 .logo-capa img {
-    width: 220px;        /* Tamanho fixo ideal */
-    max-width: 60%;      /* Nunca passa de 60% da tela */
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+    width: 220px; max-width: 60%; height: auto; object-fit: contain;
+    margin-bottom: 20px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
 }
 
-.info-capa { margin-bottom: 30px; color: var(--brown-dark); }
-.info-capa h3 { font-size: 22px; margin-bottom: 5px; }
-.info-capa p { font-size: 14px; margin-bottom: 10px; font-weight: 500; }
+.info-capa { margin-bottom: 30px; color: var(--marrom); }
+.info-capa h3 { font-size: 24px; margin-bottom: 5px; font-weight: 900; }
+.info-capa p { font-size: 14px; margin: 5px 0; }
 
 .status-badge {
-    background: white; color: var(--verde-sucesso);
-    padding: 5px 15px; border-radius: 20px;
-    font-weight: bold; font-size: 12px;
-    display: inline-block; margin-top: 5px;
+    background: white; color: var(--verde); padding: 6px 20px;
+    border-radius: 20px; font-weight: 700; font-size: 14px;
+    display: inline-flex; align-items: center; margin: 10px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+.pulsar { display: inline-block; width: 8px; height: 8px; background-color: var(--verde); border-radius: 50%; margin-right: 8px; }
 
-/* Botões da Capa */
 .btn-inicio {
-    background-color: var(--brown-dark);
-    color: white;
-    padding: 15px 0;
-    width: 100%; max-width: 300px; /* Não fica gigante em tablets */
-    margin: 8px 0;
-    border-radius: 50px;
-    font-weight: 700; font-size: 18px;
-    text-decoration: none; display: flex;
-    align-items: center; justify-content: center; gap: 10px;
-    border: none; cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 100%; max-width: 320px; padding: 16px; margin: 8px 0;
+    border-radius: 50px; font-weight: 700; font-size: 18px;
+    text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;
+    border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    transition: transform 0.1s;
 }
+.btn-inicio:active { transform: scale(0.98); }
+.principal { background-color: var(--marrom); color: white; font-size: 20px; }
+.secundario { background-color: var(--marrom-claro); color: white; font-size: 16px; }
 
-.btn-inicio:hover { transform: scale(1.02); background-color: #4a332a; }
-
-/* =================================================================
-   3. CABEÇALHO (HEADER)
-   ================================================================= */
+/* =========================================
+   2. HEADER E NAVEGAÇÃO
+   ========================================= */
 header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 15px; position: relative;
+    padding: 10px 15px; position: relative; height: 100px; /* Altura maior para logo */
 }
 
 .btn-header {
-    font-size: 22px; color: var(--brown-dark);
-    background: rgba(255,255,255,0.3);
-    width: 45px; height: 45px;
-    border-radius: 50%; display: flex;
-    align-items: center; justify-content: center;
-    cursor: pointer;
+    font-size: 24px; color: var(--marrom); background: rgba(255,255,255,0.3);
+    width: 45px; height: 45px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; cursor: pointer;
 }
 
+.logo-header { display: flex; align-items: center; height: 100%; }
 .logo-header img {
-    height: 60px; /* Logo pequena no topo */
-    width: auto; object-fit: contain;
+    height: 100%; width: auto; object-fit: contain;
 }
 
-/* =================================================================
-   4. NAVEGAÇÃO E LISTA DE PRODUTOS
-   ================================================================= */
 .categorias {
-    display: flex; overflow-x: auto;
-    padding: 10px 0; background: #fff;
-    margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex; overflow-x: auto; padding: 12px 0; background: #fff;
+    margin-top: 0px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 .categorias a {
-    text-decoration: none; color: #999;
-    font-weight: 600; padding: 10px 20px;
-    font-size: 13px; text-transform: uppercase; white-space: nowrap;
+    text-decoration: none; color: #999; font-weight: 600; padding: 0 20px;
+    font-size: 14px; text-transform: uppercase; white-space: nowrap;
 }
-.categorias a.ativo {
-    color: var(--brown-dark); border-bottom: 3px solid var(--brown-dark);
-}
+.categorias a.ativo { color: var(--marrom); border-bottom: 3px solid var(--marrom); }
 
+/* =========================================
+   3. LISTA DE PRODUTOS
+   ========================================= */
 main { padding: 20px 15px; }
+.lista-produtos { display: flex; flex-direction: column; gap: 20px; }
+.loading-area { text-align: center; margin-top: 50px; color: var(--marrom); font-size: 18px; opacity: 0.8; }
 
 .card-produto {
-    background-color: var(--brown-dark);
-    border-radius: 15px; margin-bottom: 20px;
-    display: flex; overflow: hidden;
-    color: var(--white); height: 130px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background-color: var(--marrom); border-radius: 15px;
+    display: flex; overflow: hidden; color: var(--white); height: 130px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
-
 .img-wrapper { width: 35%; height: 100%; }
 .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-
 .info-wrapper {
-    width: 65%; padding: 12px;
-    display: flex; flex-direction: column; justify-content: space-between;
+    width: 65%; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;
 }
-.info-wrapper h3 { font-size: 15px; margin-bottom: 4px; line-height: 1.1; }
-.info-wrapper .desc { font-size: 10px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.info-wrapper .price { font-size: 16px; font-weight: 700; }
-
+.info-wrapper h3 { font-size: 16px; margin-bottom: 4px; line-height: 1.2; font-weight: 700; }
+.info-wrapper .desc { font-size: 11px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.info-wrapper .price { font-size: 18px; font-weight: 800; margin: 5px 0; }
 .btn-add {
-    background-color: var(--yellow-btn);
-    border: none; color: white;
-    padding: 6px; border-radius: 20px;
-    font-size: 11px; font-weight: 600;
-    cursor: pointer; width: 100%; margin-top: 5px;
+    background-color: var(--amarelo-escuro); border: none; color: var(--marrom);
+    padding: 8px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    cursor: pointer; width: 100%;
 }
+.btn-add:hover { background-color: #d49606; }
 
-/* =================================================================
-   5. MENU LATERAL E MODAL (ESSENCIAL PARA O MOBILE)
-   ================================================================= */
-/* Menu Lateral (SideBar) */
-.menu-lateral {
-    position: fixed; top: 0; right: -100%; /* Começa escondido */
-    width: 80%; height: 100%;
-    background: white; z-index: 10000;
-    transition: 0.3s; padding: 20px;
-    display: flex; flex-direction: column;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+/* =========================================
+   4. MENU LATERAL E MODAL
+   ========================================= */
+.menu-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 20000; display: none; opacity: 0; transition: opacity 0.3s;
 }
-.menu-lateral.aberto { right: 0; } /* Classe que faz aparecer */
+.menu-overlay.visivel { display: block; opacity: 1; }
+
+.menu-lateral {
+    position: fixed; top: 0; right: -80%; width: 80%; height: 100%;
+    background: white; z-index: 20001; transition: right 0.3s ease;
+    padding: 20px; display: flex; flex-direction: column; box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+}
+.menu-lateral.aberto { right: 0; }
 
 .menu-lateral a {
-    text-decoration: none; color: #333; font-weight: 600;
-    padding: 15px 0; border-bottom: 1px solid #eee;
-    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; font-weight: 600; font-size: 18px;
+    padding: 20px 0; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px;
 }
-.menu-lateral i { color: var(--brown-dark); width: 25px; }
+.menu-lateral i { width: 25px; }
 
-/* Modal de Info (Horários) */
 .modal-fundo {
-    display: none; /* Começa escondido */
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7); z-index: 10001;
-    align-items: center; justify-content: center;
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); z-index: 30000; align-items: center; justify-content: center;
 }
 .modal-box {
-    background: white; padding: 30px;
-    border-radius: 15px; width: 85%; max-width: 350px;
+    background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px;
     text-align: center; position: relative;
 }
+.fechar-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999; }
 
-/* =================================================================
-   6. RODAPÉ FIXO (HOME)
-   ================================================================= */
+/* =========================================
+   5. RODAPÉ FIXO
+   ========================================= */
 .sticky-footer {
     position: fixed; bottom: 0; left: 0; width: 100%;
-    background-color: white; padding: 15px 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 9000;
+    background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 9000;
 }
-.total-valor { font-size: 20px; font-weight: 800; color: #000; }
-.qtd-itens { font-size: 12px; color: #666; display: block; }
-
+.total-valor { font-size: 22px; font-weight: 900; color: var(--marrom); }
+.qtd-itens { font-size: 12px; color: #666; display: block; font-weight: 500; }
 .btn-ver-pedido {
-    background-color: var(--brown-dark);
-    color: white; padding: 12px 25px;
-    border-radius: 8px; font-size: 16px; font-weight: 700;
-    text-decoration: none; border: none; cursor: pointer;
+    background-color: var(--marrom); color: white; padding: 15px 30px;
+    border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none;
+    border: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
 }
 
-/* =================================================================
-   7. PÁGINA: CARRINHO (carrinho.html)
-   ================================================================= */
+/* =========================================
+   6. CARRINHO (NOVOS ESTILOS DE QUANTIDADE)
+   ========================================= */
 .header-carrinho {
-    background-color: var(--bg-primary); padding: 15px;
-    display: flex; align-items: center;
+    background-color: var(--amarelo); padding: 20px; display: flex; align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 .btn-voltar {
-    background: var(--brown-dark); color: white;
-    width: 35px; height: 35px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    text-decoration: none; margin-right: 15px;
+    background: var(--marrom); color: white; width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; text-decoration: none; margin-right: 20px;
+    font-size: 18px;
 }
-.titulo-voltar { font-weight: 700; font-size: 18px; color: #000; }
+.titulo-voltar { font-weight: 800; font-size: 20px; color: var(--marrom); flex-grow: 1; }
+.info-sacola { text-align: right; }
+.valor-sacola { font-weight: 900; font-size: 18px; color: var(--marrom); }
 
 .container-carrinho { padding: 20px; background: white; min-height: 80vh; }
 
 .card-carrinho {
-    display: flex; background: var(--brown-dark);
-    border-radius: 10px; overflow: hidden; color: white;
-    margin-bottom: 15px; height: 100px; position: relative;
+    display: flex; background: var(--marrom); border-radius: 15px;
+    overflow: hidden; color: white; margin-bottom: 20px; height: 110px; position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 .img-carrinho { width: 30%; }
 .img-carrinho img { width: 100%; height: 100%; object-fit: cover; }
-.info-carrinho { width: 70%; padding: 10px; display: flex; flex-direction: column; justify-content: center;}
+.info-carrinho { width: 70%; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
+.info-carrinho h3 { font-size: 16px; margin: 0; }
+.info-carrinho .price { font-size: 18px; font-weight: 800; }
+
+/* CONTROLES DE QUANTIDADE (+ e -) */
+.controles-carrinho {
+    display: flex; align-items: center; background: rgba(0,0,0,0.2);
+    width: fit-content; border-radius: 20px; padding: 2px; margin-top: 5px;
+}
+.btn-qtd {
+    background: none; border: none; color: white; font-size: 18px; font-weight: bold;
+    width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.qtd-numero { padding: 0 10px; font-weight: bold; font-size: 16px; }
 
 .btn-lixo { 
-    position: absolute; bottom: 10px; right: 10px; 
-    color: #ddd; cursor: pointer; font-size: 18px;
+    position: absolute; bottom: 15px; right: 15px; color: #ff6b6b; cursor: pointer; font-size: 20px;
+    background: rgba(255,255,255,0.1); padding: 8px; border-radius: 50%;
 }
-.btn-lixo:hover { color: var(--vermelho-erro); }
 
 .footer-carrinho {
-    position: fixed; bottom: 0; width: 100%;
-    background-color: var(--bg-primary); padding: 20px; text-align: center;
+    position: fixed; bottom: 0; width: 100%; background-color: var(--amarelo); padding: 20px; text-align: center;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
 }
 .btn-prosseguir {
-    background-color: var(--brown-dark); color: white;
-    border: none; padding: 15px 40px; border-radius: 8px;
-    font-size: 18px; font-weight: 700; cursor: pointer;
-    width: 100%; max-width: 400px; text-decoration: none; display: inline-block;
+    background-color: var(--marrom); color: white; border: none; padding: 18px; border-radius: 15px;
+    font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; max-width: 400px;
+    text-decoration: none; display: inline-block;
 }
 
-/* =================================================================
-   8. PÁGINA: PAGAMENTO (pagamento.html)
-   ================================================================= */
-.container-pagamento { padding: 20px; background: white; min-height: 80vh; padding-bottom: 100px; }
-.titulo-secao { font-size: 16px; color: #666; margin-bottom: 15px; font-weight: 400; }
-
+/* =========================================
+   7. PAGAMENTO
+   ========================================= */
+.container-pagamento { padding: 30px 20px; background: white; min-height: 100vh; }
+.titulo-secao { font-size: 18px; color: var(--marrom); margin: 25px 0 15px 0; font-weight: 700; }
 .opcao-card {
-    background: var(--cinza-fundo); padding: 15px; border-radius: 10px;
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 15px; cursor: pointer; border: 1px solid transparent;
+    background: #f0f0f0; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 15px; cursor: pointer; border: 2px solid transparent;
+    transition: border-color 0.2s;
 }
-/* Estilo quando selecionado (requer JS para adicionar classe, ou uso de :checked) */
-.opcao-card:hover { border-color: var(--brown-dark); }
-
-.opcao-card input[type="radio"] {
-    accent-color: var(--brown-dark); transform: scale(1.3);
-}
-
-.sub-opcoes-cartao {
-    display: flex; gap: 15px; margin-bottom: 20px; justify-content: center;
-}
+.opcao-card:hover { border-color: var(--marrom); }
+.opcao-card input[type="radio"] { accent-color: var(--marrom); transform: scale(1.4); }
+.info-opcao strong { font-size: 16px; color: var(--marrom); display: block; margin-bottom: 5px; }
+.info-opcao p { font-size: 13px; color: #666; }
+.sub-opcoes-cartao { display: flex; gap: 15px; margin-bottom: 20px; }
 .btn-tipo-cartao {
-    background-color: var(--yellow-btn); color: white;
-    border: none; border-radius: 20px; padding: 10px 0; width: 45%;
-    font-weight: 600; font-size: 14px; cursor: pointer;
+    background-color: var(--amarelo-escuro); color: var(--marrom); border: none; border-radius: 25px;
+    padding: 12px 0; width: 50%; font-weight: 700; font-size: 14px; cursor: pointer;
 }
-
 .campo-troco input {
-    width: 100%; background-color: #eee; border: none;
-    padding: 15px; border-radius: 8px; font-size: 14px; outline: none; margin-top: 5px;
+    width: 100%; background-color: #f0f0f0; border: 2px solid #ddd; padding: 15px;
+    border-radius: 12px; font-size: 16px; outline: none; margin-top: 10px; color: var(--marrom); font-weight: 600;
 }
-
+.campo-troco input:focus { border-color: var(--marrom); }
 .footer-pagamento {
-    position: fixed; bottom: 0; left: 0; width: 100%;
-    background: var(--bg-primary); padding: 20px; text-align: center;
+    position: fixed; bottom: 0; left: 0; width: 100%; background: var(--amarelo); padding: 20px; text-align: center;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
 }
 .btn-finalizar {
-    background: var(--brown-dark); color: white; width: 100%;
-    padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 18px;
+    background: var(--marrom); color: white; width: 100%; max-width: 400px; padding: 18px;
+    border: none; border-radius: 15px; font-weight: 900; font-size: 20px; cursor: pointer;
 }
 
-/* =================================================================
-   9. PÁGINA: ADMIN (admin.html)
-   ================================================================= */
-.container-admin { padding: 20px; background: white; min-height: 100vh; max-width: 800px; margin: 0 auto; }
-.header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-
-.form-add { background: var(--cinza-fundo); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; }
-.form-add input, .form-add select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-
-.btn-salvar { 
-    background: var(--verde-sucesso); color: white; width: 100%; 
-    padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
+/* =========================================
+   8. ADMIN
+   ========================================= */
+.container-admin { padding: 30px 20px; background: white; min-height: 100vh; max-width: 800px; margin: 0 auto; }
+.header-admin h2 { color: var(--marrom); font-weight: 900; }
+.form-add { background: #f8f8f8; padding: 25px; border-radius: 20px; margin-bottom: 30px; border: 2px solid #eee; }
+.form-add input, .form-add select {
+    width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px;
+    font-size: 14px; outline: none;
 }
-.btn-salvar:hover { background: #00a041; }
-
-.item-lista { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-.badge-cat { background: var(--bg-primary); font-size: 10px; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
-.img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 5px; margin-right: 10px; border: 1px solid #ddd; }
-.btn-remove { color: var(--vermelho-erro); cursor: pointer; margin-left: 10px; font-size: 18px; }
+.form-add input:focus, .form-add select:focus { border-color: var(--marrom); }
+.btn-salvar {
+    background: var(--verde); color: white; width: 100%; padding: 15px; border: none;
+    border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 10px;
+}
+.item-lista {
+    display: flex; justify-content: space-between; align-items: center; padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+.badge-cat {
+    background: var(--amarelo); color: var(--marrom); font-size: 11px; padding: 4px 8px;
+    border-radius: 5px; font-weight: 800; text-transform: uppercase;
+}
+.img-preview {
+    width: 60px; height: 60px; object-fit: cover; border-radius: 10px; margin-right: 15px;
+    border: 2px solid #eee;
+}
+.btn-remove { color: #ff4444; cursor: pointer; margin-left: 15px; font-size: 20px; background: #ffe0e0; padding: 10px; border-radius: 50%; }
