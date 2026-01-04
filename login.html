@@ -6,42 +6,103 @@
     <title>Login Admin - Loucos Por Tapioca</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        body { 
+            display: flex; align-items: center; justify-content: center; height: 100vh; 
+            background-color: var(--bg-primary); /* Amarelo de fundo */
+        }
         .login-box {
-            background: white; padding: 30px; border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; width: 300px;
+            background: white; padding: 40px 30px; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 320px;
         }
-        .login-box input {
-            width: 100%; padding: 10px; margin: 10px 0;
-            border: 1px solid #ccc; border-radius: 5px;
+        .login-box h2 { margin-bottom: 20px; color: var(--brown-dark); }
+        
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group input {
+            width: 100%; padding: 12px 15px; 
+            border: 2px solid #eee; border-radius: 10px;
+            font-size: 14px; outline: none; transition: 0.3s;
         }
+        .input-group input:focus { border-color: var(--bg-primary); }
+
         .btn-entrar {
             background-color: var(--brown-dark); color: white; border: none;
-            padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold;
+            padding: 15px; width: 100%; border-radius: 10px; cursor: pointer; 
+            font-weight: bold; font-size: 16px; margin-top: 10px; transition: 0.2s;
         }
+        .btn-entrar:hover { background-color: #4a332a; transform: scale(1.02); }
+        
+        .erro-msg { color: red; font-size: 12px; margin-top: 10px; display: none; }
+        .loader { display: none; color: var(--brown-dark); margin-top: 10px; }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+
     <div class="login-box">
-        <h2 style="color: var(--brown-dark);">Área Restrita 🔒</h2>
-        <input type="text" id="usuario" placeholder="Usuário">
-        <input type="password" id="senha" placeholder="Senha">
+        <div style="margin-bottom: 20px;">
+            <i class="fa-solid fa-lock" style="font-size: 40px; color: var(--brown-dark);"></i>
+        </div>
+        <h2>Área Restrita</h2>
+        
+        <div class="input-group">
+            <input type="email" id="email" placeholder="E-mail de acesso">
+        </div>
+        <div class="input-group">
+            <input type="password" id="senha" placeholder="Sua senha">
+        </div>
+
         <button class="btn-entrar" onclick="fazerLogin()">Entrar</button>
+        
+        <p id="msg-erro" class="erro-msg">E-mail ou senha incorretos!</p>
+        <div id="loader" class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Verificando...</div>
     </div>
 
-    <script>
-        function fazerLogin() {
-            const user = document.getElementById('usuario').value;
-            const pass = document.getElementById('senha').value;
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-            // DEFINA AQUI SEU LOGIN E SENHA
-            if (user === "admin" && pass === "1234") {
-                // Salva que está logado
-                sessionStorage.setItem('logado', 'sim');
-                window.location.href = "admin.html";
-            } else {
-                alert("Login ou senha incorretos!");
+    <script>
+        const firebaseConfig = {
+            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+            authDomain: "loucosportapioca-57964.firebaseapp.com",
+            projectId: "loucosportapioca-57964",
+            storageBucket: "loucosportapioca-57964.firebasestorage.app",
+            messagingSenderId: "371332659198",
+            appId: "1:371332659198:web:330626357653acc00772af"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const msgErro = document.getElementById('msg-erro');
+            const btn = document.querySelector('.btn-entrar');
+            const loader = document.getElementById('loader');
+
+            if (!email || !senha) {
+                msgErro.innerText = "Preencha todos os campos.";
+                msgErro.style.display = "block";
+                return;
             }
+
+            // Visual de carregamento
+            btn.style.display = 'none';
+            loader.style.display = 'block';
+            msgErro.style.display = 'none';
+
+            // LOGIN REAL NO GOOGLE
+            firebase.auth().signInWithEmailAndPassword(email, senha)
+                .then((userCredential) => {
+                    // Sucesso! Vai pro Admin
+                    window.location.href = "admin.html";
+                })
+                .catch((error) => {
+                    // Erro
+                    console.error(error);
+                    btn.style.display = 'block';
+                    loader.style.display = 'none';
+                    msgErro.innerText = "Acesso negado. Verifique seus dados.";
+                    msgErro.style.display = "block";
+                });
         }
     </script>
 </body>

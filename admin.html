@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -11,215 +10,73 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- ESTILOS EXCLUSIVOS DO ADMIN --- */
-        body {
-            background-color: #f0f2f5; /* Fundo cinza claro profissional */
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Topo do Admin */
-        .admin-header {
-            background-color: var(--brown-dark);
-            padding: 20px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        .admin-header h2 { margin: 0; font-size: 20px; }
-        .admin-header span { color: var(--yellow-btn); }
-
-        .btn-sair {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+        /* ESTILOS DO ADMIN (Mantidos do anterior) */
+        body { background-color: #f0f2f5; font-family: 'Poppins', sans-serif; }
+        .admin-header { background-color: var(--brown-dark); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .btn-sair { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
         .btn-sair:hover { background: #ff4444; border-color: #ff4444; }
-
-        .container-admin {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 20px 50px 20px;
-        }
-
-        /* Card do Formulário */
-        .form-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border-top: 5px solid var(--bg-primary); /* Detalhe amarelo */
-            margin-bottom: 40px;
-        }
-
-        .form-title {
-            color: var(--brown-dark);
-            margin-top: 0;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Grid do Formulário (Lado a lado no PC) */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        @media (max-width: 600px) {
-            .form-grid { grid-template-columns: 1fr; } /* Um embaixo do outro no celular */
-        }
-
+        .container-admin { max-width: 800px; margin: 0 auto; padding: 0 20px 50px 20px; }
+        .form-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-top: 5px solid var(--bg-primary); margin-bottom: 40px; }
+        .form-title { color: var(--brown-dark); margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600; }
-        
-        .form-card input, .form-card select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-            transition: 0.3s;
-            background: #fafafa;
-        }
-        .form-card input:focus, .form-card select:focus {
-            border-color: var(--bg-primary);
-            background: white;
-        }
-
-        /* Input de Arquivo Customizado */
-        input[type="file"] {
-            padding: 10px;
-            background: white;
-            border: 2px dashed #ccc;
-            cursor: pointer;
-        }
-
-        /* Botões */
-        .btn-salvar {
-            background: #00C851;
-            color: white;
-            width: 100%;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.2s;
-            margin-top: 10px;
-        }
-        .btn-salvar:hover { background: #00963c; transform: scale(1.01); }
-        
-        .btn-atualizar { background: #33b5e5 !important; }
+        .form-card input, .form-card select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 14px; outline: none; transition: 0.3s; background: #fafafa; }
+        .form-card input:focus, .form-card select:focus { border-color: var(--bg-primary); background: white; }
+        .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .btn-salvar:hover { background: #00963c; }
+        .btn-atualizar { background: #33b5e5 !important; } 
         .btn-atualizar:hover { background: #0099cc !important; }
-
-        .btn-cancelar {
-            background: #eee; color: #555; width: 100%; border: none; padding: 12px;
-            border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px;
-            display: none;
-        }
+        .btn-cancelar { background: #eee; color: #555; width: 100%; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; display: none; }
         .btn-cancelar:hover { background: #ddd; }
-
-        /* Lista de Produtos */
-        .section-header {
-            display: flex; justify-content: space-between; align-items: flex-end;
-            margin-bottom: 15px; border-bottom: 2px solid #ddd; padding-bottom: 10px;
-        }
-        .section-header h3 { margin: 0; color: var(--brown-dark); }
-
-        .item-lista {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: 0.2s;
-            border-left: 5px solid transparent;
-        }
+        .item-lista { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid transparent; transition: 0.2s; }
         .item-lista:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left-color: var(--bg-primary); }
-
         .item-info { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
-        .img-preview {
-            width: 60px; height: 60px; object-fit: cover; border-radius: 10px;
-            border: 1px solid #eee; background: #f9f9f9;
-        }
-        
-        .badge-cat {
-            background: var(--bg-primary); color: var(--brown-dark);
-            font-size: 10px; padding: 3px 8px; border-radius: 6px;
-            text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
-        }
-
+        .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; border: 1px solid #eee; }
+        .badge-cat { background: var(--bg-primary); color: var(--brown-dark); font-size: 10px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 800; }
         .acoes { display: flex; gap: 10px; }
-        .btn-icon-admin {
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 16px; transition: 0.2s;
-        }
+        .btn-icon-admin { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-edit { background: #e3f2fd; color: #2196f3; }
-        .btn-edit:hover { background: #2196f3; color: white; }
-        
         .btn-remove { background: #ffebee; color: #f44336; }
-        .btn-remove:hover { background: #f44336; color: white; }
-
         .loader { display: none; text-align: center; margin-top: 15px; color: #666; }
-
     </style>
 </head>
 <body>
 
     <div class="admin-header">
         <div>
-            <h2>Painel <span>Admin</span></h2>
+            <h2 style="color: white;">Painel Admin</h2>
             <small>Gerencie seu cardápio</small>
         </div>
         <button onclick="sair()" class="btn-sair">
             <i class="fa-solid fa-right-from-bracket"></i> Sair
         </button>
     </div>
-<a href="pedidos.html" style="background:#EEB91B; color:#5A3E34; text-decoration:none; padding:10px 20px; border-radius:8px; font-weight:bold; display:inline-block; margin-bottom:20px; width:100%; text-align:center;">
-    <i class="fa-solid fa-utensils"></i> Ver Pedidos da Cozinha (Tempo Real)
-</a>
+
     <div class="container-admin">
         
+        <a href="pedidos.html" style="background:#EEB91B; color:#5A3E34; text-decoration:none; padding:15px; border-radius:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <i class="fa-solid fa-utensils"></i> Ver Pedidos da Cozinha (Tempo Real)
+        </a>
+
         <div class="form-card" id="form-produto">
             <h3 class="form-title" id="titulo-form">
                 <i class="fa-solid fa-circle-plus"></i> Adicionar Produto
             </h3>
             
-            <div class="form-grid">
-                <div class="input-group">
-                    <label>Nome do Produto</label>
-                    <input type="text" id="novo-nome" placeholder="Ex: Tapioca de Carne">
-                </div>
-                
-                <div class="input-group">
-                    <label>Categoria</label>
-                    <select id="novo-categoria">
-                        <option value="" disabled selected>Selecione...</option>
-                        <option value="pratos">Pratos do Dia</option>
-                        <option value="tapioca-grande">Tapioca Grande</option>
-                        <option value="tapioca-media">Tapioca Média</option>
-                        <option value="bebidas">Bebidas</option>
-                    </select>
-                </div>
+            <div class="input-group">
+                <label>Nome do Produto</label>
+                <input type="text" id="novo-nome" placeholder="Ex: Tapioca de Carne">
+            </div>
+            
+            <div class="input-group">
+                <label>Categoria</label>
+                <select id="novo-categoria">
+                    <option value="" disabled selected>Selecione...</option>
+                    <option value="pratos">Pratos do Dia</option>
+                    <option value="tapioca-grande">Tapioca Grande</option>
+                    <option value="tapioca-media">Tapioca Média</option>
+                    <option value="bebidas">Bebidas</option>
+                </select>
             </div>
 
             <div class="input-group">
@@ -227,17 +84,15 @@
                 <input type="text" id="novo-desc" placeholder="Ex: Carne seca, queijo coalho e cebola...">
             </div>
 
-            <div class="form-grid">
-                <div class="input-group">
-                    <label>Preço (R$)</label>
-                    <input type="number" id="novo-preco" placeholder="Ex: 15.50">
-                </div>
-                
-                <div class="input-group">
-                    <label>Imagem</label>
-                    <input type="file" id="novo-img-file" accept="image/*">
-                    <input type="hidden" id="img-antiga-base64">
-                </div>
+            <div class="input-group">
+                <label>Preço (R$)</label>
+                <input type="number" id="novo-preco" placeholder="Ex: 15.50">
+            </div>
+            
+            <div class="input-group">
+                <label>Imagem</label>
+                <input type="file" id="novo-img-file" accept="image/*">
+                <input type="hidden" id="img-antiga-base64">
             </div>
 
             <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarEdicao()">
@@ -249,15 +104,11 @@
             </button>
             
             <div class="loader" id="loader">
-                <i class="fa-solid fa-spinner fa-spin"></i> Processando imagem... aguarde.
+                <i class="fa-solid fa-spinner fa-spin"></i> Processando...
             </div>
         </div>
 
-        <div class="section-header">
-            <h3>Cardápio Atual</h3>
-            <span style="font-size: 12px; color: #888;">Lista em tempo real</span>
-        </div>
-
+        <h3 style="color:var(--brown-dark); margin-bottom: 15px;">Cardápio Atual</h3>
         <div id="lista-admin">
             <p style="text-align:center; color:#999; padding: 40px;">
                 <i class="fa-solid fa-spinner fa-spin"></i> Carregando produtos...
@@ -266,10 +117,9 @@
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // --- 1. CONFIGURAÇÃO ---
         const firebaseConfig = {
             apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
             authDomain: "loucosportapioca-57964.firebaseapp.com",
@@ -282,55 +132,63 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        if (sessionStorage.getItem('logado') !== 'sim') {
-            window.location.href = "login.html";
-        }
+        // --- SEGURANÇA REAL ---
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                // Se não tiver usuário logado, chuta pro login
+                window.location.href = "login.html";
+            } else {
+                // Se tiver, carrega a lista
+                carregarProdutos();
+            }
+        });
 
         let idEdicao = null; 
         let produtosCache = []; 
 
-        // --- 2. LER DADOS ---
-        db.collection("produtos").onSnapshot((querySnapshot) => {
-            const container = document.getElementById('lista-admin');
-            container.innerHTML = ''; 
-            produtosCache = [];
-            
-            if (querySnapshot.empty) {
-                container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;"><i class="fa-solid fa-box-open" style="font-size:40px; margin-bottom:10px;"></i><p>Nenhum produto cadastrado.</p></div>';
-                return;
-            }
-
-            querySnapshot.forEach((doc) => {
-                const item = doc.data();
-                const id = doc.id;
-                produtosCache.push({ id: id, ...item });
-
-                const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/60';
+        function carregarProdutos() {
+            db.collection("produtos").onSnapshot((querySnapshot) => {
+                const container = document.getElementById('lista-admin');
+                container.innerHTML = ''; 
+                produtosCache = [];
                 
-                container.innerHTML += `
-                    <div class="item-lista">
-                        <div class="item-info">
-                            <img src="${imgDisplay}" class="img-preview">
-                            <div>
-                                <strong style="font-size:16px; display:block; color:#333;">${item.nome}</strong>
-                                <span class="badge-cat">${item.categoria}</span>
-                                <div style="font-size:13px; color:#555; margin-top:2px;">R$ ${item.preco.toFixed(2)}</div>
-                            </div>
-                        </div>
-                        <div class="acoes">
-                            <div class="btn-icon-admin btn-edit" onclick="prepararEdicao('${id}')" title="Editar">
-                                <i class="fa-solid fa-pen"></i>
-                            </div>
-                            <div class="btn-icon-admin btn-remove" onclick="apagarDoBanco('${id}')" title="Excluir">
-                                <i class="fa-solid fa-trash"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        });
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">Nenhum produto cadastrado.</div>';
+                    return;
+                }
 
-        // --- 3. LÓGICA DE EDIÇÃO ---
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    const id = doc.id;
+                    produtosCache.push({ id: id, ...item });
+
+                    const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/60';
+                    
+                    container.innerHTML += `
+                        <div class="item-lista">
+                            <div class="item-info">
+                                <img src="${imgDisplay}" class="img-preview">
+                                <div>
+                                    <strong style="font-size:16px; display:block; color:#333;">${item.nome}</strong>
+                                    <span class="badge-cat">${item.categoria}</span>
+                                    <div style="font-size:13px; color:#555; margin-top:2px;">R$ ${item.preco.toFixed(2)}</div>
+                                </div>
+                            </div>
+                            <div class="acoes">
+                                <div class="btn-icon-admin btn-edit" onclick="prepararEdicao('${id}')" title="Editar">
+                                    <i class="fa-solid fa-pen"></i>
+                                </div>
+                                <div class="btn-icon-admin btn-remove" onclick="apagarDoBanco('${id}')" title="Excluir">
+                                    <i class="fa-solid fa-trash"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // --- MODO EDIÇÃO ---
         function prepararEdicao(id) {
             const produto = produtosCache.find(p => p.id === id);
             
@@ -373,7 +231,6 @@
             document.getElementById('btn-cancelar').style.display = 'none';
         }
 
-        // --- 4. SALVAR OU ATUALIZAR ---
         function processarFormulario() {
             const nome = document.getElementById('novo-nome').value;
             const cat = document.getElementById('novo-categoria').value;
@@ -422,7 +279,6 @@
             }
 
             promessa.then(() => {
-                // Não precisa de alert, a lista atualiza sozinha. Só limpa.
                 cancelarEdicao(); 
             }).catch((error) => {
                 console.error("Erro: ", error);
@@ -434,7 +290,6 @@
             });
         }
 
-        // Função de Compressão
         function comprimirImagem(file, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -456,14 +311,16 @@
         }
 
         function apagarDoBanco(id) {
-            if(confirm("Tem certeza que deseja apagar este item?")) {
+            if(confirm("Tem certeza que deseja apagar?")) {
                 db.collection("produtos").doc(id).delete();
             }
         }
 
         function sair() {
-            sessionStorage.removeItem('logado');
-            window.location.href = "login.html";
+            // Desloga do Google
+            firebase.auth().signOut().then(() => {
+                window.location.href = "login.html";
+            });
         }
     </script>
 </body>
