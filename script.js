@@ -191,6 +191,48 @@ window.renderizarMenu = function(filtro = 'todos') {
         `;
     });
 }
+<script>
+        const firebaseConfig = {
+            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+            authDomain: "loucosportapioca-57964.firebaseapp.com",
+            projectId: "loucosportapioca-57964",
+            storageBucket: "loucosportapioca-57964.firebasestorage.app",
+            messagingSenderId: "371332659198",
+            appId: "1:371332659198:web:330626357653acc00772af"
+        };
+        firebase.initializeApp(firebaseConfig);
 
+        function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const msgErro = document.getElementById('msg-erro');
+            const btn = document.querySelector('.btn-entrar');
+            const loader = document.getElementById('loader');
+
+            if (!email || !senha) {
+                msgErro.innerText = "Preencha todos os campos.";
+                msgErro.style.display = "block";
+                return;
+            }
+
+            btn.style.display = 'none';
+            loader.style.display = 'block';
+            msgErro.style.display = 'none';
+
+            firebase.auth().signInWithEmailAndPassword(email, senha)
+                .then((userCredential) => {
+                    window.location.href = "admin.html";
+                })
+                .catch((error) => {
+                    console.error(error);
+                    btn.style.display = 'block';
+                    loader.style.display = 'none';
+                    
+                    // AGORA VAI MOSTRAR O ERRO REAL NA TELA
+                    msgErro.innerText = "Erro: " + error.code + " - " + error.message;
+                    msgErro.style.display = "block";
+                });
+        }
+    </script>
 // Inicializa
 atualizarInterface();
