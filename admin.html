@@ -3,38 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Nuvem ☁️</title>
+    <title>Admin - Nuvem (Modo Grátis)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Estilos do Admin */
         .container-admin { padding: 20px; max-width: 800px; margin: 0 auto; background: white; min-height: 100vh; }
         .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
         .form-add { background: #f4f4f4; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; }
         .form-add input, .form-add select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
-        .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        /* Estilo para o Input de Arquivo */
+        input[type="file"] { background: white; padding: 10px; }
+
+        .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px;}
         .btn-salvar:hover { background: #00a844; }
+        .btn-salvar:disabled { background: #ccc; cursor: not-allowed; }
 
         .item-lista { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
         .badge-cat { background: #EEB91B; color: #5A3E34; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
         .btn-remove { color: red; cursor: pointer; margin-left: 10px; font-size: 18px; }
-        
-        .loading { text-align: center; color: #666; margin-top: 20px; }
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
 
     <div class="container-admin">
         <div class="header-admin">
-            <h2>Gerenciador na Nuvem ☁️</h2>
+            <h2>Gerenciador (Sem Taxas) ☁️</h2>
             <button onclick="sair()" style="background:red; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Sair</button>
         </div>
 
         <div class="form-add">
             <h3>Adicionar Novo Produto</h3>
-            <input type="text" id="novo-nome" placeholder="Nome do Produto (ex: Tapioca de Carne)">
+            <input type="text" id="novo-nome" placeholder="Nome do Produto">
             
             <select id="novo-categoria">
                 <option value="" disabled selected>Selecione a Categoria...</option>
@@ -44,18 +46,20 @@
                 <option value="bebidas">Bebidas</option>
             </select>
 
-            <input type="text" id="novo-desc" placeholder="Descrição (ex: Queijo e Presunto)">
+            <input type="text" id="novo-desc" placeholder="Descrição">
             <input type="number" id="novo-preco" placeholder="Preço (ex: 15.50)">
-            <input type="text" id="novo-img" placeholder="Link da Imagem (URL)">
             
-            <button class="btn-salvar" onclick="salvarNoBanco()">
-                <i class="fa-solid fa-cloud-arrow-up"></i> SALVAR NA NUVEM
+            <label style="font-size:14px; color:#666;">Foto do Produto:</label>
+            <input type="file" id="novo-img-file" accept="image/*">
+            
+            <button class="btn-salvar" onclick="processarESalvar()">
+                <i class="fa-solid fa-save"></i> SALVAR PRODUTO
             </button>
         </div>
 
-        <h3>Cardápio Atual (Ao Vivo)</h3>
+        <h3>Cardápio Atual</h3>
         <div id="lista-admin">
-            <p class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Conectando ao banco de dados...</p>
+            <p style="text-align:center">Carregando...</p>
         </div>
     </div>
 
@@ -63,7 +67,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // --- SUAS CONFIGURAÇÕES JÁ CORRIGIDAS ---
+        // --- SUAS CONFIGURAÇÕES (Mantidas iguais) ---
         const firebaseConfig = {
             apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
             authDomain: "loucosportapioca-57964.firebaseapp.com",
@@ -72,96 +76,117 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-        // ----------------------------------------
 
-        // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. Verifica se está logado
         if (sessionStorage.getItem('logado') !== 'sim') {
             window.location.href = "login.html";
         }
 
-        // 2. LER DADOS (Ouve o banco em tempo real)
+        // --- LER DADOS ---
         db.collection("produtos").onSnapshot((querySnapshot) => {
             const container = document.getElementById('lista-admin');
-            container.innerHTML = ''; // Limpa a lista
+            container.innerHTML = ''; 
             
-            if (querySnapshot.empty) {
-                container.innerHTML = '<p style="text-align:center; margin-top:20px;">Nenhum produto cadastrado ainda.</p>';
-                return;
-            }
-
             querySnapshot.forEach((doc) => {
                 const item = doc.data();
-                const id = doc.id; // ID único do Firebase
-
+                // Verifica se tem imagem, se não usa placeholder
+                const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/50';
+                
                 container.innerHTML += `
                     <div class="item-lista">
-                        <div style="flex-grow:1;">
-                            <strong>${item.nome}</strong> <span class="badge-cat">${item.categoria}</span><br>
-                            <small>R$ ${item.preco} - ${item.descricao}</small>
+                        <div style="display:flex; align-items:center; flex-grow:1;">
+                            <img src="${imgDisplay}" class="img-preview">
+                            <div>
+                                <strong>${item.nome}</strong> <span class="badge-cat">${item.categoria}</span><br>
+                                <small>R$ ${item.preco}</small>
+                            </div>
                         </div>
-                        <i class="fa-solid fa-trash btn-remove" onclick="apagarDoBanco('${id}')" title="Apagar item"></i>
+                        <i class="fa-solid fa-trash btn-remove" onclick="apagarDoBanco('${doc.id}')"></i>
                     </div>
                 `;
             });
-        }, (error) => {
-            console.error("Erro ao ler:", error);
-            document.getElementById('lista-admin').innerHTML = '<p style="color:red">Erro ao carregar. Verifique se as Regras do Firebase estão como "true".</p>';
         });
 
-        // 3. SALVAR (Envia para a nuvem)
-        function salvarNoBanco() {
+        // --- MÁGICA: Reduzir imagem e transformar em Texto ---
+        function processarESalvar() {
             const nome = document.getElementById('novo-nome').value;
             const cat = document.getElementById('novo-categoria').value;
             const desc = document.getElementById('novo-desc').value;
             const preco = parseFloat(document.getElementById('novo-preco').value);
-            const img = document.getElementById('novo-img').value;
+            const arquivo = document.getElementById('novo-img-file').files[0];
 
             if(!nome || !preco || !cat) {
-                alert("Por favor, preencha Nome, Preço e Categoria!");
+                alert("Preencha Nome, Preço e Categoria!");
                 return;
             }
 
-            // Desabilita botão para não clicar duas vezes
             const btn = document.querySelector('.btn-salvar');
-            const textoOriginal = btn.innerHTML;
-            btn.innerHTML = 'Salvando...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
             btn.disabled = true;
 
+            // Se tiver arquivo, comprime e converte. Se não, salva sem imagem.
+            if(arquivo) {
+                comprimirImagem(arquivo, (imagemBase64) => {
+                    salvarFinal(nome, cat, desc, preco, imagemBase64, btn);
+                });
+            } else {
+                salvarFinal(nome, cat, desc, preco, "", btn);
+            }
+        }
+
+        // Função que diminui a qualidade da foto para caber no banco grátis
+        function comprimirImagem(file, callback) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 500; // Reduz para largura máxima de 500px
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Transforma em texto JPG comprimido (0.7 qualidade)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    callback(dataUrl);
+                }
+            }
+        }
+
+        function salvarFinal(nome, cat, desc, preco, imgData, btn) {
             db.collection("produtos").add({
                 nome: nome,
                 categoria: cat,
                 descricao: desc,
                 preco: preco,
-                imagem: img
+                imagem: imgData // Aqui salvamos o "texto da imagem" direto
             }).then(() => {
-                alert("Produto salvo com sucesso!");
-                // Limpa campos
+                alert("Produto Salvo!");
+                // Limpa tudo
                 document.getElementById('novo-nome').value = '';
                 document.getElementById('novo-desc').value = '';
                 document.getElementById('novo-preco').value = '';
-                // Volta o botão
-                btn.innerHTML = textoOriginal;
+                document.getElementById('novo-img-file').value = '';
+                
+                btn.innerHTML = '<i class="fa-solid fa-save"></i> SALVAR PRODUTO';
                 btn.disabled = false;
             }).catch((error) => {
                 console.error("Erro: ", error);
                 alert("Erro ao salvar: " + error.message);
-                btn.innerHTML = textoOriginal;
                 btn.disabled = false;
             });
         }
 
-        // 4. APAGAR
         function apagarDoBanco(id) {
-            if(confirm("Tem certeza que deseja apagar este item?")) {
-                db.collection("produtos").doc(id).delete().then(() => {
-                    // Não precisa dar alert, a lista atualiza sozinha
-                }).catch((error) => {
-                    alert("Erro ao apagar: " + error.message);
-                });
+            if(confirm("Tem certeza?")) {
+                db.collection("produtos").doc(id).delete();
             }
         }
 

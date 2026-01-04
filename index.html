@@ -8,66 +8,73 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="tela-inicial">
-        
-        <div class="logo-capa">
-            <img src="Tela Inicial.jpg.png" style="border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" alt="Logo Loucos Por Tapioca">
-        </div>
-
-        <div class="info-capa">
-            <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio, Moreno -PE</p>
-            <p><i class="fa-regular fa-clock"></i> Entrega <strong>40 - 70 Min.</strong></p>
+        <div class="conteudo-capa">
             
-            <div class="status-loja" style="background: white; color: #000; display: inline-flex; margin-top: 10px; border:none;">
-                <span class="dot" style="background: #00C851;"></span> Estamos Abertos
+            <div class="logo-capa-container">
+                <img src="Tela Inicial.jpg" alt="Logo Gigante">
             </div>
-            <p class="horario-texto" style="margin-top: 5px;">Fechamos as 22H</p>
+
+            <div class="info-capa">
+                <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio</p>
+                <div class="status-badge">
+                    <span class="pulsar"></span> Estamos Abertos
+                </div>
+                <p class="txt-entrega">Entrega <strong>40 - 70 Min.</strong></p>
+            </div>
+
+            <div class="botoes-capa">
+                <button class="btn-inicio principal" onclick="entrarNoCardapio()">
+                    Fazer Pedido
+                </button>
+
+                <a href="https://wa.me/5581999999999" target="_blank" class="btn-inicio secundario">
+                    <i class="fa-brands fa-whatsapp"></i> Whatsapp
+                </a>
+
+                <a href="https://www.instagram.com/loucosportapiocaoficial" target="_blank" class="btn-inicio secundario">
+                    <i class="fa-brands fa-instagram"></i> Instagram
+                </a>
+            </div>
         </div>
-
-        <button class="btn-inicio" onclick="entrarNoCardapio()">
-            Fazer Pedido
-        </button>
-
-        <a href="https://wa.me/5581999999999" target="_blank" class="btn-inicio">
-            Whatsapp
-        </a>
-
-        <a href="https://www.instagram.com/loucosportapiocaoficial?igsh=MXZlNnpkZDBnODVrcg==" target="_blank" class="btn-inicio">
-            Instagram
-        </a>
     </div>
 
     <header>
-        <div class="top-icons">
-            <i class="fa-solid fa-circle-info btn-icon"></i>
-            <i class="fa-solid fa-bars btn-icon"></i>
+        <div class="header-grid">
+            <div class="icone-lado">
+                <i class="fa-solid fa-circle-info btn-header" onclick="abrirInfo()"></i>
+            </div>
+
+            <div class="logo-header">
+                <img src="Tela Inicial.jpg" alt="Logo Pequena">
+            </div>
+
+            <div class="icone-lado">
+                <i class="fa-solid fa-bars btn-header" onclick="abrirMenu()"></i>
+            </div>
         </div>
 
-        <div class="logo-area">
-            <h1>LOUCOS <br> <span class="sub-logo">POR TAPIOCA</span></h1>
-        </div>
-        
-        <div class="badge-bem-vindo">Cardápio</div>
+        <div class="badge-bem-vindo">Cardápio Digital</div>
     </header>
 
     <nav class="categorias">
         <a href="#" class="ativo" onclick="filtrar('todos', this)">Todos</a>
         <a href="#" onclick="filtrar('pratos', this)">Pratos</a>
-        <a href="#" onclick="filtrar('tapioca-grande', this)">Tapioca Grande</a>
-        <a href="#" onclick="filtrar('tapioca-media', this)">Tapioca Média</a>
+        <a href="#" onclick="filtrar('tapioca-grande', this)">Tapioca G</a>
+        <a href="#" onclick="filtrar('tapioca-media', this)">Tapioca M</a>
         <a href="#" onclick="filtrar('bebidas', this)">Bebidas</a>
     </nav>
 
-    <main style="padding-bottom: 100px;">
+    <main>
         <div class="lista-produtos" id="itens-cardapio">
-            <div style="text-align:center; padding: 40px; color: #888;">
-                <i class="fa-solid fa-spinner fa-spin" style="font-size: 30px;"></i>
-                <p>Carregando cardápio...</p>
+            <div class="loading-area">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Carregando delícias...</p>
             </div>
         </div>
     </main>
@@ -77,27 +84,34 @@
             <span class="qtd-itens">0 Produtos</span>
             <span class="total-valor">R$ 0,00</span>
         </div>
-        <a href="carrinho.html" class="btn-ver-pedido" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">
-            Ver Meu Pedido!
+        <a href="carrinho.html" class="btn-ver-pedido">
+            Ver Sacola <i class="fa-solid fa-bag-shopping"></i>
         </a>
+    </div>
+
+    <div class="menu-overlay" id="menu-overlay" onclick="fecharMenu()"></div>
+    <div class="menu-lateral" id="menu-lateral">
+        <div class="menu-head">
+            <h3>Menu</h3>
+            <span onclick="fecharMenu()">&times;</span>
+        </div>
+        <a href="#" onclick="fecharMenu()"><i class="fa-solid fa-utensils"></i> Cardápio</a>
+        <a href="carrinho.html"><i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
+        <a href="admin.html"><i class="fa-solid fa-lock"></i> Admin</a>
+    </div>
+
+    <div class="modal-fundo" id="modal-info" onclick="fecharModais(event)">
+        <div class="modal-box">
+            <span class="fechar-modal" onclick="document.getElementById('modal-info').style.display='none'">&times;</span>
+            <h3>Horários 🕒</h3>
+            <p>Seg-Sex: 16h às 22h<br>Sáb-Dom: 16h às 23h</p>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <script>
-        // --- FUNÇÃO PARA ENTRAR NO APP ---
-        function entrarNoCardapio() {
-            // Esconde a capa com uma animaçãozinha
-            const capa = document.getElementById('tela-inicial');
-            capa.style.transition = "opacity 0.5s ease";
-            capa.style.opacity = 0;
-            setTimeout(() => {
-                capa.style.display = "none";
-            }, 500);
-        }
-
-        // --- CONEXÃO COM A NUVEM (SUAS CHAVES) ---
+        // CONFIGURAÇÃO FIREBASE (Coloque suas chaves aqui se sumirem)
         const firebaseConfig = {
             apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
             authDomain: "loucosportapioca-57964.firebaseapp.com",
@@ -106,25 +120,33 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let menu = [];
+        // Lógica de Interface
+        function entrarNoCardapio() {
+            document.getElementById('tela-inicial').style.top = "-100%"; // Sobe a tela
+        }
 
-        // BUSCA OS DADOS NO FIREBASE EM TEMPO REAL
-        db.collection("produtos").onSnapshot((querySnapshot) => {
+        function abrirMenu() {
+            document.getElementById('menu-lateral').classList.add('aberto');
+            document.getElementById('menu-overlay').classList.add('visivel');
+        }
+        function fecharMenu() {
+            document.getElementById('menu-lateral').classList.remove('aberto');
+            document.getElementById('menu-overlay').classList.remove('visivel');
+        }
+        function abrirInfo() { document.getElementById('modal-info').style.display = 'flex'; }
+        function fecharModais(e) { if(e.target.id === 'modal-info') document.getElementById('modal-info').style.display = 'none'; }
+
+        // Carregar Produtos
+        let menu = [];
+        db.collection("produtos").onSnapshot((qs) => {
             menu = [];
-            querySnapshot.forEach((doc) => {
-                menu.push({ id: doc.id, ...doc.data() });
-            });
-            if(typeof renderizarMenu === 'function') {
-                renderizarMenu('todos'); 
-            }
+            qs.forEach((doc) => menu.push({id: doc.id, ...doc.data()}));
+            if(typeof renderizarMenu === 'function') renderizarMenu('todos');
         });
     </script>
-    
     <script src="script.js"></script>
-
 </body>
 </html>
