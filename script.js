@@ -2,6 +2,35 @@
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 let menuGlobal = []; 
 
+// FUNÇÃO DE MENSAGEM (TOAST)
+function msgSucesso(texto) {
+    Toastify({
+        text: texto,
+        duration: 3000,
+        gravity: "top", // top ou bottom
+        position: "center", // left, center, right
+        style: {
+            background: "#00C851", // Verde Sucesso
+            borderRadius: "10px",
+            fontWeight: "bold"
+        }
+    }).showToast();
+}
+
+function msgErro(texto) {
+    Toastify({
+        text: texto,
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        style: {
+            background: "#ff4444", // Vermelho Erro
+            borderRadius: "10px",
+            fontWeight: "bold"
+        }
+    }).showToast();
+}
+
 // 1. CALCULA E ATUALIZA TELA
 function atualizarInterface() {
     const labelQtd = document.querySelector('.qtd-itens');
@@ -14,7 +43,6 @@ function atualizarInterface() {
     let total = 0;
 
     carrinho.forEach(item => {
-        // CORREÇÃO DO CÁLCULO: Força conversão para número
         let quantidade = Number(item.quantidade) || 1;
         let preco = Number(item.preco) || 0;
         
@@ -46,20 +74,20 @@ function atualizarInterface() {
 
 // 2. ADICIONAR (Tela Inicial)
 window.adicionarAoCarrinho = function(id) {
-    // Usa == para evitar erro de texto vs numero
     const produto = menuGlobal.find(p => p.id == id);
 
     if (produto) {
         const itemNoCarrinho = carrinho.find(item => item.id == id);
         if (itemNoCarrinho) {
             itemNoCarrinho.quantidade = Number(itemNoCarrinho.quantidade) + 1;
+            msgSucesso(`+1 ${produto.nome} adicionado!`);
         } else {
             carrinho.push({ ...produto, quantidade: 1 });
+            msgSucesso(`${produto.nome} foi para a sacola! 👜`);
         }
         atualizarInterface();
-        alert(`😋 ${produto.nome} adicionado!`);
     } else {
-        console.error("Produto não encontrado no menuGlobal");
+        msgErro("Erro ao adicionar produto.");
     }
 }
 
@@ -74,7 +102,6 @@ function renderizarListaCarrinho(container) {
 
     carrinho.forEach(item => {
         const img = item.imagem || "https://via.placeholder.com/150";
-        // Garante que a quantidade existe
         const qtdItem = item.quantidade || 1;
 
         container.innerHTML += `
@@ -108,7 +135,7 @@ window.alterarQtd = function(id, mudanca) {
         item.quantidade = Number(item.quantidade) + mudanca;
         
         if (item.quantidade <= 0) {
-            removerItem(id); // Remove se zerar
+            removerItem(id); 
         } else {
             atualizarInterface();
         }
@@ -117,9 +144,11 @@ window.alterarQtd = function(id, mudanca) {
 
 // 5. REMOVER
 window.removerItem = function(id) {
-    if(confirm("Deseja remover este item?")) {
+    // Aqui ainda mantive o confirm padrão pois é mais seguro para deletar
+    if(confirm("Deseja remover este item da sacola?")) {
         carrinho = carrinho.filter(item => item.id != id);
         atualizarInterface();
+        msgErro("Item removido.");
     }
 }
 

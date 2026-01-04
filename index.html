@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
 
@@ -16,21 +18,21 @@
             <img src="Tela Inicial.jpg" alt="Logo">
         </div>
         <div class="info-capa">
-            <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio</p>
+            <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio, Moreno - PE</p>
             <div class="status-badge">
                 <span class="pulsar"></span> Estamos Abertos
             </div>
             <p style="font-size: 14px; margin-top: 10px;">Entrega <strong>40 - 70 Min.</strong></p>
         </div>
-        <button class="btn-inicio" onclick="entrarApp()">Fazer Pedido</button>
-        <a href="https://wa.me/5581991243260" target="_blank" class="btn-inicio">Whatsapp</a>
-        <a href="https://www.instagram.com/loucosportapiocaoficial" target="_blank" class="btn-inicio">Instagram</a>
+        <button class="btn-inicio principal" onclick="entrarApp()">Fazer Pedido</button>
+        <a href="https://wa.me/5581991243260" target="_blank" class="btn-inicio secundario">Whatsapp</a>
+        <a href="https://www.instagram.com/loucosportapiocaoficial" target="_blank" class="btn-inicio secundario">Instagram</a>
     </div>
 
     <header>
         <div class="btn-header" onclick="abrirInfo()"><i class="fa-solid fa-circle-info"></i></div>
         <div class="logo-header">
-            <img src="Tela Inicial.jpg" alt="Logo Header"> 
+            <img src="Tela Inicial.jpg" alt="Logo Header" style="height: 100px;"> 
         </div>
         <div class="btn-header" onclick="abrirMenu()"><i class="fa-solid fa-bars"></i></div>
     </header>
@@ -62,19 +64,21 @@
         <div style="text-align:right; margin-bottom:20px;">
             <i class="fa-solid fa-xmark" onclick="fecharMenu()" style="font-size:30px; cursor:pointer; color:var(--brown-dark);"></i>
         </div>
-        <a href="#" onclick="fecharMenu()"><i class="fa-solid fa-utensils"></i> Cardápio</a>
-        <a href="carrinho.html"><i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
-        </div>
+        <a href="#" onclick="fecharMenu()" style="color: var(--marrom);"><i class="fa-solid fa-utensils"></i> Cardápio</a>
+        <a href="carrinho.html" style="color: var(--marrom);"><i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
+    </div>
 
     <div id="modal-info" class="modal-fundo" onclick="fecharInfo(event)">
         <div class="modal-box">
             <span class="fechar-modal" onclick="fecharInfo(null)">&times;</span>
-            <h3 style="color:#5A3E34;">Horários 🕒</h3>
+            <h3 style="color:#5A3E34;">Horário 🕒</h3>
             <p>Seg-Sex: 16h as 22h</p>
             <p>Sab-Dom: 16h as 23h</p>
         </div>
     </div>
 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
@@ -87,18 +91,15 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Carrega produtos
         db.collection("produtos").onSnapshot((qs) => {
             menuGlobal = [];
             qs.forEach((doc) => menuGlobal.push({id: doc.id, ...doc.data()}));
             if(window.renderizarMenu) window.renderizarMenu('todos');
         });
 
-        // Funções de tela
         function entrarApp() { document.getElementById('tela-inicial').style.top = "-100%"; }
         function abrirMenu() { document.getElementById('menu-lateral').classList.add('aberto'); document.getElementById('menu-overlay').classList.add('visivel'); }
         function fecharMenu() { document.getElementById('menu-lateral').classList.remove('aberto'); document.getElementById('menu-overlay').classList.remove('visivel'); }

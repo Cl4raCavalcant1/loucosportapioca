@@ -1,65 +1,282 @@
+Com certeza! Vamos dar um "banho de loja" no seu **Painel Administrativo**.
+
+Atualmente ele está muito "cinza" e básico. Vamos deixá-lo com a **cara da marca** (Amarelo e Marrom), mais organizado (com cards) e mais gostoso de usar, parecendo um aplicativo profissional.
+
+### O que vamos mudar no Visual:
+
+1. **Cabeçalho da Marca:** Em vez de texto solto, um topo marrom elegante com o título em amarelo.
+2. **Formulário em Card:** O formulário de cadastro ficará dentro de um "cartão" branco flutuante com sombra, bem destacado.
+3. **Grid Inteligente:** No computador, os campos ficam lado a lado (Nome e Categoria). No celular, um embaixo do outro.
+4. **Lista de Produtos:** Cada produto será um "mini cartão" com a foto em destaque e botões de ação bonitos e grandes.
+
+---
+
+### Novo Código para `admin.html`
+
+Substitua **todo** o seu arquivo `admin.html` por este. A lógica (JavaScript) continua a mesma que fizemos funcionar antes, mas o **HTML e o CSS (Design)** foram totalmente reformulados.
+
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Nuvem (Modo Grátis)</title>
+    <title>Admin - Loucos Por Tapioca</title>
+    
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        .container-admin { padding: 20px; max-width: 800px; margin: 0 auto; background: white; min-height: 100vh; }
-        .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        .form-add { background: #f4f4f4; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; }
-        .form-add input, .form-add select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        
-        /* Estilo para o Input de Arquivo */
-        input[type="file"] { background: white; padding: 10px; }
+        /* --- ESTILOS EXCLUSIVOS DO ADMIN --- */
+        body {
+            background-color: #f0f2f5; /* Fundo cinza claro profissional */
+            font-family: 'Poppins', sans-serif;
+        }
 
-        .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px;}
-        .btn-salvar:hover { background: #00a844; }
-        .btn-salvar:disabled { background: #ccc; cursor: not-allowed; }
+        /* Topo do Admin */
+        .admin-header {
+            background-color: var(--brown-dark);
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .admin-header h2 { margin: 0; font-size: 20px; }
+        .admin-header span { color: var(--yellow-btn); }
 
-        .item-lista { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .badge-cat { background: #EEB91B; color: #5A3E34; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .btn-remove { color: red; cursor: pointer; margin-left: 10px; font-size: 18px; }
-        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px; border: 1px solid #ddd; }
+        .btn-sair {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-sair:hover { background: #ff4444; border-color: #ff4444; }
+
+        .container-admin {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 50px 20px;
+        }
+
+        /* Card do Formulário */
+        .form-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--bg-primary); /* Detalhe amarelo */
+            margin-bottom: 40px;
+        }
+
+        .form-title {
+            color: var(--brown-dark);
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Grid do Formulário (Lado a lado no PC) */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; } /* Um embaixo do outro no celular */
+        }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600; }
+        
+        .form-card input, .form-card select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+            background: #fafafa;
+        }
+        .form-card input:focus, .form-card select:focus {
+            border-color: var(--bg-primary);
+            background: white;
+        }
+
+        /* Input de Arquivo Customizado */
+        input[type="file"] {
+            padding: 10px;
+            background: white;
+            border: 2px dashed #ccc;
+            cursor: pointer;
+        }
+
+        /* Botões */
+        .btn-salvar {
+            background: #00C851;
+            color: white;
+            width: 100%;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+        .btn-salvar:hover { background: #00963c; transform: scale(1.01); }
+        
+        .btn-atualizar { background: #33b5e5 !important; }
+        .btn-atualizar:hover { background: #0099cc !important; }
+
+        .btn-cancelar {
+            background: #eee; color: #555; width: 100%; border: none; padding: 12px;
+            border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px;
+            display: none;
+        }
+        .btn-cancelar:hover { background: #ddd; }
+
+        /* Lista de Produtos */
+        .section-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 15px; border-bottom: 2px solid #ddd; padding-bottom: 10px;
+        }
+        .section-header h3 { margin: 0; color: var(--brown-dark); }
+
+        .item-lista {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: 0.2s;
+            border-left: 5px solid transparent;
+        }
+        .item-lista:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left-color: var(--bg-primary); }
+
+        .item-info { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
+        .img-preview {
+            width: 60px; height: 60px; object-fit: cover; border-radius: 10px;
+            border: 1px solid #eee; background: #f9f9f9;
+        }
+        
+        .badge-cat {
+            background: var(--bg-primary); color: var(--brown-dark);
+            font-size: 10px; padding: 3px 8px; border-radius: 6px;
+            text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
+        }
+
+        .acoes { display: flex; gap: 10px; }
+        .btn-icon-admin {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; transition: 0.2s;
+        }
+        .btn-edit { background: #e3f2fd; color: #2196f3; }
+        .btn-edit:hover { background: #2196f3; color: white; }
+        
+        .btn-remove { background: #ffebee; color: #f44336; }
+        .btn-remove:hover { background: #f44336; color: white; }
+
+        .loader { display: none; text-align: center; margin-top: 15px; color: #666; }
+
     </style>
 </head>
 <body>
 
+    <div class="admin-header">
+        <div>
+            <h2>Painel <span>Admin</span></h2>
+            <small>Gerencie seu cardápio</small>
+        </div>
+        <button onclick="sair()" class="btn-sair">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair
+        </button>
+    </div>
+
     <div class="container-admin">
-        <div class="header-admin">
-            <h2>Gerenciador (Sem Taxas) ☁️</h2>
-            <button onclick="sair()" style="background:red; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Sair</button>
-        </div>
+        
+        <div class="form-card" id="form-produto">
+            <h3 class="form-title" id="titulo-form">
+                <i class="fa-solid fa-circle-plus"></i> Adicionar Produto
+            </h3>
+            
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Nome do Produto</label>
+                    <input type="text" id="novo-nome" placeholder="Ex: Tapioca de Carne">
+                </div>
+                
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <select id="novo-categoria">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="pratos">Pratos do Dia</option>
+                        <option value="tapioca-grande">Tapioca Grande</option>
+                        <option value="tapioca-media">Tapioca Média</option>
+                        <option value="bebidas">Bebidas</option>
+                    </select>
+                </div>
+            </div>
 
-        <div class="form-add">
-            <h3>Adicionar Novo Produto</h3>
-            <input type="text" id="novo-nome" placeholder="Nome do Produto">
-            
-            <select id="novo-categoria">
-                <option value="" disabled selected>Selecione a Categoria...</option>
-                <option value="pratos">Pratos do Dia</option>
-                <option value="tapioca-grande">Tapioca Grande</option>
-                <option value="tapioca-media">Tapioca Média</option>
-                <option value="bebidas">Bebidas</option>
-            </select>
+            <div class="input-group">
+                <label>Descrição</label>
+                <input type="text" id="novo-desc" placeholder="Ex: Carne seca, queijo coalho e cebola...">
+            </div>
 
-            <input type="text" id="novo-desc" placeholder="Descrição">
-            <input type="number" id="novo-preco" placeholder="Preço (ex: 15.50)">
-            
-            <label style="font-size:14px; color:#666;">Foto do Produto:</label>
-            <input type="file" id="novo-img-file" accept="image/*">
-            
-            <button class="btn-salvar" onclick="processarESalvar()">
-                <i class="fa-solid fa-save"></i> SALVAR PRODUTO
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Preço (R$)</label>
+                    <input type="number" id="novo-preco" placeholder="Ex: 15.50">
+                </div>
+                
+                <div class="input-group">
+                    <label>Imagem</label>
+                    <input type="file" id="novo-img-file" accept="image/*">
+                    <input type="hidden" id="img-antiga-base64">
+                </div>
+            </div>
+
+            <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarEdicao()">
+                <i class="fa-solid fa-xmark"></i> Cancelar Edição
             </button>
+
+            <button class="btn-salvar" id="btn-acao" onclick="processarFormulario()">
+                <i class="fa-solid fa-check"></i> SALVAR PRODUTO
+            </button>
+            
+            <div class="loader" id="loader">
+                <i class="fa-solid fa-spinner fa-spin"></i> Processando imagem... aguarde.
+            </div>
         </div>
 
-        <h3>Cardápio Atual</h3>
+        <div class="section-header">
+            <h3>Cardápio Atual</h3>
+            <span style="font-size: 12px; color: #888;">Lista em tempo real</span>
+        </div>
+
         <div id="lista-admin">
-            <p style="text-align:center">Carregando...</p>
+            <p style="text-align:center; color:#999; padding: 40px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Carregando produtos...
+            </p>
         </div>
     </div>
 
@@ -67,7 +284,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // --- SUAS CONFIGURAÇÕES (Mantidas iguais) ---
+        // --- 1. CONFIGURAÇÃO ---
         const firebaseConfig = {
             apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
             authDomain: "loucosportapioca-57964.firebaseapp.com",
@@ -84,59 +301,155 @@
             window.location.href = "login.html";
         }
 
-        // --- LER DADOS ---
+        let idEdicao = null; 
+        let produtosCache = []; 
+
+        // --- 2. LER DADOS ---
         db.collection("produtos").onSnapshot((querySnapshot) => {
             const container = document.getElementById('lista-admin');
             container.innerHTML = ''; 
+            produtosCache = [];
             
+            if (querySnapshot.empty) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;"><i class="fa-solid fa-box-open" style="font-size:40px; margin-bottom:10px;"></i><p>Nenhum produto cadastrado.</p></div>';
+                return;
+            }
+
             querySnapshot.forEach((doc) => {
                 const item = doc.data();
-                // Verifica se tem imagem, se não usa placeholder
-                const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/50';
+                const id = doc.id;
+                produtosCache.push({ id: id, ...item });
+
+                const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/60';
                 
                 container.innerHTML += `
                     <div class="item-lista">
-                        <div style="display:flex; align-items:center; flex-grow:1;">
+                        <div class="item-info">
                             <img src="${imgDisplay}" class="img-preview">
                             <div>
-                                <strong>${item.nome}</strong> <span class="badge-cat">${item.categoria}</span><br>
-                                <small>R$ ${item.preco}</small>
+                                <strong style="font-size:16px; display:block; color:#333;">${item.nome}</strong>
+                                <span class="badge-cat">${item.categoria}</span>
+                                <div style="font-size:13px; color:#555; margin-top:2px;">R$ ${item.preco.toFixed(2)}</div>
                             </div>
                         </div>
-                        <i class="fa-solid fa-trash btn-remove" onclick="apagarDoBanco('${doc.id}')"></i>
+                        <div class="acoes">
+                            <div class="btn-icon-admin btn-edit" onclick="prepararEdicao('${id}')" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </div>
+                            <div class="btn-icon-admin btn-remove" onclick="apagarDoBanco('${id}')" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </div>
+                        </div>
                     </div>
                 `;
             });
         });
 
-        // --- MÁGICA: Reduzir imagem e transformar em Texto ---
-        function processarESalvar() {
+        // --- 3. LÓGICA DE EDIÇÃO ---
+        function prepararEdicao(id) {
+            const produto = produtosCache.find(p => p.id === id);
+            
+            if(produto) {
+                document.getElementById('novo-nome').value = produto.nome;
+                document.getElementById('novo-categoria').value = produto.categoria;
+                document.getElementById('novo-desc').value = produto.descricao;
+                document.getElementById('novo-preco').value = produto.preco;
+                document.getElementById('img-antiga-base64').value = produto.imagem || ""; 
+                
+                idEdicao = id;
+                document.getElementById('titulo-form').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Editando: <span style="color:#33b5e5">' + produto.nome + '</span>';
+                
+                const btn = document.getElementById('btn-acao');
+                btn.innerHTML = '<i class="fa-solid fa-rotate"></i> ATUALIZAR';
+                btn.classList.add('btn-atualizar');
+                
+                document.getElementById('btn-cancelar').style.display = 'block'; 
+                document.getElementById('novo-img-file').value = ""; 
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function cancelarEdicao() {
+            idEdicao = null;
+            document.getElementById('novo-nome').value = '';
+            document.getElementById('novo-categoria').value = '';
+            document.getElementById('novo-desc').value = '';
+            document.getElementById('novo-preco').value = '';
+            document.getElementById('novo-img-file').value = '';
+            document.getElementById('img-antiga-base64').value = '';
+
+            document.getElementById('titulo-form').innerHTML = '<i class="fa-solid fa-circle-plus"></i> Adicionar Novo Produto';
+
+            const btn = document.getElementById('btn-acao');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> SALVAR PRODUTO';
+            btn.classList.remove('btn-atualizar');
+
+            document.getElementById('btn-cancelar').style.display = 'none';
+        }
+
+        // --- 4. SALVAR OU ATUALIZAR ---
+        function processarFormulario() {
             const nome = document.getElementById('novo-nome').value;
             const cat = document.getElementById('novo-categoria').value;
             const desc = document.getElementById('novo-desc').value;
             const preco = parseFloat(document.getElementById('novo-preco').value);
             const arquivo = document.getElementById('novo-img-file').files[0];
+            const imgAntiga = document.getElementById('img-antiga-base64').value;
 
             if(!nome || !preco || !cat) {
                 alert("Preencha Nome, Preço e Categoria!");
                 return;
             }
 
-            const btn = document.querySelector('.btn-salvar');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+            const btn = document.getElementById('btn-acao');
+            const loader = document.getElementById('loader');
+            
             btn.disabled = true;
+            btn.style.opacity = "0.5";
+            loader.style.display = "block";
 
-            // Se tiver arquivo, comprime e converte. Se não, salva sem imagem.
             if(arquivo) {
-                comprimirImagem(arquivo, (imagemBase64) => {
-                    salvarFinal(nome, cat, desc, preco, imagemBase64, btn);
+                comprimirImagem(arquivo, (novaImagemBase64) => {
+                    salvarNoFirebase(nome, cat, desc, preco, novaImagemBase64, btn, loader);
                 });
             } else {
-                salvarFinal(nome, cat, desc, preco, "", btn);
+                let imagemFinal = idEdicao ? imgAntiga : ""; 
+                salvarNoFirebase(nome, cat, desc, preco, imagemFinal, btn, loader);
             }
         }
 
-        // Função que diminui a qualidade da foto para caber no banco grátis
+        function salvarNoFirebase(nome, cat, desc, preco, imgData, btn, loader) {
+            const dados = {
+                nome: nome,
+                categoria: cat,
+                descricao: desc,
+                preco: preco,
+                imagem: imgData
+            };
+
+            let promessa;
+
+            if (idEdicao) {
+                promessa = db.collection("produtos").doc(idEdicao).update(dados);
+            } else {
+                promessa = db.collection("produtos").add(dados);
+            }
+
+            promessa.then(() => {
+                // Não precisa de alert, a lista atualiza sozinha. Só limpa.
+                cancelarEdicao(); 
+            }).catch((error) => {
+                console.error("Erro: ", error);
+                alert("Erro: " + error.message);
+            }).finally(() => {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                loader.style.display = "none";
+            });
+        }
+
+        // Função de Compressão
         function comprimirImagem(file, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -145,47 +458,20 @@
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 500; // Reduz para largura máxima de 500px
+                    const MAX_WIDTH = 500; 
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
-
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    // Transforma em texto JPG comprimido (0.7 qualidade)
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                     callback(dataUrl);
                 }
             }
         }
 
-        function salvarFinal(nome, cat, desc, preco, imgData, btn) {
-            db.collection("produtos").add({
-                nome: nome,
-                categoria: cat,
-                descricao: desc,
-                preco: preco,
-                imagem: imgData // Aqui salvamos o "texto da imagem" direto
-            }).then(() => {
-                alert("Produto Salvo!");
-                // Limpa tudo
-                document.getElementById('novo-nome').value = '';
-                document.getElementById('novo-desc').value = '';
-                document.getElementById('novo-preco').value = '';
-                document.getElementById('novo-img-file').value = '';
-                
-                btn.innerHTML = '<i class="fa-solid fa-save"></i> SALVAR PRODUTO';
-                btn.disabled = false;
-            }).catch((error) => {
-                console.error("Erro: ", error);
-                alert("Erro ao salvar: " + error.message);
-                btn.disabled = false;
-            });
-        }
-
         function apagarDoBanco(id) {
-            if(confirm("Tem certeza?")) {
+            if(confirm("Tem certeza que deseja apagar este item?")) {
                 db.collection("produtos").doc(id).delete();
             }
         }
