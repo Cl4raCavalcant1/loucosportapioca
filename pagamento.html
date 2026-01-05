@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/imask"></script>
-    
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
@@ -20,7 +19,7 @@
         </a>
         <span class="titulo-voltar">Finalizar</span>
         <div class="info-sacola">
-            <span class="texto-sacola">Total</span>
+            <span class="texto-sacola">Total a Pagar</span>
             <span class="valor-sacola" id="valor-total-header">R$ 0,00</span>
         </div>
     </header>
@@ -80,19 +79,51 @@
                 <label>Rua / Avenida:</label>
                 <div class="input-icon"><i class="fa-solid fa-road"></i><input type="text" id="end-rua" placeholder="Nome da rua"></div>
             </div>
+            
             <div class="row-inputs">
                 <div class="box-input-animado" style="flex: 1;">
                     <label>Número:</label>
                     <div class="input-icon"><i class="fa-solid fa-hashtag"></i><input type="text" id="end-num" placeholder="Nº"></div>
                 </div>
+                
                 <div class="box-input-animado" style="flex: 2;">
                     <label>Bairro:</label>
-                    <div class="input-icon"><i class="fa-solid fa-map-pin"></i><input type="text" id="end-bairro" placeholder="Bairro"></div>
+                    <select id="end-bairro" onchange="calcularTotalComTaxa()" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:10px; background:#fafafa; outline:none; height: 52px;">
+                        <option value="0">Selecione o Bairro...</option>
+                        <option value="0">Centro (Grátis)</option>
+                        <option value="5">Alto Santo Antônio (R$ 5,00)</option>
+                        <option value="7">Bonança (R$ 7,00)</option>
+                        <option value="10">Zona Rural (R$ 10,00)</option>
+                    </select>
                 </div>
             </div>
+
             <div class="box-input-animado">
                 <label>Referência (Opcional):</label>
                 <div class="input-icon"><i class="fa-regular fa-flag"></i><input type="text" id="end-ref" placeholder="Próximo a..."></div>
+            </div>
+        </div>
+
+        <div class="divisor"></div>
+
+        <h3 class="titulo-secao"><i class="fa-solid fa-ticket"></i> Cupom de Desconto</h3>
+        <div class="box-input-animado">
+            <div class="input-icon" style="display:flex; gap:10px;">
+                <i class="fa-solid fa-tag" style="margin-top:12px"></i>
+                <input type="text" id="cupom-codigo" placeholder="Digite seu código aqui">
+                <button onclick="validarCupom()" style="background:var(--brown-dark); color:white; border:none; padding:0 20px; border-radius:10px; cursor:pointer; font-weight:bold;">Aplicar</button>
+            </div>
+            <small id="msg-cupom" style="display:block; margin-top:5px; font-weight:bold; padding-left: 5px;"></small>
+        </div>
+
+        <div class="divisor"></div>
+
+        <h3 class="titulo-secao"><i class="fa-solid fa-pen"></i> Observações</h3>
+        <div class="box-input-animado">
+            <label>Algum detalhe para a cozinha?</label>
+            <div class="input-icon">
+                <i class="fa-regular fa-comment-dots"></i>
+                <input type="text" id="obs-pedido" placeholder="Ex: Sem cebola, ketchup extra...">
             </div>
         </div>
 
@@ -161,18 +192,81 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        let totalCarrinho = 0;
+        
+        // --- CONFIGURAÇÃO DOS CUPONS ---
+        // Aqui você cria seus cupons!
+        // "CODIGO": { tipo: "porcentagem" ou "fixo", valor: 10 }
+        const CUPONS_ATIVOS = {
+            "PRIMEIRACOMPRA": { tipo: "porcentagem", valor: 10 }, // 10% de desconto
+            "SEMANATAPIOCA":  { tipo: "fixo", valor: 5.00 },      // 5 reais de desconto
+            "VIP":            { tipo: "porcentagem", valor: 20 }  // 20% de desconto
+        };
+        
+        let cupomAplicado = null; // Guarda o cupom que o cliente usou
+
         document.addEventListener('DOMContentLoaded', () => {
             const elPhone = document.getElementById('cliente-tel');
             IMask(elPhone, { mask: '(00) 00000-0000' });
             
             const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-            const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-            document.getElementById('valor-total-header').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            totalCarrinho = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+            
+            calcularTotalComTaxa();
         });
+
+        // --- FUNÇÃO PARA VALIDAR O CUPOM ---
+        function validarCupom() {
+            const codigo = document.getElementById('cupom-codigo').value.toUpperCase().trim();
+            const msg = document.getElementById('msg-cupom');
+            
+            if (CUPONS_ATIVOS[codigo]) {
+                cupomAplicado = { codigo: codigo, ...CUPONS_ATIVOS[codigo] };
+                msg.style.color = "#00C851"; // Verde
+                msg.innerText = `Cupom ${codigo} aplicado com sucesso! 🎉`;
+            } else {
+                cupomAplicado = null;
+                msg.style.color = "#ff4444"; // Vermelho
+                msg.innerText = "Cupom inválido ou expirado.";
+            }
+            calcularTotalComTaxa();
+        }
+
+        // Calcula Total (Produtos + Entrega - Desconto)
+        function calcularTotalComTaxa() {
+            const bairroSelect = document.getElementById('end-bairro');
+            let taxa = 0;
+            
+            const tipoEntrega = document.querySelector('input[name="entrega"]:checked').value;
+            if(tipoEntrega === 'entrega') {
+                taxa = parseFloat(bairroSelect.value) || 0;
+            }
+
+            let descontoValor = 0;
+            // Se tiver cupom, calcula o desconto
+            if (cupomAplicado) {
+                if(cupomAplicado.tipo === 'porcentagem') {
+                    descontoValor = totalCarrinho * (cupomAplicado.valor / 100);
+                } else {
+                    descontoValor = cupomAplicado.valor;
+                }
+            }
+
+            // Garante que o total não fique negativo
+            let totalFinal = (totalCarrinho + taxa) - descontoValor;
+            if (totalFinal < 0) totalFinal = 0;
+            
+            // Atualiza na tela
+            document.getElementById('valor-total-header').innerText = 
+                totalFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            return { totalFinal, taxa, descontoValor };
+        }
 
         function toggleEndereco() {
             const tipo = document.querySelector('input[name="entrega"]:checked').value;
             document.getElementById('box-endereco').style.display = (tipo === 'entrega') ? 'block' : 'none';
+            calcularTotalComTaxa();
         }
 
         function toggleTroco() {
@@ -186,59 +280,66 @@
             const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
             if(carrinho.length === 0) return alert("Seu carrinho está vazio!");
 
-            // Captura
             const nome = document.getElementById('cliente-nome').value.trim();
             const telefone = document.getElementById('cliente-tel').value.trim();
             const entrega = document.querySelector('input[name="entrega"]:checked').value;
             const pagamento = document.querySelector('input[name="pagamento"]:checked').value;
             const troco = document.getElementById('troco-cliente').value;
+            const bairroSelect = document.getElementById('end-bairro');
+            const obs = document.getElementById('obs-pedido').value.trim();
 
-            // Validações
-            if(!nome) return alert("Por favor, digite seu Nome!");
+            if(!nome) return alert("Digite seu Nome!");
             if(telefone.length < 14) return alert("Digite um telefone válido!");
 
             let enderecoCompleto = "Retirada no Local";
+            let nomeBairro = "";
+            
             if(entrega === 'entrega') {
                 const rua = document.getElementById('end-rua').value.trim();
                 const num = document.getElementById('end-num').value.trim();
-                const bairro = document.getElementById('end-bairro').value.trim();
                 const ref = document.getElementById('end-ref').value.trim();
+                nomeBairro = bairroSelect.options[bairroSelect.selectedIndex].text;
 
-                if(!rua || !num || !bairro) return alert("Preencha o endereço completo!");
-                enderecoCompleto = `${rua}, Nº ${num}, ${bairro} ${ref ? '('+ref+')' : ''}`;
+                if(!rua || !num || (bairroSelect.value == "0" && nomeBairro.includes("Selecione"))) {
+                    return alert("Preencha o endereço e selecione o Bairro!");
+                }
+                enderecoCompleto = `${rua}, Nº ${num}, ${nomeBairro} ${ref ? '('+ref+')' : ''}`;
             }
 
-            // Calcula Total
-            const total = carrinho.reduce((sum, i) => sum + (i.preco * i.quantidade), 0);
+            // Pega os valores finais
+            const { totalFinal, taxa, descontoValor } = calcularTotalComTaxa();
 
-            // 1. SALVAR NO FIREBASE
             const btn = document.querySelector('.btn-finalizar');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
             btn.disabled = true;
 
             const pedido = {
                 data: new Date(),
-                status: 'pendente', // pendente, pronto, entregue
+                status: 'pendente',
                 cliente: { nome: nome, telefone: telefone },
-                entrega: { tipo: entrega, endereco: enderecoCompleto },
+                entrega: { tipo: entrega, endereco: enderecoCompleto, taxa: taxa },
                 pagamento: { metodo: pagamento, troco: troco || "" },
                 itens: carrinho,
-                total: total
+                observacao: obs,
+                cupom: cupomAplicado ? cupomAplicado.codigo : "", // Salva qual cupom foi usado
+                desconto: descontoValor, // Salva quanto foi o desconto
+                total: totalFinal
             };
 
             db.collection("pedidos").add(pedido).then((docRef) => {
-                // 2. SUCESSO -> MANDAR ZAP
                 enviarZap(pedido, docRef.id);
             }).catch((error) => {
-                console.error("Erro ao salvar:", error);
-                alert("Erro de conexão. Tente novamente.");
+                console.error("Erro:", error);
+                alert("Erro ao enviar. Tente novamente.");
                 btn.disabled = false;
-                btn.innerHTML = 'Enviar Pedido via WhatsApp';
+                btn.innerHTML = 'Enviar Pedido';
             });
         }
 
         function enviarZap(pedido, idPedido) {
             const totalFormatado = pedido.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const taxaFormatada = pedido.entrega.taxa ? ` (+ R$ ${pedido.entrega.taxa.toFixed(2)} entrega)` : '';
+            const descontoFormatado = pedido.desconto ? ` (- R$ ${pedido.desconto.toFixed(2)} cupom)` : '';
             const idCurto = idPedido.slice(0, 5).toUpperCase();
 
             let msg = `*PEDIDO #${idCurto}* 🌵\n`;
@@ -249,8 +350,16 @@
                 msg += `▪️ ${i.quantidade}x ${i.nome}\n`;
             });
 
-            msg += `\n💰 *Total: ${totalFormatado}*\n`;
-            msg += `--------------------------------\n`;
+            if(pedido.observacao) {
+                msg += `\n📝 *Obs:* ${pedido.observacao}\n`;
+            }
+
+            // Se tiver cupom, mostra na mensagem
+            if(pedido.cupom) {
+                msg += `\n🎟️ *Cupom:* ${pedido.cupom}\n`;
+            }
+
+            msg += `\n💰 *Total: ${totalFormatado}* ${taxaFormatada}${descontoFormatado}\n`;
             
             if(pedido.entrega.tipo === 'entrega') {
                 msg += `🏠 *Entrega:*\n${pedido.entrega.endereco}\n`;
@@ -261,9 +370,7 @@
             msg += `💳 *Pagamento:* ${pedido.pagamento.metodo.toUpperCase()}\n`;
             if(pedido.pagamento.troco) msg += `💵 *Troco para:* ${pedido.pagamento.troco}\n`;
 
-            // Limpa e Envia
             localStorage.removeItem('carrinho');
-            
             const linkZap = `https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(msg)}`;
             window.open(linkZap, '_blank');
             window.location.href = "index.html";

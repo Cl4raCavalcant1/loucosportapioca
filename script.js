@@ -153,7 +153,14 @@ function atualizarInterface() {
         renderizarListaCarrinho(containerCarrinho);
     }
 }
+const obs = document.getElementById('obs-pedido').value;
 
+// ... dentro do objeto pedido ...
+const pedido = {
+    // ... outros dados ...
+    observacao: obs, // Adicione essa linha
+    // ...
+};
 // Desenha a lista dentro da página carrinho.html
 function renderizarListaCarrinho(container) {
     container.innerHTML = '';
@@ -214,6 +221,66 @@ function msgSucesso(texto) {
         style: { background: "#00C851", borderRadius: "10px", fontWeight: "bold" }
     }).showToast();
 }
+// ==============================================================
+// 7. CONTROLE DE HORÁRIO DE FUNCIONAMENTO
+// ==============================================================
+function verificarHorario() {
+    const agora = new Date();
+    const hora = agora.getHours();
+    const dia = agora.getDay(); // 0 = Domingo, 1 = Segunda...
 
+    // ⚙️ CONFIGURAÇÃO: Mude seus horários aqui
+    const horarioAbertura = 16; // 16:00
+    const horarioFechamento = 23; // 23:00 (Para meia-noite use 24)
+
+    // Lógica simples: Está entre 16h e 23h?
+    let estaAberto = false;
+    if (hora >= horarioAbertura && hora < horarioFechamento) {
+        estaAberto = true;
+    }
+
+    // Atualiza a tela
+    const badge = document.querySelector('.status-badge');
+    const botoes = document.querySelectorAll('.btn-add');
+
+    if (badge) {
+        if (estaAberto) {
+            badge.innerHTML = '<span class="pulsar"></span> Estamos Abertos';
+            badge.style.background = '#e6f4ea';
+            badge.style.color = '#00C851';
+            badge.style.borderColor = '#00C851';
+            
+            // Libera os botões
+            botoes.forEach(btn => {
+                btn.disabled = false;
+                btn.innerText = 'Adicionar';
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            });
+        } else {
+            badge.innerHTML = '<span class="pulsar" style="background:red"></span> Fechado Agora';
+            badge.style.background = '#ffebee';
+            badge.style.color = '#ff4444';
+            badge.style.borderColor = '#ff4444';
+
+            // Bloqueia os botões
+            botoes.forEach(btn => {
+                btn.disabled = true;
+                btn.innerText = 'Fechado';
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+            });
+        }
+    }
+}
+
+// Verifica assim que carrega e atualiza a cada minuto
+setInterval(verificarHorario, 60000); 
+// Precisamos chamar depois que o menu carregar, então vamos adicionar no renderizarMenu também
+const originalRender = window.renderizarMenu;
+window.renderizarMenu = function(filtro) {
+    originalRender(filtro); // Chama a função original
+    setTimeout(verificarHorario, 100); // Verifica o horário logo depois
+};
 // Inicia
 atualizarInterface();

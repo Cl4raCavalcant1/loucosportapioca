@@ -288,3 +288,49 @@ body { background-color: var(--bg-primary); padding-bottom: 90px; }
 .btn-finalizar:hover {
     background-color: #1ebd59;
 }
+/* --- CARROSSEL NA CAPA (NOVO) --- */
+.carousel-area {
+    width: 100%;
+    max-width: 350px;
+    height: 250px; /* Altura do destaque */
+    margin-bottom: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.carousel-slide {
+    width: 100%;
+    height: 100%;
+    display: none; /* Esconde todos por padrão */
+}
+
+.carousel-slide.ativo {
+    display: block; /* Mostra só o ativo */
+    animation: fadeEffect 1s; /* Efeito suave */
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Preenche o quadrado sem esticar */
+}
+
+/* Legenda do prato (Opcional) */
+.carousel-caption {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.6); /* Fundo escuro transparente */
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Efeito de aparecer suave */
+@keyframes fadeEffect {
+    from {opacity: .4}
+    to {opacity: 1}
+}

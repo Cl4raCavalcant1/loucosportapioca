@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Loucos Por Tapioca</title>
     
+    <meta property="og:title" content="Loucos Por Tapioca - Peça Online! 😋">
+    <meta property="og:description" content="A melhor tapioca da região. Entregamos quentinha na sua casa. Clique e peça já!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1595786411516-724d436a9c14?q=80&w=300"> 
+    
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,18 +17,38 @@
 <body>
 
     <div id="tela-inicial">
-        <div class="logo-capa">
-            <img src="Tela Inicial.jpg" alt="Logo">
+        
+        <img src="Tela Inicial.jpg" alt="Logo Pequena" style="width: 100px; margin-bottom: 15px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+
+        <div class="carousel-area">
+            
+            <div class="carousel-slide ativo">
+                <img src="https://images.unsplash.com/photo-1595786411516-724d436a9c14?q=80&w=400" alt="Tapioca Carne">
+                <div class="carousel-caption">🔥 A Mais Pedida: Charque c/ Queijo</div>
+            </div>
+
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1513456852971-30cfa3831f49?q=80&w=400" alt="Cuscuz">
+                <div class="carousel-caption">🌽 Cuscuz Recheado</div>
+            </div>
+
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1625938145244-e46ac7966461?q=80&w=400" alt="Tapioca Frango">
+                <div class="carousel-caption">🐔 Frango Cremoso</div>
+            </div>
+
         </div>
+
         <div class="info-capa">
-            <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio, Moreno - PE</p>
+            <p><i class="fa-solid fa-location-dot"></i> R. Equador, 23 - Alto Santo Antonio</p>
             <div class="status-badge">
                 <span class="pulsar"></span> Estamos Abertos
             </div>
             <p style="font-size: 14px; margin-top: 10px;">Entrega <strong>40 - 70 Min.</strong></p>
         </div>
-        <button class="btn-inicio principal" onclick="entrarApp()">Fazer Pedido</button>
-        <a href="https://wa.me/5581991243260" target="_blank" class="btn-inicio secundario">Whatsapp</a>
+        
+        <button class="btn-inicio principal" onclick="entrarApp()">VER CARDÁPIO COMPLETO</button>
+        <a href="https://wa.me/5581991243260" target="_blank" class="btn-inicio secundario">Falar no Whatsapp</a>
         <a href="https://www.instagram.com/loucosportapiocaoficial" target="_blank" class="btn-inicio secundario">Instagram</a>
     </div>
 
@@ -46,7 +70,7 @@
 
     <main>
         <div class="loading-area" style="text-align:center; padding:20px; color:#5A3E34;">
-            <i class="fa-solid fa-spinner fa-spin"></i> Carregando cardápio...
+            <i class="fa-solid fa-spinner fa-spin"></i> Carregando delícias...
         </div>
         <div id="itens-cardapio" class="lista-produtos">
             </div>
@@ -80,32 +104,46 @@
     </div>
 
     <script>
-        function entrarApp() { document.getElementById('tela-inicial').style.top = "-100%"; }
+        // --- LÓGICA DO CARROSSEL ---
+        let slideIndex = 0;
         
-        function abrirMenu() { 
-            document.getElementById('menu-lateral').classList.add('aberto'); 
-            document.getElementById('menu-overlay').classList.add('visivel'); 
-        }
-        
-        function fecharMenu() { 
-            document.getElementById('menu-lateral').classList.remove('aberto'); 
-            document.getElementById('menu-overlay').classList.remove('visivel'); 
-        }
-        
-        function abrirInfo() { document.getElementById('modal-info').style.display = 'flex'; }
-        
-        function fecharInfo(e) { 
-            if(!e || e.target.id === 'modal-info' || e.target.classList.contains('fechar-modal')) {
-                document.getElementById('modal-info').style.display = 'none'; 
+        function rodarCarrossel() {
+            let slides = document.getElementsByClassName("carousel-slide");
+            
+            // Esconde todos
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";  
+                slides[i].classList.remove('ativo');
             }
+            
+            slideIndex++;
+            if (slideIndex > slides.length) {slideIndex = 1}    
+            
+            // Mostra o atual
+            slides[slideIndex-1].style.display = "block";  
+            slides[slideIndex-1].classList.add('ativo');
+            
+            // Troca a cada 3 segundos
+            setTimeout(rodarCarrossel, 3000); 
         }
+
+        // Inicia o carrossel quando a tela carrega
+        window.onload = function() {
+            rodarCarrossel();
+            // Verifica horário (do script.js) se existir
+            if(typeof verificarHorario === 'function') verificarHorario();
+        };
+
+        // --- OUTRAS FUNÇÕES ---
+        function entrarApp() { document.getElementById('tela-inicial').style.top = "-100%"; }
+        function abrirMenu() { document.getElementById('menu-lateral').classList.add('aberto'); document.getElementById('menu-overlay').classList.add('visivel'); }
+        function fecharMenu() { document.getElementById('menu-lateral').classList.remove('aberto'); document.getElementById('menu-overlay').classList.remove('visivel'); }
+        function abrirInfo() { document.getElementById('modal-info').style.display = 'flex'; }
+        function fecharInfo(e) { if(!e || e.target.id === 'modal-info' || e.target.classList.contains('fechar-modal')) document.getElementById('modal-info').style.display = 'none'; }
         
         function filtrar(cat, el) {
-            // Remove a classe 'ativo' de todos e adiciona no clicado
             document.querySelectorAll('.categorias a').forEach(a => a.classList.remove('ativo'));
             el.classList.add('ativo');
-            
-            // Chama a função que está lá no script.js
             if(window.renderizarMenu) window.renderizarMenu(cat);
         }
     </script>
