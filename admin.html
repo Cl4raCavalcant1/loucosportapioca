@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* ESTILOS DO ADMIN (Mantidos do anterior) */
+        /* ESTILOS DO ADMIN */
         body { background-color: #f0f2f5; font-family: 'Poppins', sans-serif; }
         .admin-header { background-color: var(--brown-dark); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
         .btn-sair { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
@@ -24,7 +24,7 @@
         .form-card input:focus, .form-card select:focus { border-color: var(--bg-primary); background: white; }
         .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
         .btn-salvar:hover { background: #00963c; }
-        .btn-atualizar { background: #33b5e5 !important; } 
+        .btn-atualizar { background: #33b5e5 !important; }
         .btn-atualizar:hover { background: #0099cc !important; }
         .btn-cancelar { background: #eee; color: #555; width: 100%; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; display: none; }
         .btn-cancelar:hover { background: #ddd; }
@@ -117,7 +117,7 @@
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -128,67 +128,57 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- SEGURANÇA REAL ---
-        firebase.auth().onAuthStateChanged((user) => {
-            if (!user) {
-                // Se não tiver usuário logado, chuta pro login
-                window.location.href = "login.html";
-            } else {
-                // Se tiver, carrega a lista
-                carregarProdutos();
-            }
-        });
+        // --- VERIFICAÇÃO SIMPLES (VOLTOU) ---
+        if (sessionStorage.getItem('logado') !== 'sim') {
+            window.location.href = "login.html";
+        }
 
         let idEdicao = null; 
         let produtosCache = []; 
 
-        function carregarProdutos() {
-            db.collection("produtos").onSnapshot((querySnapshot) => {
-                const container = document.getElementById('lista-admin');
-                container.innerHTML = ''; 
-                produtosCache = [];
+        db.collection("produtos").onSnapshot((querySnapshot) => {
+            const container = document.getElementById('lista-admin');
+            container.innerHTML = ''; 
+            produtosCache = [];
+            
+            if (querySnapshot.empty) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">Nenhum produto cadastrado.</div>';
+                return;
+            }
+
+            querySnapshot.forEach((doc) => {
+                const item = doc.data();
+                const id = doc.id;
+                produtosCache.push({ id: id, ...item });
+
+                const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/60';
                 
-                if (querySnapshot.empty) {
-                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">Nenhum produto cadastrado.</div>';
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
-                    const item = doc.data();
-                    const id = doc.id;
-                    produtosCache.push({ id: id, ...item });
-
-                    const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/60';
-                    
-                    container.innerHTML += `
-                        <div class="item-lista">
-                            <div class="item-info">
-                                <img src="${imgDisplay}" class="img-preview">
-                                <div>
-                                    <strong style="font-size:16px; display:block; color:#333;">${item.nome}</strong>
-                                    <span class="badge-cat">${item.categoria}</span>
-                                    <div style="font-size:13px; color:#555; margin-top:2px;">R$ ${item.preco.toFixed(2)}</div>
-                                </div>
-                            </div>
-                            <div class="acoes">
-                                <div class="btn-icon-admin btn-edit" onclick="prepararEdicao('${id}')" title="Editar">
-                                    <i class="fa-solid fa-pen"></i>
-                                </div>
-                                <div class="btn-icon-admin btn-remove" onclick="apagarDoBanco('${id}')" title="Excluir">
-                                    <i class="fa-solid fa-trash"></i>
-                                </div>
+                container.innerHTML += `
+                    <div class="item-lista">
+                        <div class="item-info">
+                            <img src="${imgDisplay}" class="img-preview">
+                            <div>
+                                <strong style="font-size:16px; display:block; color:#333;">${item.nome}</strong>
+                                <span class="badge-cat">${item.categoria}</span>
+                                <div style="font-size:13px; color:#555; margin-top:2px;">R$ ${item.preco.toFixed(2)}</div>
                             </div>
                         </div>
-                    `;
-                });
+                        <div class="acoes">
+                            <div class="btn-icon-admin btn-edit" onclick="prepararEdicao('${id}')" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </div>
+                            <div class="btn-icon-admin btn-remove" onclick="apagarDoBanco('${id}')" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
-        }
+        });
 
-        // --- MODO EDIÇÃO ---
         function prepararEdicao(id) {
             const produto = produtosCache.find(p => p.id === id);
             
@@ -221,13 +211,10 @@
             document.getElementById('novo-preco').value = '';
             document.getElementById('novo-img-file').value = '';
             document.getElementById('img-antiga-base64').value = '';
-
             document.getElementById('titulo-form').innerHTML = '<i class="fa-solid fa-circle-plus"></i> Adicionar Novo Produto';
-
             const btn = document.getElementById('btn-acao');
             btn.innerHTML = '<i class="fa-solid fa-check"></i> SALVAR PRODUTO';
             btn.classList.remove('btn-atualizar');
-
             document.getElementById('btn-cancelar').style.display = 'none';
         }
 
@@ -269,19 +256,15 @@
                 preco: preco,
                 imagem: imgData
             };
-
             let promessa;
-
             if (idEdicao) {
                 promessa = db.collection("produtos").doc(idEdicao).update(dados);
             } else {
                 promessa = db.collection("produtos").add(dados);
             }
-
             promessa.then(() => {
                 cancelarEdicao(); 
             }).catch((error) => {
-                console.error("Erro: ", error);
                 alert("Erro: " + error.message);
             }).finally(() => {
                 btn.disabled = false;
@@ -311,16 +294,14 @@
         }
 
         function apagarDoBanco(id) {
-            if(confirm("Tem certeza que deseja apagar?")) {
+            if(confirm("Tem certeza?")) {
                 db.collection("produtos").doc(id).delete();
             }
         }
 
         function sair() {
-            // Desloga do Google
-            firebase.auth().signOut().then(() => {
-                window.location.href = "login.html";
-            });
+            sessionStorage.removeItem('logado');
+            window.location.href = "login.html";
         }
     </script>
 </body>
