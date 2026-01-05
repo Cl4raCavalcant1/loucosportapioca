@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
@@ -46,9 +45,11 @@
     </nav>
 
     <main>
-        <div id="itens-cardapio" class="lista-produtos">
-            <div class="loading-area"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+        <div class="loading-area" style="text-align:center; padding:20px; color:#5A3E34;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Carregando cardápio...
         </div>
+        <div id="itens-cardapio" class="lista-produtos">
+            </div>
     </main>
 
     <div class="sticky-footer">
@@ -66,6 +67,7 @@
         </div>
         <a href="#" onclick="fecharMenu()" style="color: var(--marrom);"><i class="fa-solid fa-utensils"></i> Cardápio</a>
         <a href="carrinho.html" style="color: var(--marrom);"><i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
+        <a href="admin.html" style="color: var(--marrom); margin-top:20px; font-size:12px;"><i class="fa-solid fa-lock"></i> Área Admin</a>
     </div>
 
     <div id="modal-info" class="modal-fundo" onclick="fecharInfo(event)">
@@ -77,55 +79,42 @@
         </div>
     </div>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
     <script>
-        const firebaseConfig = {
-            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
-            authDomain: "loucosportapioca-57964.firebaseapp.com",
-            projectId: "loucosportapioca-57964",
-            storageBucket: "loucosportapioca-57964.firebasestorage.app",
-            messagingSenderId: "371332659198",
-            appId: "1:371332659198:web:330626357653acc00772af"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        db.collection("produtos").onSnapshot((qs) => {
-            menuGlobal = [];
-            qs.forEach((doc) => menuGlobal.push({id: doc.id, ...doc.data()}));
-            if(window.renderizarMenu) window.renderizarMenu('todos');
-        });
-
         function entrarApp() { document.getElementById('tela-inicial').style.top = "-100%"; }
-        function abrirMenu() { document.getElementById('menu-lateral').classList.add('aberto'); document.getElementById('menu-overlay').classList.add('visivel'); }
-        function fecharMenu() { document.getElementById('menu-lateral').classList.remove('aberto'); document.getElementById('menu-overlay').classList.remove('visivel'); }
+        
+        function abrirMenu() { 
+            document.getElementById('menu-lateral').classList.add('aberto'); 
+            document.getElementById('menu-overlay').classList.add('visivel'); 
+        }
+        
+        function fecharMenu() { 
+            document.getElementById('menu-lateral').classList.remove('aberto'); 
+            document.getElementById('menu-overlay').classList.remove('visivel'); 
+        }
+        
         function abrirInfo() { document.getElementById('modal-info').style.display = 'flex'; }
-        function fecharInfo(e) { if(!e || e.target.id === 'modal-info' || e.target.classList.contains('fechar-modal')) document.getElementById('modal-info').style.display = 'none'; }
+        
+        function fecharInfo(e) { 
+            if(!e || e.target.id === 'modal-info' || e.target.classList.contains('fechar-modal')) {
+                document.getElementById('modal-info').style.display = 'none'; 
+            }
+        }
+        
         function filtrar(cat, el) {
+            // Remove a classe 'ativo' de todos e adiciona no clicado
             document.querySelectorAll('.categorias a').forEach(a => a.classList.remove('ativo'));
             el.classList.add('ativo');
-            window.renderizarMenu(cat);
+            
+            // Chama a função que está lá no script.js
+            if(window.renderizarMenu) window.renderizarMenu(cat);
         }
     </script>
-    
-    <script src="script.js"></script>
-<div class="loading-area" style="text-align:center; padding:20px; font-weight:bold; color:#5A3E34;">
-        <i class="fa-solid fa-spinner fa-spin"></i> Carregando cardápio...
-    </div>
-
-    <div id="itens-cardapio" class="grid-cardapio">
-        </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script src="script.js"></script>
+
 </body>
 </html>
