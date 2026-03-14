@@ -318,3 +318,15 @@ body { background-color: var(--bg-primary); padding-bottom: 90px; }
 @media(max-width: 640px){
     .row-inputs { flex-direction: column; }
 }
+
+
+/* Melhorias do cardápio e da sacola */
+.badges-produto { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+.badge-extra-card { font-size:10px; font-weight:800; padding:4px 8px; border-radius:999px; display:inline-flex; }
+.badge-dia { background:#e8f5e9; color:#1b5e20; }
+.badge-semana { background:#e3f2fd; color:#0d47a1; }
+.badge-promo-card { background:#ffebee; color:#c62828; }
+.price-old { display:block; font-size:12px; color:#ddd; text-decoration:line-through; }
+.price.promo { color:#ffd86b; }
+.card-destaque { outline:2px solid rgba(238,185,27,.35); }
+.subtotal-item { font-size:13px; color:#f1d8b6; margin-top:4px; }

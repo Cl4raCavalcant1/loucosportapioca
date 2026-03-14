@@ -7,113 +7,59 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- ESTILOS DE TELA (Monitor) --- */
-        body { background: #eee; font-family: 'Poppins', sans-serif; padding: 20px; }
-        .header-pedidos { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h2 { color: #333; margin: 0; }
-        
-        .grid-pedidos {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card-pedido {
-            background: white; border-radius: 12px; padding: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border-left: 5px solid #ccc;
-            animation: slideIn 0.3s ease;
-            position: relative; /* Necessário para a impressão */
-        }
-        
-        .status-pendente { border-left-color: #ffbb33; }
-        .status-pronto { border-left-color: #00C851; }
-
-        .pedido-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .pedido-id { font-weight: 900; color: #555; font-size: 18px; }
-        .pedido-hora { font-size: 12px; color: #999; }
-
-        .info-cliente { font-size: 14px; margin-bottom: 10px; color: #333; }
-        .info-cliente strong { display: block; font-size: 18px; }
-
-        .lista-itens { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-        .item { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 5px; }
-        .item-qtd { font-weight: 900; margin-right: 10px; font-size: 16px; }
-
-        .pedido-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-        .total { font-size: 20px; font-weight: 900; color: #333; }
-
-        /* Botões de Ação */
-        .acoes-btns { display: flex; gap: 10px; }
-        .btn-acao { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-pronto { background: #00C851; }
-        .btn-arquivar { background: #333; }
-        
-        /* Botão Imprimir (Visual na tela) */
-        .btn-print { background: #e0e0e0; color: #333; padding: 10px; border-radius: 8px; cursor: pointer; border: none; font-size: 16px; transition: 0.2s; }
-        .btn-print:hover { background: #d0d0d0; }
-
-        @keyframes slideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
-
-        /* =========================================
-           ESTILOS DE IMPRESSÃO (CUPOM TÉRMICO)
-           ========================================= */
+        body { background: #f3f4f8; font-family: 'Poppins', sans-serif; padding: 20px; }
+        .header-pedidos { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+        h2 { color:#333; margin:0; }
+        .grid-pedidos { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; }
+        .card-pedido { background:white; border-radius:16px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,.06); border-left:6px solid #ccc; position:relative; }
+        .status-pendente { border-left-color:#ffb300; }
+        .status-pronto { border-left-color:#00C851; }
+        .status-rota { border-left-color:#2196f3; }
+        .status-retirada { border-left-color:#8e24aa; }
+        .pedido-header { display:flex; justify-content:space-between; gap:10px; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:10px; }
+        .pedido-id { font-weight:900; color:#555; font-size:18px; }
+        .pedido-hora { font-size:12px; color:#999; }
+        .status-pill { font-size:11px; font-weight:800; border-radius:999px; padding:6px 10px; display:inline-flex; align-items:center; gap:6px; }
+        .pill-pendente { background:#fff3cd; color:#8a5b00; }
+        .pill-pronto { background:#e8f5e9; color:#1b5e20; }
+        .pill-rota { background:#e3f2fd; color:#0d47a1; }
+        .pill-retirada { background:#f3e5f5; color:#6a1b9a; }
+        .info-cliente { font-size:14px; margin-bottom:10px; color:#333; }
+        .info-cliente strong { display:block; font-size:18px; }
+        .lista-itens { background:#fafafa; padding:12px; border-radius:10px; margin-bottom:12px; }
+        .item { display:flex; justify-content:space-between; font-size:15px; margin-bottom:8px; border-bottom:1px dashed #ddd; padding-bottom:6px; }
+        .item:last-child { margin-bottom:0; border-bottom:none; }
+        .item-qtd { font-weight:900; margin-right:10px; font-size:16px; }
+        .pedido-meta { display:grid; gap:8px; margin:12px 0; color:#444; font-size:14px; }
+        .pedido-footer { display:flex; justify-content:space-between; align-items:center; margin-top:15px; gap:10px; flex-wrap:wrap; }
+        .total { font-size:22px; font-weight:900; color:#333; }
+        .acoes-btns { display:flex; gap:10px; flex-wrap:wrap; }
+        .btn-acao, .btn-print { border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
+        .btn-print { background:#eceff1; color:#333; }
+        .btn-pronto { background:#00C851; color:white; }
+        .btn-rota { background:#2196f3; color:white; }
+        .btn-retirada { background:#8e24aa; color:white; }
+        .btn-arquivar { background:#333; color:white; }
         @media print {
-            /* 1. Esconde TUDO na página por padrão */
-            body * {
-                visibility: hidden;
-                height: 0; /* Evita ocupar espaço */
-                overflow: hidden;
-                background: white !important; /* Economiza tinta */
-            }
-
-            /* 2. Mostra APENAS o cartão que estamos imprimindo agora */
-            .imprimindo-agora, .imprimindo-agora * {
-                visibility: visible;
-                height: auto;
-                overflow: visible;
-                color: black !important; /* Força preto puro */
-            }
-
-            /* 3. Formata o cartão para parecer um cupom */
-            .imprimindo-agora {
-                position: fixed;
-                left: 0;
-                top: 0;
-                width: 100%; /* Ocupa a largura do papel configurado */
-                max-width: 78mm; /* Largura típica de impressora térmica (80mm) */
-                padding: 5px 10px;
-                margin: 0;
-                border: none !important; /* Tira a borda colorida */
-                box-shadow: none !important; /* Tira sombra */
-                font-family: 'Courier New', Courier, monospace; /* Fonte estilo máquina */
-            }
-
-            /* Ajustes finos para o papel */
-            .imprimindo-agora .pedido-header { border-bottom: 2px dashed black; }
-            .imprimindo-agora .pedido-id { font-size: 24px; }
-            .imprimindo-agora .info-cliente strong { font-size: 20px; }
-            .imprimindo-agora .lista-itens { background: transparent; padding: 0; }
-            .imprimindo-agora .item { border-bottom: 1px dotted black; }
-            .imprimindo-agora .total { font-size: 22px; border-top: 2px dashed black; padding-top: 5px; display: block; width: 100%; text-align: right; }
-
-            /* Esconde os botões (não saem no papel) */
-            .imprimindo-agora .acoes-btns,
-            .imprimindo-agora .btn-print {
-                display: none !important;
-            }
-            
-            /* Tira margens do navegador */
-            @page { size: auto; margin: 0mm; }
+            body * { visibility:hidden; height:0; overflow:hidden; background:white !important; }
+            .imprimindo-agora, .imprimindo-agora * { visibility:visible; height:auto; overflow:visible; color:black !important; }
+            .imprimindo-agora { position:fixed; left:0; top:0; width:100%; max-width:78mm; padding:5px 10px; margin:0; border:none !important; box-shadow:none !important; font-family:'Courier New', Courier, monospace; }
+            .imprimindo-agora .pedido-header { border-bottom:2px dashed black; }
+            .imprimindo-agora .pedido-id { font-size:24px; }
+            .imprimindo-agora .info-cliente strong { font-size:20px; }
+            .imprimindo-agora .lista-itens { background:transparent; padding:0; }
+            .imprimindo-agora .item { border-bottom:1px dotted black; }
+            .imprimindo-agora .total { font-size:22px; border-top:2px dashed black; padding-top:5px; display:block; width:100%; text-align:right; }
+            .imprimindo-agora .acoes-btns, .imprimindo-agora .btn-print { display:none !important; }
+            @page { size:auto; margin:0mm; }
         }
     </style>
 </head>
 <body>
-
     <div class="header-pedidos">
         <div>
             <h2>Cozinha / Pedidos 👨‍🍳</h2>
-            <small>Atualização em tempo real</small>
+            <small>Quando marcar “Saiu para entrega”, abre o WhatsApp do cliente com a mensagem pronta.</small>
         </div>
         <a href="admin.html" style="text-decoration:none; color:#333; font-weight:bold;">
             <i class="fa-solid fa-arrow-left"></i> Voltar pro Admin
@@ -121,16 +67,13 @@
     </div>
 
     <div id="container-pedidos" class="grid-pedidos">
-        <p style="text-align:center; width:100%; color:#999;">
-            <i class="fa-solid fa-spinner fa-spin"></i> Carregando pedidos...
-        </p>
+        <p style="text-align:center; width:100%; color:#999;"><i class="fa-solid fa-spinner fa-spin"></i> Carregando pedidos...</p>
     </div>
 
     <audio id="som-notificacao" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <script>
         const firebaseConfig = {
             apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
@@ -140,114 +83,151 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        if (sessionStorage.getItem('logado') !== 'sim') {
-            window.location.href = 'login.html';
+        if (sessionStorage.getItem('logado') !== 'sim') window.location.href = 'login.html';
+
+        function formatarMoeda(valor) {
+            return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // Escuta Pedidos em Tempo Real
-        db.collection("pedidos").orderBy("data", "desc").onSnapshot((snapshot) => {
+        function limparTelefone(numero) {
+            return String(numero || '').replace(/\D/g, '');
+        }
+
+        function obterInfoStatus(pedido) {
+            if (pedido.status === 'rota') return { classe: 'status-rota', pill: 'pill-rota', texto: 'Saiu para entrega' };
+            if (pedido.status === 'aguardando_retirada') return { classe: 'status-retirada', pill: 'pill-retirada', texto: 'Aguardando retirada' };
+            if (pedido.status === 'pronto') return { classe: 'status-pronto', pill: 'pill-pronto', texto: 'Pronto' };
+            return { classe: 'status-pendente', pill: 'pill-pendente', texto: 'Pendente' };
+        }
+
+        function montarMensagemCliente(pedido, id, tipoAviso) {
+            const idCurto = id.slice(0, 5).toUpperCase();
+            let texto = `Olá, ${pedido.cliente?.nome || 'cliente'}! Seu pedido *#${idCurto}* `;
+            if (tipoAviso === 'rota') {
+                texto += 'já saiu para entrega e está a caminho. 🛵';
+            } else {
+                texto += 'já está pronto para retirada. 🛍️';
+            }
+            texto += `\n\nTotal: ${formatarMoeda(pedido.total)}`;
+            if (pedido.entrega?.endereco) texto += `\n${tipoAviso === 'rota' ? 'Endereço de entrega' : 'Retirada'}: ${pedido.entrega.endereco}`;
+            texto += '\n\nObrigado por pedir com a gente!';
+            return texto;
+        }
+
+        function abrirWhatsCliente(pedido, id, tipoAviso) {
+            const telefone = limparTelefone(pedido.cliente?.telefone);
+            if (!telefone) {
+                alert('Esse pedido não tem telefone válido do cliente.');
+                return;
+            }
+            const mensagem = montarMensagemCliente(pedido, id, tipoAviso);
+            window.open(`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`, '_blank');
+        }
+
+        db.collection('pedidos').orderBy('data', 'desc').onSnapshot((snapshot) => {
             const container = document.getElementById('container-pedidos');
-            
+
             snapshot.docChanges().forEach((change) => {
-                if (change.type === "added" && !change.doc.metadata.fromCache) {
-                    document.getElementById('som-notificacao').play().catch(e => console.log("Som bloqueado pelo navegador"));
+                if (change.type === 'added' && !change.doc.metadata.fromCache) {
+                    document.getElementById('som-notificacao').play().catch(() => {});
                 }
             });
 
-            if(snapshot.empty) {
-                container.innerHTML = '<p style="text-align:center; width:100%; color:#999; padding: 50px;">Nenhum pedido por enquanto.</p>';
+            if (snapshot.empty) {
+                container.innerHTML = '<p style="text-align:center; width:100%; color:#999; padding:50px;">Nenhum pedido por enquanto.</p>';
                 return;
             }
 
-            container.innerHTML = ''; // Limpa antes de redesenhar
-
+            container.innerHTML = '';
             snapshot.forEach((doc) => {
                 const p = doc.data();
                 const id = doc.id;
-                const data = p.data.toDate().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                const statusClass = p.status === 'pendente' ? 'status-pendente' : 'status-pronto';
-                
-                // Monta HTML dos itens
+                const data = p.data?.toDate ? p.data.toDate().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '--:--';
+                const statusInfo = obterInfoStatus(p);
+
                 let itensHtml = '';
-                p.itens.forEach(i => {
-                    // Verifica se tem observação (futuro) ou descrição
-                    let desc = i.descricao ? `<br><small style="color:#666; font-style:italic;">(${i.descricao})</small>` : '';
-                    itensHtml += `<div class="item"><div><span class="item-qtd">${i.quantidade}x</span> <span>${i.nome}</span> ${desc}</div></div>`;
+                (p.itens || []).forEach(i => {
+                    const desc = i.descricao ? `<br><small style="color:#666; font-style:italic;">(${i.descricao})</small>` : '';
+                    itensHtml += `<div class="item"><div><span class="item-qtd">${i.quantidade}x</span><span>${i.nome}</span> ${desc}</div></div>`;
                 });
 
-                // Botão de ação muda conforme status
                 let btnAcao = '';
-                if(p.status === 'pendente') {
-                    btnAcao = `<button class="btn-acao btn-pronto" onclick="mudarStatus('${id}', 'pronto')">✅ Pronto</button>`;
+                if (p.status === 'pendente') {
+                    btnAcao = `<button class="btn-acao btn-pronto" onclick="mudarStatus('${id}', 'pronto')">✅ Marcar pronto</button>`;
+                } else if (p.status === 'pronto' && p.entrega?.tipo === 'entrega') {
+                    btnAcao = `<button class="btn-acao btn-rota" onclick="enviarParaRota('${id}')">🛵 Saiu para entrega</button>`;
+                } else if (p.status === 'pronto' && p.entrega?.tipo !== 'entrega') {
+                    btnAcao = `<button class="btn-acao btn-retirada" onclick="avisarRetirada('${id}')">🛍️ Avisar retirada</button>`;
                 } else {
                     btnAcao = `<button class="btn-acao btn-arquivar" onclick="arquivar('${id}')">📁 Arquivar</button>`;
                 }
 
-                // ADICIONAMOS UM ID ÚNICO AO CARD: id="card-${id}"
                 container.innerHTML += `
-                    <div id="card-${id}" class="card-pedido ${statusClass}">
+                    <div id="card-${id}" class="card-pedido ${statusInfo.classe}">
                         <div class="pedido-header">
-                            <span class="pedido-id">#${id.slice(0,5).toUpperCase()}</span>
+                            <div>
+                                <span class="pedido-id">#${id.slice(0,5).toUpperCase()}</span><br>
+                                <span class="status-pill ${statusInfo.pill}">${statusInfo.texto}</span>
+                            </div>
                             <span class="pedido-hora">${data}</span>
                         </div>
                         <div class="info-cliente">
-                            <strong>${p.cliente.nome}</strong>
-                            <span>${p.entrega.tipo === 'entrega' ? '🛵 Entrega' : '👜 Retirada'}</span>
-                            <div style="font-size:13px; margin-top:5px;">📍 ${p.entrega.endereco}</div>
-                             ${p.cupom?.codigo ? `<div style="font-size:13px; color:#2e7d32; font-weight:700;">🎟️ Cupom: ${p.cupom.codigo}</div>` : ''}
-                             <div style="font-size:13px;">📞 ${p.cliente.telefone}</div>
+                            <strong>${p.cliente?.nome || 'Cliente'}</strong>
+                            <span>${p.entrega?.tipo === 'entrega' ? '🛵 Entrega' : '👜 Retirada'}</span>
+                            <div style="font-size:13px; margin-top:5px;">📍 ${p.entrega?.endereco || 'Não informado'}</div>
+                            ${p.cupom?.codigo ? `<div style="font-size:13px; color:#2e7d32; font-weight:700;">🎟️ Cupom: ${p.cupom.codigo}</div>` : ''}
+                            <div style="font-size:13px;">📞 ${p.cliente?.telefone || 'Sem telefone'}</div>
                         </div>
-                        
-                        <div class="lista-itens">
-                            ${itensHtml}
+                        <div class="lista-itens">${itensHtml}</div>
+                        <div class="pedido-meta">
+                            <div><strong>Pagamento:</strong> ${(p.pagamento?.metodo || '').toUpperCase()} ${p.pagamento?.troco ? `(Troco: ${p.pagamento.troco})` : ''}</div>
+                            <div><strong>Subtotal:</strong> ${formatarMoeda(p.subtotal || p.total || 0)}</div>
+                            ${(p.desconto || 0) > 0 ? `<div><strong>Desconto:</strong> ${formatarMoeda(p.desconto)}</div>` : ''}
                         </div>
-
-                         <div style="margin-top:10px; font-size:14px; font-weight:bold; border-top:1px solid #eee; padding-top:5px;">
-                            Pagamento: ${p.pagamento.metodo.toUpperCase()} ${p.pagamento.troco ? '(Troco: '+p.pagamento.troco+')' : ''}
-                        </div>
-
                         <div class="pedido-footer">
-                            <span class="total">${(p.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                            
+                            <span class="total">${formatarMoeda(p.total || 0)}</span>
                             <div class="acoes-btns">
-                                <button class="btn-print" onclick="imprimirPedido('${id}')" title="Imprimir Cupom">
-                                    <i class="fa-solid fa-print"></i>
-                                </button>
+                                <button class="btn-print" onclick="imprimirPedido('${id}')"><i class="fa-solid fa-print"></i></button>
                                 ${btnAcao}
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         });
 
-        // --- FUNÇÃO MÁGICA DE IMPRESSÃO ---
         function imprimirPedido(id) {
-            // 1. Acha o cartão específico na tela
             const card = document.getElementById('card-' + id);
-            
-            // 2. Adiciona a classe que o CSS de impressão está esperando
             card.classList.add('imprimindo-agora');
-            
-            // 3. Abre a caixa de diálogo do navegador
             window.print();
-            
-            // 4. Remove a classe para a tela voltar ao normal depois que imprimir/cancelar
             card.classList.remove('imprimindo-agora');
         }
 
         function mudarStatus(id, status) {
-            db.collection("pedidos").doc(id).update({ status: status });
+            db.collection('pedidos').doc(id).update({ status });
+        }
+
+        function enviarParaRota(id) {
+            db.collection('pedidos').doc(id).get().then((doc) => {
+                if (!doc.exists) return;
+                const pedido = doc.data();
+                return db.collection('pedidos').doc(id).update({ status: 'rota' }).then(() => abrirWhatsCliente(pedido, id, 'rota'));
+            });
+        }
+
+        function avisarRetirada(id) {
+            db.collection('pedidos').doc(id).get().then((doc) => {
+                if (!doc.exists) return;
+                const pedido = doc.data();
+                return db.collection('pedidos').doc(id).update({ status: 'aguardando_retirada' }).then(() => abrirWhatsCliente(pedido, id, 'retirada'));
+            });
         }
 
         function arquivar(id) {
-            if(confirm("Arquivar este pedido? Ele sumirá da tela.")) {
-                db.collection("pedidos").doc(id).delete();
+            if (confirm('Arquivar este pedido? Ele sumirá da tela.')) {
+                db.collection('pedidos').doc(id).delete();
             }
         }
     </script>

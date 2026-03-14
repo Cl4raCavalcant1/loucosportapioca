@@ -34,9 +34,35 @@ function montarItemCarrinho(produto) {
         precoBase: Number(produto.preco || 0),
         precoPromocional: produto.precoPromocional ? Number(produto.precoPromocional) : null,
         emPromocao: !!produto.emPromocao,
+        pratoDoDia: !!produto.pratoDoDia,
+        descontoSemana: !!produto.descontoSemana,
         preco: obterPrecoAplicado(produto),
         quantidade: 1
     };
+}
+
+function salvarCarrinho() {
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+}
+
+function atualizarResumoCarrinho(total, qtd) {
+    const subtotalEl = document.getElementById('subtotal-carrinho');
+    const totalEl = document.getElementById('total-carrinho');
+    const qtdEl = document.getElementById('itens-carrinho-resumo');
+    const btnProsseguir = document.querySelector('.btn-prosseguir');
+
+    if (subtotalEl) subtotalEl.innerText = formatarMoeda(total);
+    if (totalEl) totalEl.innerText = formatarMoeda(total);
+    if (qtdEl) qtdEl.innerText = `${qtd} item(ns)`;
+    if (btnProsseguir) {
+        if (qtd === 0) {
+            btnProsseguir.classList.add('desabilitado');
+            btnProsseguir.setAttribute('aria-disabled', 'true');
+        } else {
+            btnProsseguir.classList.remove('desabilitado');
+            btnProsseguir.removeAttribute('aria-disabled');
+        }
+    }
 }
 
 db.collection("produtos").onSnapshot((querySnapshot) => {
@@ -45,8 +71,8 @@ db.collection("produtos").onSnapshot((querySnapshot) => {
     const loading = document.querySelector('.loading-area');
 
     if (querySnapshot.empty) {
-        if(container) container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">Nenhum produto cadastrado.</p>';
-        if(loading) loading.style.display = 'none';
+        if (container) container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">Nenhum produto cadastrado.</p>';
+        if (loading) loading.style.display = 'none';
         return;
     }
 
@@ -56,7 +82,7 @@ db.collection("produtos").onSnapshot((querySnapshot) => {
         menuGlobal.push(item);
     });
 
-    if(loading) loading.style.display = 'none';
+    if (loading) loading.style.display = 'none';
     renderizarMenu('todos');
 }, (error) => {
     console.error("Erro ao buscar cardápio:", error);
@@ -68,7 +94,8 @@ window.renderizarMenu = function(filtro = 'todos') {
 
     container.innerHTML = '';
 
-    const lista = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
+    const listaBase = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
+    const lista = [...listaBase].sort((a, b) => Number(!!b.pratoDoDia) - Number(!!a.pratoDoDia));
 
     if (lista.length === 0) {
         container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#666;">Nenhum item nesta categoria.</div>';
@@ -82,16 +109,21 @@ window.renderizarMenu = function(filtro = 'todos') {
         const blocoPreco = emPromocao
             ? `<div class="box-preco"><span class="price-old">${formatarMoeda(item.preco)}</span><p class="price promo">${formatarMoeda(item.precoPromocional)}</p></div>`
             : `<p class="price">${formatarMoeda(item.preco)}</p>`;
-        const badgePromo = emPromocao ? '<span class="badge-promo-card">Promoção</span>' : '';
+
+        const badges = [];
+        if (item.pratoDoDia) badges.push('<span class="badge-extra-card badge-dia">Prato do dia</span>');
+        if (item.descontoSemana) badges.push('<span class="badge-extra-card badge-semana">Desconto da semana</span>');
+        if (emPromocao) badges.push('<span class="badge-extra-card badge-promo-card">Promoção</span>');
+        const badgesHtml = badges.length ? `<div class="badges-produto">${badges.join('')}</div>` : '';
         
         container.innerHTML += `
-            <div class="card-produto">
+            <div class="card-produto ${item.pratoDoDia ? 'card-destaque' : ''}">
                 <div class="img-wrapper">
                     <img src="${img}" alt="${item.nome}" loading="lazy">
-                    ${badgePromo}
                 </div>
                 <div class="info-wrapper">
                     <div>
+                        ${badgesHtml}
                         <h3>${item.nome}</h3>
                         <p class="desc">${desc}</p>
                     </div>
@@ -135,27 +167,28 @@ function atualizarInterface() {
     let total = 0;
 
     carrinho.forEach(item => {
-        let quantidade = Number(item.quantidade) || 1;
-        let preco = Number(item.preco) || 0;
+        const quantidade = Number(item.quantidade) || 1;
+        const preco = Number(item.preco) || 0;
         qtd += quantidade;
         total += preco * quantidade;
     });
 
     const totalFormatado = formatarMoeda(total);
 
-    if(labelQtd && labelTotal) {
+    if (labelQtd && labelTotal) {
         labelQtd.innerText = `${qtd} Produtos`;
         labelTotal.innerText = totalFormatado;
     }
 
-    if(labelTotalSacola && labelQtdSacola) {
+    if (labelTotalSacola && labelQtdSacola) {
         labelTotalSacola.innerText = totalFormatado;
         labelQtdSacola.innerText = `${qtd} itens na sacola`;
     }
 
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    atualizarResumoCarrinho(total, qtd);
+    salvarCarrinho();
 
-    if(containerCarrinho) {
+    if (containerCarrinho) {
         renderizarListaCarrinho(containerCarrinho);
     }
 }
@@ -171,17 +204,19 @@ function renderizarListaCarrinho(container) {
     carrinho.forEach(item => {
         const img = item.imagem || "https://via.placeholder.com/150";
         const emPromocao = item.emPromocao && Number(item.precoPromocional) > 0 && Number(item.precoPromocional) < Number(item.precoBase || item.preco);
+        const subtotalItem = (Number(item.preco) || 0) * (Number(item.quantidade) || 1);
         const precoHtml = emPromocao
             ? `<p class="price"><span style="text-decoration:line-through; opacity:.7; font-size:13px; margin-right:6px;">${formatarMoeda(item.precoBase)}</span>${formatarMoeda(item.preco)}</p>`
             : `<p class="price">${formatarMoeda(item.preco)}</p>`;
         
         container.innerHTML += `
             <div class="card-carrinho">
-                <div class="img-carrinho"><img src="${img}"></div>
+                <div class="img-carrinho"><img src="${img}" alt="${item.nome}"></div>
                 <div class="info-carrinho">
                     <div>
                         <h3>${item.nome}</h3>
                         ${precoHtml}
+                        <div class="subtotal-item">Subtotal: ${formatarMoeda(subtotalItem)}</div>
                     </div>
                     
                     <div class="controles-carrinho">
@@ -210,17 +245,28 @@ window.alterarQtd = function(id, mudanca) {
 }
 
 window.removerItem = function(id) {
-    if(confirm("Tirar este item da sacola?")) {
+    if (confirm("Tirar este item da sacola?")) {
         carrinho = carrinho.filter(item => item.id != id);
         atualizarInterface();
     }
 }
 
+window.limparCarrinho = function() {
+    if (!carrinho.length) return;
+    if (confirm('Limpar toda a sacola?')) {
+        carrinho = [];
+        atualizarInterface();
+        msgSucesso('Sacola limpa com sucesso!');
+    }
+}
+
 function msgSucesso(texto) {
-    Toastify({
-        text: texto, duration: 3000, gravity: "top", position: "center",
-        style: { background: "#00C851", borderRadius: "10px", fontWeight: "bold" }
-    }).showToast();
+    if (typeof Toastify === 'function') {
+        Toastify({
+            text: texto, duration: 3000, gravity: "top", position: "center",
+            style: { background: "#00C851", borderRadius: "10px", fontWeight: "bold" }
+        }).showToast();
+    }
 }
 
 atualizarInterface();
@@ -231,11 +277,7 @@ function verificarHorario() {
     const horarioAbertura = 16;
     const horarioFechamento = 23;
 
-    let estaAberto = false;
-    if (hora >= horarioAbertura && hora < horarioFechamento) {
-        estaAberto = true;
-    }
-
+    const estaAberto = hora >= horarioAbertura && hora < horarioFechamento;
     const badge = document.querySelector('.status-badge');
     const botoes = document.querySelectorAll('.btn-add');
 
