@@ -140,8 +140,14 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.firestore();
+
+        if (sessionStorage.getItem('logado') !== 'sim') {
+            window.location.href = 'login.html';
+        }
 
         // Escuta Pedidos em Tempo Real
         db.collection("pedidos").orderBy("data", "desc").onSnapshot((snapshot) => {
@@ -193,6 +199,7 @@
                             <strong>${p.cliente.nome}</strong>
                             <span>${p.entrega.tipo === 'entrega' ? '🛵 Entrega' : '👜 Retirada'}</span>
                             <div style="font-size:13px; margin-top:5px;">📍 ${p.entrega.endereco}</div>
+                             ${p.cupom?.codigo ? `<div style="font-size:13px; color:#2e7d32; font-weight:700;">🎟️ Cupom: ${p.cupom.codigo}</div>` : ''}
                              <div style="font-size:13px;">📞 ${p.cliente.telefone}</div>
                         </div>
                         
@@ -205,7 +212,7 @@
                         </div>
 
                         <div class="pedido-footer">
-                            <span class="total">R$ ${p.total.toFixed(2)}</span>
+                            <span class="total">${(p.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                             
                             <div class="acoes-btns">
                                 <button class="btn-print" onclick="imprimirPedido('${id}')" title="Imprimir Cupom">

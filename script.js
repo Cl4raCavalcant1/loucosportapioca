@@ -1,6 +1,3 @@
-// ==============================================================
-// 1. CONFIGURAÇÃO DO FIREBASE (Essencial para baixar os produtos)
-// ==============================================================
 const firebaseConfig = {
     apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
     authDomain: "loucosportapioca-57964.firebaseapp.com",
@@ -10,25 +7,40 @@ const firebaseConfig = {
     appId: "1:371332659198:web:330626357653acc00772af"
 };
 
-// Inicializa o Firebase se ainda não estiver rodando
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.firestore();
 
-// ==============================================================
-// 2. VARIÁVEIS GLOBAIS
-// ==============================================================
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-let menuGlobal = []; 
+let menuGlobal = [];
 
-// ==============================================================
-// 3. BUSCAR PRODUTOS (A Mágica acontece aqui)
-// ==============================================================
-// O sistema fica "escutando" o banco de dados. 
-// Assim que carregar, ele preenche o site.
+function formatarMoeda(valor) {
+    return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function obterPrecoAplicado(produto) {
+    const preco = Number(produto.preco || 0);
+    const promo = Number(produto.precoPromocional || 0);
+    if (produto.emPromocao && promo > 0 && promo < preco) {
+        return promo;
+    }
+    return preco;
+}
+
+function montarItemCarrinho(produto) {
+    return {
+        ...produto,
+        precoBase: Number(produto.preco || 0),
+        precoPromocional: produto.precoPromocional ? Number(produto.precoPromocional) : null,
+        emPromocao: !!produto.emPromocao,
+        preco: obterPrecoAplicado(produto),
+        quantidade: 1
+    };
+}
+
 db.collection("produtos").onSnapshot((querySnapshot) => {
-    menuGlobal = []; // Limpa a lista para não duplicar
+    menuGlobal = [];
     const container = document.getElementById('itens-cardapio');
     const loading = document.querySelector('.loading-area');
 
@@ -40,26 +52,19 @@ db.collection("produtos").onSnapshot((querySnapshot) => {
 
     querySnapshot.forEach((doc) => {
         const item = doc.data();
-        item.id = doc.id; // Guarda o ID para o carrinho saber qual produto é
+        item.id = doc.id;
         menuGlobal.push(item);
     });
 
-    // Remove o aviso de "Carregando..."
     if(loading) loading.style.display = 'none';
-
-    // Desenha os produtos na tela
     renderizarMenu('todos');
-
 }, (error) => {
     console.error("Erro ao buscar cardápio:", error);
 });
 
-// ==============================================================
-// 4. FUNÇÕES VISUAIS (Renderizar Menu)
-// ==============================================================
 window.renderizarMenu = function(filtro = 'todos') {
     const container = document.getElementById('itens-cardapio');
-    if (!container) return; 
+    if (!container) return;
 
     container.innerHTML = '';
 
@@ -72,12 +77,18 @@ window.renderizarMenu = function(filtro = 'todos') {
 
     lista.forEach(item => {
         const img = item.imagem ? item.imagem : "https://via.placeholder.com/150";
-        const desc = item.descricao ? item.descricao : ''; 
+        const desc = item.descricao ? item.descricao : '';
+        const emPromocao = item.emPromocao && Number(item.precoPromocional) > 0 && Number(item.precoPromocional) < Number(item.preco);
+        const blocoPreco = emPromocao
+            ? `<div class="box-preco"><span class="price-old">${formatarMoeda(item.preco)}</span><p class="price promo">${formatarMoeda(item.precoPromocional)}</p></div>`
+            : `<p class="price">${formatarMoeda(item.preco)}</p>`;
+        const badgePromo = emPromocao ? '<span class="badge-promo-card">Promoção</span>' : '';
         
         container.innerHTML += `
             <div class="card-produto">
                 <div class="img-wrapper">
                     <img src="${img}" alt="${item.nome}" loading="lazy">
+                    ${badgePromo}
                 </div>
                 <div class="info-wrapper">
                     <div>
@@ -85,7 +96,7 @@ window.renderizarMenu = function(filtro = 'todos') {
                         <p class="desc">${desc}</p>
                     </div>
                     <div>
-                        <p class="price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</p>
+                        ${blocoPreco}
                         <button class="btn-add" onclick="adicionarAoCarrinho('${item.id}')">
                             Adicionar
                         </button>
@@ -96,9 +107,6 @@ window.renderizarMenu = function(filtro = 'todos') {
     });
 }
 
-// ==============================================================
-// 5. FUNÇÕES DO CARRINHO
-// ==============================================================
 window.adicionarAoCarrinho = function(id) {
     const produto = menuGlobal.find(p => p.id == id);
 
@@ -109,7 +117,7 @@ window.adicionarAoCarrinho = function(id) {
             itemNoCarrinho.quantidade = Number(itemNoCarrinho.quantidade) + 1;
             msgSucesso(`+1 ${produto.nome}`);
         } else {
-            carrinho.push({ ...produto, quantidade: 1 });
+            carrinho.push(montarItemCarrinho(produto));
             msgSucesso(`${produto.nome} na sacola!`);
         }
         atualizarInterface();
@@ -133,15 +141,13 @@ function atualizarInterface() {
         total += preco * quantidade;
     });
 
-    const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const totalFormatado = formatarMoeda(total);
 
-    // Atualiza barra inferior da Home
     if(labelQtd && labelTotal) {
         labelQtd.innerText = `${qtd} Produtos`;
         labelTotal.innerText = totalFormatado;
     }
 
-    // Atualiza Header do Carrinho
     if(labelTotalSacola && labelQtdSacola) {
         labelTotalSacola.innerText = totalFormatado;
         labelQtdSacola.innerText = `${qtd} itens na sacola`;
@@ -153,15 +159,7 @@ function atualizarInterface() {
         renderizarListaCarrinho(containerCarrinho);
     }
 }
-const obs = document.getElementById('obs-pedido').value;
 
-// ... dentro do objeto pedido ...
-const pedido = {
-    // ... outros dados ...
-    observacao: obs, // Adicione essa linha
-    // ...
-};
-// Desenha a lista dentro da página carrinho.html
 function renderizarListaCarrinho(container) {
     container.innerHTML = '';
 
@@ -172,6 +170,10 @@ function renderizarListaCarrinho(container) {
 
     carrinho.forEach(item => {
         const img = item.imagem || "https://via.placeholder.com/150";
+        const emPromocao = item.emPromocao && Number(item.precoPromocional) > 0 && Number(item.precoPromocional) < Number(item.precoBase || item.preco);
+        const precoHtml = emPromocao
+            ? `<p class="price"><span style="text-decoration:line-through; opacity:.7; font-size:13px; margin-right:6px;">${formatarMoeda(item.precoBase)}</span>${formatarMoeda(item.preco)}</p>`
+            : `<p class="price">${formatarMoeda(item.preco)}</p>`;
         
         container.innerHTML += `
             <div class="card-carrinho">
@@ -179,7 +181,7 @@ function renderizarListaCarrinho(container) {
                 <div class="info-carrinho">
                     <div>
                         <h3>${item.nome}</h3>
-                        <p class="price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</p>
+                        ${precoHtml}
                     </div>
                     
                     <div class="controles-carrinho">
@@ -214,32 +216,26 @@ window.removerItem = function(id) {
     }
 }
 
-// Utilitários de Mensagem
 function msgSucesso(texto) {
     Toastify({
         text: texto, duration: 3000, gravity: "top", position: "center",
         style: { background: "#00C851", borderRadius: "10px", fontWeight: "bold" }
     }).showToast();
 }
-// ==============================================================
-// 7. CONTROLE DE HORÁRIO DE FUNCIONAMENTO
-// ==============================================================
+
+atualizarInterface();
+
 function verificarHorario() {
     const agora = new Date();
     const hora = agora.getHours();
-    const dia = agora.getDay(); // 0 = Domingo, 1 = Segunda...
+    const horarioAbertura = 16;
+    const horarioFechamento = 23;
 
-    // ⚙️ CONFIGURAÇÃO: Mude seus horários aqui
-    const horarioAbertura = 16; // 16:00
-    const horarioFechamento = 23; // 23:00 (Para meia-noite use 24)
-
-    // Lógica simples: Está entre 16h e 23h?
     let estaAberto = false;
     if (hora >= horarioAbertura && hora < horarioFechamento) {
         estaAberto = true;
     }
 
-    // Atualiza a tela
     const badge = document.querySelector('.status-badge');
     const botoes = document.querySelectorAll('.btn-add');
 
@@ -250,7 +246,6 @@ function verificarHorario() {
             badge.style.color = '#00C851';
             badge.style.borderColor = '#00C851';
             
-            // Libera os botões
             botoes.forEach(btn => {
                 btn.disabled = false;
                 btn.innerText = 'Adicionar';
@@ -263,7 +258,6 @@ function verificarHorario() {
             badge.style.color = '#ff4444';
             badge.style.borderColor = '#ff4444';
 
-            // Bloqueia os botões
             botoes.forEach(btn => {
                 btn.disabled = true;
                 btn.innerText = 'Fechado';
@@ -274,13 +268,9 @@ function verificarHorario() {
     }
 }
 
-// Verifica assim que carrega e atualiza a cada minuto
-setInterval(verificarHorario, 60000); 
-// Precisamos chamar depois que o menu carregar, então vamos adicionar no renderizarMenu também
+setInterval(verificarHorario, 60000);
 const originalRender = window.renderizarMenu;
 window.renderizarMenu = function(filtro) {
-    originalRender(filtro); // Chama a função original
-    setTimeout(verificarHorario, 100); // Verifica o horário logo depois
+    originalRender(filtro);
+    setTimeout(verificarHorario, 100);
 };
-// Inicia
-atualizarInterface();

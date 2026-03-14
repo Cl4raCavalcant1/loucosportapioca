@@ -10,34 +10,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* ESTILOS DO ADMIN */
         body { background-color: #f0f2f5; font-family: 'Poppins', sans-serif; }
-        .admin-header { background-color: var(--brown-dark); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .admin-header { background-color: var(--brown-dark); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; gap: 15px; }
         .btn-sair { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
         .btn-sair:hover { background: #ff4444; border-color: #ff4444; }
-        .container-admin { max-width: 800px; margin: 0 auto; padding: 0 20px 50px 20px; }
-        .form-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-top: 5px solid var(--bg-primary); margin-bottom: 40px; }
+        .container-admin { max-width: 1000px; margin: 0 auto; padding: 0 20px 50px 20px; }
+        .grid-admin { display: grid; grid-template-columns: 1.2fr .8fr; gap: 25px; align-items: start; }
+        .form-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-top: 5px solid var(--bg-primary); margin-bottom: 25px; }
         .form-title { color: var(--brown-dark); margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600; }
         .form-card input, .form-card select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 14px; outline: none; transition: 0.3s; background: #fafafa; }
         .form-card input:focus, .form-card select:focus { border-color: var(--bg-primary); background: white; }
+        .checkbox-promo { display:flex; align-items:center; gap:10px; background:#fff8df; padding:12px; border-radius:12px; border:1px solid #f3df8d; margin-bottom: 12px; }
+        .checkbox-promo input { width:auto; transform: scale(1.2); }
+        .duas-colunas { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         .btn-salvar { background: #00C851; color: white; width: 100%; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
         .btn-salvar:hover { background: #00963c; }
         .btn-atualizar { background: #33b5e5 !important; }
         .btn-atualizar:hover { background: #0099cc !important; }
         .btn-cancelar { background: #eee; color: #555; width: 100%; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; display: none; }
         .btn-cancelar:hover { background: #ddd; }
-        .item-lista { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid transparent; transition: 0.2s; }
+        .btn-secundario { background:#5A3E34; color:#fff; width:100%; border:none; padding:14px; border-radius:10px; font-weight:700; cursor:pointer; }
+        .item-lista { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid transparent; transition: 0.2s; gap: 12px; }
         .item-lista:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left-color: var(--bg-primary); }
         .item-info { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
         .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; border: 1px solid #eee; }
         .badge-cat { background: var(--bg-primary); color: var(--brown-dark); font-size: 10px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 800; }
+        .badge-promo-admin { background:#ffebee; color:#c62828; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:800; margin-left:6px; }
         .acoes { display: flex; gap: 10px; }
         .btn-icon-admin { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-edit { background: #e3f2fd; color: #2196f3; }
         .btn-remove { background: #ffebee; color: #f44336; }
         .loader { display: none; text-align: center; margin-top: 15px; color: #666; }
+        .cupom-item { background:#fafafa; border:1px solid #eee; border-radius:12px; padding:14px; margin-bottom:12px; }
+        .cupom-topo { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px; }
+        .cupom-codigo { font-weight:800; color:var(--brown-dark); font-size:16px; }
+        .status-cupom { font-size:11px; font-weight:700; padding:4px 8px; border-radius:999px; }
+        .status-ativo { background:#e8f5e9; color:#1b5e20; }
+        .status-inativo { background:#f5f5f5; color:#666; }
+        .cupom-acoes { display:flex; gap:10px; margin-top:10px; }
+        .cupom-acoes button { flex:1; border:none; border-radius:10px; padding:10px; font-weight:700; cursor:pointer; }
+        .btn-toggle-cupom { background:#fff8df; color:#7a5b00; }
+        .btn-apagar-cupom { background:#ffebee; color:#c62828; }
+        @media(max-width: 860px){ .grid-admin { grid-template-columns: 1fr; } .duas-colunas { grid-template-columns: 1fr; } .admin-header { flex-direction:column; align-items:flex-start; } }
     </style>
 </head>
 <body>
@@ -45,7 +61,7 @@
     <div class="admin-header">
         <div>
             <h2 style="color: white;">Painel Admin</h2>
-            <small>Gerencie seu cardápio</small>
+            <small>Gerencie cardápio, promoções e cupons</small>
         </div>
         <button onclick="sair()" class="btn-sair">
             <i class="fa-solid fa-right-from-bracket"></i> Sair
@@ -53,66 +69,121 @@
     </div>
 
     <div class="container-admin">
-        
         <a href="pedidos.html" style="background:#EEB91B; color:#5A3E34; text-decoration:none; padding:15px; border-radius:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <i class="fa-solid fa-utensils"></i> Ver Pedidos da Cozinha (Tempo Real)
         </a>
 
-        <div class="form-card" id="form-produto">
-            <h3 class="form-title" id="titulo-form">
-                <i class="fa-solid fa-circle-plus"></i> Adicionar Produto
-            </h3>
-            
-            <div class="input-group">
-                <label>Nome do Produto</label>
-                <input type="text" id="novo-nome" placeholder="Ex: Tapioca de Carne">
-            </div>
-            
-            <div class="input-group">
-                <label>Categoria</label>
-                <select id="novo-categoria">
-                    <option value="" disabled selected>Selecione...</option>
-                    <option value="pratos">Pratos do Dia</option>
-                    <option value="tapioca-grande">Tapioca Grande</option>
-                    <option value="tapioca-media">Tapioca Média</option>
-                    <option value="bebidas">Bebidas</option>
-                </select>
+        <div class="grid-admin">
+            <div>
+                <div class="form-card" id="form-produto">
+                    <h3 class="form-title" id="titulo-form">
+                        <i class="fa-solid fa-circle-plus"></i> Adicionar Produto
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label>Nome do Produto</label>
+                        <input type="text" id="novo-nome" placeholder="Ex: Tapioca de Carne">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Categoria</label>
+                        <select id="novo-categoria">
+                            <option value="" disabled selected>Selecione...</option>
+                            <option value="pratos">Pratos do Dia</option>
+                            <option value="tapioca-grande">Tapioca Grande</option>
+                            <option value="tapioca-media">Tapioca Média</option>
+                            <option value="bebidas">Bebidas</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Descrição</label>
+                        <input type="text" id="novo-desc" placeholder="Ex: Carne seca, queijo coalho e cebola...">
+                    </div>
+
+                    <div class="duas-colunas">
+                        <div class="input-group">
+                            <label>Preço Normal (R$)</label>
+                            <input type="number" id="novo-preco" placeholder="Ex: 15.50" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Preço Promocional (R$)</label>
+                            <input type="number" id="novo-preco-promocional" placeholder="Ex: 12.90" step="0.01" min="0" disabled>
+                        </div>
+                    </div>
+
+                    <label class="checkbox-promo">
+                        <input type="checkbox" id="novo-em-promocao" onchange="togglePromocaoCampos()">
+                        <span><strong>Produto em promoção</strong><br><small>Ao ativar, o cardápio mostra preço antigo + preço promocional.</small></span>
+                    </label>
+                    
+                    <div class="input-group">
+                        <label>Imagem</label>
+                        <input type="file" id="novo-img-file" accept="image/*">
+                        <input type="hidden" id="img-antiga-base64">
+                    </div>
+
+                    <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarEdicao()">
+                        <i class="fa-solid fa-xmark"></i> Cancelar Edição
+                    </button>
+
+                    <button class="btn-salvar" id="btn-acao" onclick="processarFormulario()">
+                        <i class="fa-solid fa-check"></i> SALVAR PRODUTO
+                    </button>
+                    
+                    <div class="loader" id="loader">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Processando...
+                    </div>
+                </div>
+
+                <h3 style="color:var(--brown-dark); margin-bottom: 15px;">Cardápio Atual</h3>
+                <div id="lista-admin">
+                    <p style="text-align:center; color:#999; padding: 40px;">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Carregando produtos...
+                    </p>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label>Descrição</label>
-                <input type="text" id="novo-desc" placeholder="Ex: Carne seca, queijo coalho e cebola...">
-            </div>
+            <div>
+                <div class="form-card">
+                    <h3 class="form-title"><i class="fa-solid fa-ticket"></i> Criar Cupom</h3>
 
-            <div class="input-group">
-                <label>Preço (R$)</label>
-                <input type="number" id="novo-preco" placeholder="Ex: 15.50">
-            </div>
-            
-            <div class="input-group">
-                <label>Imagem</label>
-                <input type="file" id="novo-img-file" accept="image/*">
-                <input type="hidden" id="img-antiga-base64">
-            </div>
+                    <div class="input-group">
+                        <label>Código do Cupom</label>
+                        <input type="text" id="cupom-codigo" placeholder="Ex: CLARA10">
+                    </div>
 
-            <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarEdicao()">
-                <i class="fa-solid fa-xmark"></i> Cancelar Edição
-            </button>
+                    <div class="duas-colunas">
+                        <div class="input-group">
+                            <label>Tipo</label>
+                            <select id="cupom-tipo">
+                                <option value="percentual">Percentual (%)</option>
+                                <option value="fixo">Valor fixo (R$)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Desconto</label>
+                            <input type="number" id="cupom-valor" placeholder="Ex: 10" step="0.01" min="0">
+                        </div>
+                    </div>
 
-            <button class="btn-salvar" id="btn-acao" onclick="processarFormulario()">
-                <i class="fa-solid fa-check"></i> SALVAR PRODUTO
-            </button>
-            
-            <div class="loader" id="loader">
-                <i class="fa-solid fa-spinner fa-spin"></i> Processando...
+                    <div class="input-group">
+                        <label>Compra mínima (R$) - opcional</label>
+                        <input type="number" id="cupom-minimo" placeholder="Ex: 30.00" step="0.01" min="0">
+                    </div>
+
+                    <button class="btn-secundario" onclick="criarCupom()">
+                        <i class="fa-solid fa-plus"></i> SALVAR CUPOM
+                    </button>
+                </div>
+
+                <div class="form-card">
+                    <h3 class="form-title"><i class="fa-solid fa-tags"></i> Cupons Cadastrados</h3>
+                    <div id="lista-cupons">
+                        <p style="text-align:center; color:#999; padding: 20px;">Carregando cupons...</p>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <h3 style="color:var(--brown-dark); margin-bottom: 15px;">Cardápio Atual</h3>
-        <div id="lista-admin">
-            <p style="text-align:center; color:#999; padding: 40px;">
-                <i class="fa-solid fa-spinner fa-spin"></i> Carregando produtos...
-            </p>
         </div>
     </div>
 
@@ -128,20 +199,32 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.firestore();
 
-        // --- VERIFICAÇÃO SIMPLES (VOLTOU) ---
         if (sessionStorage.getItem('logado') !== 'sim') {
             window.location.href = "login.html";
         }
 
-        let idEdicao = null; 
-        let produtosCache = []; 
+        let idEdicao = null;
+        let produtosCache = [];
 
-        db.collection("produtos").onSnapshot((querySnapshot) => {
+        function money(valor) {
+            return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function togglePromocaoCampos() {
+            const marcado = document.getElementById('novo-em-promocao').checked;
+            const campo = document.getElementById('novo-preco-promocional');
+            campo.disabled = !marcado;
+            if (!marcado) campo.value = '';
+        }
+
+        db.collection("produtos").orderBy("nome").onSnapshot((querySnapshot) => {
             const container = document.getElementById('lista-admin');
-            container.innerHTML = ''; 
+            container.innerHTML = '';
             produtosCache = [];
             
             if (querySnapshot.empty) {
@@ -152,9 +235,13 @@
             querySnapshot.forEach((doc) => {
                 const item = doc.data();
                 const id = doc.id;
-                produtosCache.push({ id: id, ...item });
+                produtosCache.push({ id, ...item });
 
                 const imgDisplay = item.imagem ? item.imagem : 'https://via.placeholder.com/60';
+                const emPromocao = item.emPromocao && Number(item.precoPromocional) > 0 && Number(item.precoPromocional) < Number(item.preco);
+                const blocoPreco = emPromocao
+                    ? `<div style="font-size:13px; margin-top:4px;"><span style="text-decoration:line-through;color:#999;">${money(item.preco)}</span> <strong style="color:#c62828; margin-left:6px;">${money(item.precoPromocional)}</strong></div>`
+                    : `<div style="font-size:13px; color:#555; margin-top:2px;">${money(item.preco)}</div>`;
                 
                 container.innerHTML += `
                     <div class="item-lista">
@@ -163,7 +250,8 @@
                             <div>
                                 <strong style="font-size:16px; display:block; color:#333;">${item.nome}</strong>
                                 <span class="badge-cat">${item.categoria}</span>
-                                <div style="font-size:13px; color:#555; margin-top:2px;">R$ ${item.preco.toFixed(2)}</div>
+                                ${emPromocao ? '<span class="badge-promo-admin">Promoção</span>' : ''}
+                                ${blocoPreco}
                             </div>
                         </div>
                         <div class="acoes">
@@ -179,28 +267,56 @@
             });
         });
 
+        db.collection("cupons").orderBy("codigo").onSnapshot((querySnapshot) => {
+            const container = document.getElementById('lista-cupons');
+            if (querySnapshot.empty) {
+                container.innerHTML = '<p style="color:#777;">Nenhum cupom cadastrado ainda.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            querySnapshot.forEach((doc) => {
+                const cupom = doc.data();
+                const valor = cupom.tipo === 'percentual' ? `${cupom.valor}% OFF` : `${money(cupom.valor)} OFF`;
+                const minimo = Number(cupom.minimo || 0) > 0 ? `Compra mínima: ${money(cupom.minimo)}` : 'Sem compra mínima';
+                container.innerHTML += `
+                    <div class="cupom-item">
+                        <div class="cupom-topo">
+                            <div class="cupom-codigo">${cupom.codigo}</div>
+                            <span class="status-cupom ${cupom.ativo ? 'status-ativo' : 'status-inativo'}">${cupom.ativo ? 'Ativo' : 'Inativo'}</span>
+                        </div>
+                        <div style="font-size:14px; color:#444;">${valor}</div>
+                        <div style="font-size:12px; color:#777; margin-top:4px;">${minimo}</div>
+                        <div class="cupom-acoes">
+                            <button class="btn-toggle-cupom" onclick="toggleCupom('${doc.id}', ${cupom.ativo ? 'false' : 'true'})">${cupom.ativo ? 'Desativar' : 'Ativar'}</button>
+                            <button class="btn-apagar-cupom" onclick="apagarCupom('${doc.id}')">Excluir</button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
         function prepararEdicao(id) {
             const produto = produtosCache.find(p => p.id === id);
-            
-            if(produto) {
-                document.getElementById('novo-nome').value = produto.nome;
-                document.getElementById('novo-categoria').value = produto.categoria;
-                document.getElementById('novo-desc').value = produto.descricao;
-                document.getElementById('novo-preco').value = produto.preco;
-                document.getElementById('img-antiga-base64').value = produto.imagem || ""; 
-                
-                idEdicao = id;
-                document.getElementById('titulo-form').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Editando: <span style="color:#33b5e5">' + produto.nome + '</span>';
-                
-                const btn = document.getElementById('btn-acao');
-                btn.innerHTML = '<i class="fa-solid fa-rotate"></i> ATUALIZAR';
-                btn.classList.add('btn-atualizar');
-                
-                document.getElementById('btn-cancelar').style.display = 'block'; 
-                document.getElementById('novo-img-file').value = ""; 
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            if (!produto) return;
+
+            document.getElementById('novo-nome').value = produto.nome || '';
+            document.getElementById('novo-categoria').value = produto.categoria || '';
+            document.getElementById('novo-desc').value = produto.descricao || '';
+            document.getElementById('novo-preco').value = produto.preco || '';
+            document.getElementById('novo-em-promocao').checked = !!produto.emPromocao;
+            document.getElementById('novo-preco-promocional').value = produto.precoPromocional || '';
+            document.getElementById('img-antiga-base64').value = produto.imagem || '';
+            togglePromocaoCampos();
+
+            idEdicao = id;
+            document.getElementById('titulo-form').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Editando: <span style="color:#33b5e5">' + produto.nome + '</span>';
+            const btn = document.getElementById('btn-acao');
+            btn.innerHTML = '<i class="fa-solid fa-rotate"></i> ATUALIZAR';
+            btn.classList.add('btn-atualizar');
+            document.getElementById('btn-cancelar').style.display = 'block';
+            document.getElementById('novo-img-file').value = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function cancelarEdicao() {
@@ -209,9 +325,12 @@
             document.getElementById('novo-categoria').value = '';
             document.getElementById('novo-desc').value = '';
             document.getElementById('novo-preco').value = '';
+            document.getElementById('novo-em-promocao').checked = false;
+            document.getElementById('novo-preco-promocional').value = '';
             document.getElementById('novo-img-file').value = '';
             document.getElementById('img-antiga-base64').value = '';
-            document.getElementById('titulo-form').innerHTML = '<i class="fa-solid fa-circle-plus"></i> Adicionar Novo Produto';
+            togglePromocaoCampos();
+            document.getElementById('titulo-form').innerHTML = '<i class="fa-solid fa-circle-plus"></i> Adicionar Produto';
             const btn = document.getElementById('btn-acao');
             btn.innerHTML = '<i class="fa-solid fa-check"></i> SALVAR PRODUTO';
             btn.classList.remove('btn-atualizar');
@@ -219,57 +338,73 @@
         }
 
         function processarFormulario() {
-            const nome = document.getElementById('novo-nome').value;
+            const nome = document.getElementById('novo-nome').value.trim();
             const cat = document.getElementById('novo-categoria').value;
-            const desc = document.getElementById('novo-desc').value;
+            const desc = document.getElementById('novo-desc').value.trim();
             const preco = parseFloat(document.getElementById('novo-preco').value);
+            const emPromocao = document.getElementById('novo-em-promocao').checked;
+            const precoPromocional = parseFloat(document.getElementById('novo-preco-promocional').value);
             const arquivo = document.getElementById('novo-img-file').files[0];
             const imgAntiga = document.getElementById('img-antiga-base64').value;
 
-            if(!nome || !preco || !cat) {
-                alert("Preencha Nome, Preço e Categoria!");
+            if (!nome || !cat || isNaN(preco)) {
+                alert('Preencha Nome, Preço e Categoria!');
                 return;
+            }
+
+            if (emPromocao) {
+                if (isNaN(precoPromocional) || precoPromocional <= 0) {
+                    alert('Digite o preço promocional.');
+                    return;
+                }
+                if (precoPromocional >= preco) {
+                    alert('O preço promocional deve ser menor que o preço normal.');
+                    return;
+                }
             }
 
             const btn = document.getElementById('btn-acao');
             const loader = document.getElementById('loader');
-            
             btn.disabled = true;
-            btn.style.opacity = "0.5";
-            loader.style.display = "block";
+            btn.style.opacity = '0.5';
+            loader.style.display = 'block';
 
-            if(arquivo) {
+            if (arquivo) {
                 comprimirImagem(arquivo, (novaImagemBase64) => {
-                    salvarNoFirebase(nome, cat, desc, preco, novaImagemBase64, btn, loader);
+                    salvarNoFirebase({ nome, cat, desc, preco, emPromocao, precoPromocional, imgData: novaImagemBase64 }, btn, loader);
                 });
             } else {
-                let imagemFinal = idEdicao ? imgAntiga : ""; 
-                salvarNoFirebase(nome, cat, desc, preco, imagemFinal, btn, loader);
+                const imagemFinal = idEdicao ? imgAntiga : '';
+                salvarNoFirebase({ nome, cat, desc, preco, emPromocao, precoPromocional, imgData: imagemFinal }, btn, loader);
             }
         }
 
-        function salvarNoFirebase(nome, cat, desc, preco, imgData, btn, loader) {
+        function salvarNoFirebase(payload, btn, loader) {
             const dados = {
-                nome: nome,
-                categoria: cat,
-                descricao: desc,
-                preco: preco,
-                imagem: imgData
+                nome: payload.nome,
+                categoria: payload.cat,
+                descricao: payload.desc,
+                preco: payload.preco,
+                imagem: payload.imgData,
+                emPromocao: payload.emPromocao,
+                precoPromocional: payload.emPromocao ? payload.precoPromocional : null
             };
+
             let promessa;
             if (idEdicao) {
-                promessa = db.collection("produtos").doc(idEdicao).update(dados);
+                promessa = db.collection('produtos').doc(idEdicao).update(dados);
             } else {
-                promessa = db.collection("produtos").add(dados);
+                promessa = db.collection('produtos').add(dados);
             }
+
             promessa.then(() => {
-                cancelarEdicao(); 
+                cancelarEdicao();
             }).catch((error) => {
-                alert("Erro: " + error.message);
+                alert('Erro: ' + error.message);
             }).finally(() => {
                 btn.disabled = false;
-                btn.style.opacity = "1";
-                loader.style.display = "none";
+                btn.style.opacity = '1';
+                loader.style.display = 'none';
             });
         }
 
@@ -281,7 +416,7 @@
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 500; 
+                    const MAX_WIDTH = 500;
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
@@ -294,14 +429,54 @@
         }
 
         function apagarDoBanco(id) {
-            if(confirm("Tem certeza?")) {
-                db.collection("produtos").doc(id).delete();
+            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                db.collection('produtos').doc(id).delete();
+            }
+        }
+
+        function criarCupom() {
+            const codigo = document.getElementById('cupom-codigo').value.trim().toUpperCase();
+            const tipo = document.getElementById('cupom-tipo').value;
+            const valor = parseFloat(document.getElementById('cupom-valor').value);
+            const minimo = parseFloat(document.getElementById('cupom-minimo').value) || 0;
+
+            if (!codigo || isNaN(valor) || valor <= 0) {
+                alert('Preencha código e desconto do cupom.');
+                return;
+            }
+
+            db.collection('cupons').add({
+                codigo,
+                tipo,
+                valor,
+                minimo,
+                ativo: true,
+                criadoEm: new Date()
+            }).then(() => {
+                document.getElementById('cupom-codigo').value = '';
+                document.getElementById('cupom-valor').value = '';
+                document.getElementById('cupom-minimo').value = '';
+                document.getElementById('cupom-tipo').value = 'percentual';
+                alert('Cupom salvo com sucesso!');
+            }).catch((error) => {
+                alert('Erro ao salvar cupom: ' + error.message);
+            });
+        }
+
+        function toggleCupom(id, novoStatus) {
+            db.collection('cupons').doc(id).update({ ativo: novoStatus });
+        }
+
+        function apagarCupom(id) {
+            if (confirm('Excluir este cupom?')) {
+                db.collection('cupons').doc(id).delete();
             }
         }
 
         function sair() {
             sessionStorage.removeItem('logado');
-            window.location.href = "login.html";
+            sessionStorage.removeItem('admin_usuario');
+            window.location.href = 'login.html';
         }
     </script>
 </body>
