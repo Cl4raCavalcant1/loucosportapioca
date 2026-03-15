@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garçom / Mesas - Loucos Por Tapioca</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { background:#f5f5f5; }
+    .topo { background:var(--brown-dark); color:#fff; padding:18px; display:flex; justify-content:space-between; align-items:center; gap:12px; position:sticky; top:0; z-index:10; }
+    .wrap { max-width:1200px; margin:0 auto; padding:18px; display:grid; grid-template-columns: 1.3fr .9fr; gap:18px; }
+    .card { background:#fff; border-radius:18px; padding:18px; box-shadow:0 8px 24px rgba(0,0,0,0.06); }
+    .grid-prod { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; }
+    .prod { border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fff; display:flex; flex-direction:column; }
+    .prod img { width:100%; height:120px; object-fit:cover; }
+    .prod .c { padding:12px; display:flex; flex-direction:column; gap:8px; flex:1; }
+    .btn { border:none; border-radius:10px; padding:12px 14px; font-weight:700; cursor:pointer; }
+    .btn-pri { background:var(--bg-primary); color:var(--brown-dark); }
+    .btn-sec { background:#5A3E34; color:#fff; }
+    .btn-light { background:#f2f2f2; color:#444; }
+    .linha { display:flex; gap:10px; flex-wrap:wrap; }
+    .linha input, .linha select, textarea { width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; }
+    .mesa-item { border:1px solid #eee; border-radius:12px; padding:12px; margin-bottom:10px; cursor:pointer; }
+    .mesa-item:hover { border-color:var(--bg-primary); }
+    .item-comanda { border:1px solid #eee; border-radius:12px; padding:12px; margin-bottom:10px; }
+    .resumo { background:#fff7df; border:1px solid #f0d47a; padding:14px; border-radius:14px; }
+    @media (max-width: 900px){ .wrap { grid-template-columns:1fr; } }
+    @media print {
+      body * { visibility:hidden; }
+      #print-area, #print-area * { visibility:visible; }
+      #print-area { position:absolute; left:0; top:0; width:100%; background:#fff; padding:20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topo">
+    <div>
+      <h2 style="color:#fff;">Garçom / Mesas</h2>
+      <small>Lançamento direto para a cozinha</small>
+    </div>
+    <div class="linha" style="justify-content:flex-end;">
+      <a href="pedidos.html" class="btn btn-pri" style="text-decoration:none; display:inline-flex; align-items:center;">Cozinha</a>
+      <a href="admin.html" class="btn btn-light" style="text-decoration:none; display:inline-flex; align-items:center;">Admin</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h3 style="margin-bottom:14px; color:var(--brown-dark);">Novo lançamento na mesa</h3>
+      <div class="linha">
+        <input id="garcom-nome" placeholder="Nome do garçom / garçonete">
+        <input id="mesa-numero" placeholder="Mesa">
+      </div>
+      <div style="margin:12px 0;">
+        <input id="busca-produto" placeholder="Buscar prato ou bebida..." oninput="renderizarProdutos()">
+      </div>
+      <div id="produtos" class="grid-prod"><p>Carregando cardápio...</p></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px; color:var(--brown-dark);">Comanda da mesa</h3>
+      <div id="itens-comanda"></div>
+      <div class="resumo" style="margin-top:10px;">
+        <div style="display:flex; justify-content:space-between;"><span>Total da mesa</span><strong id="total-mesa">R$ 0,00</strong></div>
+      </div>
+      <div class="linha" style="margin-top:12px;">
+        <button class="btn btn-light" onclick="limparComanda()">Limpar</button>
+        <button class="btn btn-sec" onclick="salvarMesa()">Salvar / Atualizar mesa</button>
+        <button class="btn btn-pri" onclick="enviarParaCozinha()">Enviar para cozinha</button>
+      </div>
+      <div style="margin-top:18px;">
+        <h4 style="color:var(--brown-dark); margin-bottom:10px;">Separar consumo por pessoa</h4>
+        <div id="pessoas-container"></div>
+        <div class="linha">
+          <button class="btn btn-light" onclick="adicionarPessoa()">Adicionar pessoa</button>
+          <button class="btn btn-light" onclick="dividirIgual()">Dividir igual</button>
+        </div>
+      </div>
+      <div style="margin-top:18px;">
+        <h4 style="color:var(--brown-dark); margin-bottom:10px;">Mesas abertas</h4>
+        <div id="mesas-abertas"><p style="color:#666;">Carregando mesas...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="print-area" style="display:none;"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+      authDomain: "loucosportapioca-57964.firebaseapp.com",
+      projectId: "loucosportapioca-57964",
+      storageBucket: "loucosportapioca-57964.firebasestorage.app",
+      messagingSenderId: "371332659198",
+      appId: "1:371332659198:web:330626357653acc00772af"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let produtos = [];
+    let comanda = [];
+    let pessoas = [];
+    let mesaAtualId = null;
+
+    function money(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+    function uid(){ return Math.random().toString(36).slice(2, 10); }
+
+    db.collection("produtos").onSnapshot((snap) => {
+      produtos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderizarProdutos();
+    });
+
+    db.collection("mesas_abertas").orderBy("numero", "asc").onSnapshot((snap) => {
+      const box = document.getElementById('mesas-abertas');
+      if (snap.empty) { box.innerHTML = '<p style="color:#666;">Nenhuma mesa aberta.</p>'; return; }
+      box.innerHTML = '';
+      snap.forEach(doc => {
+        const m = doc.data();
+        box.innerHTML += `
+          <div class="mesa-item" onclick="carregarMesa('${doc.id}')">
+            <strong>Mesa ${m.numero}</strong><br>
+            <small>Garçom: ${m.garcom || '-'} | Itens: ${(m.itens||[]).length} | Total: ${money(m.total || 0)}</small>
+          </div>`;
+      });
+    });
+
+    function renderizarProdutos() {
+      const busca = (document.getElementById('busca-produto').value || '').toLowerCase();
+      const lista = produtos.filter(p => (p.nome || '').toLowerCase().includes(busca));
+      const box = document.getElementById('produtos');
+      if (!lista.length) { box.innerHTML = '<p>Nenhum item encontrado.</p>'; return; }
+      box.innerHTML = '';
+      lista.forEach(p => {
+        const preco = Number(p.precoPromocional && p.emPromocao ? p.precoPromocional : p.preco || 0);
+        box.innerHTML += `
+          <div class="prod">
+            <img src="${p.imagem || 'https://via.placeholder.com/300x200'}" alt="${p.nome}">
+            <div class="c">
+              <strong>${p.nome}</strong>
+              <small>${p.descricao || ''}</small>
+              <strong>${money(preco)}</strong>
+              <button class="btn btn-pri" onclick="adicionarProduto('${p.id}')">Adicionar</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    function adicionarProduto(id) {
+      const p = produtos.find(x => x.id === id);
+      if (!p) return;
+      const preco = Number(p.precoPromocional && p.emPromocao ? p.precoPromocional : p.preco || 0);
+      comanda.push({ localId: uid(), produtoId: p.id, nome: p.nome, preco, quantidade: 1, observacao: '', pessoa: '' });
+      renderizarComanda();
+    }
+
+    function renderizarComanda() {
+      const box = document.getElementById('itens-comanda');
+      if (!comanda.length) { box.innerHTML = '<p style="color:#666;">Nenhum item lançado.</p>'; document.getElementById('total-mesa').innerText = money(0); renderizarPessoas(); return; }
+      box.innerHTML = '';
+      comanda.forEach((item, idx) => {
+        box.innerHTML += `
+          <div class="item-comanda">
+            <div style="display:flex; justify-content:space-between; gap:10px;">
+              <div>
+                <strong>${item.nome}</strong><br>
+                <small>${money(item.preco)} cada</small>
+              </div>
+              <button class="btn btn-light" onclick="removerItem('${item.localId}')"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="linha" style="margin-top:10px;">
+              <button class="btn btn-light" onclick="mudarQtd('${item.localId}', -1)">-</button>
+              <input value="${item.quantidade}" readonly style="max-width:70px; text-align:center;">
+              <button class="btn btn-light" onclick="mudarQtd('${item.localId}', 1)">+</button>
+            </div>
+            <div class="linha" style="margin-top:10px;">
+              <textarea placeholder="Observação do item" onchange="atualizarObs('${item.localId}', this.value)">${item.observacao || ''}</textarea>
+            </div>
+            <div class="linha" style="margin-top:10px;">
+              <select onchange="atribuirPessoa('${item.localId}', this.value)">
+                <option value="">Sem pessoa definida</option>
+                ${pessoas.map(p => `<option value="${p.nome}" ${item.pessoa === p.nome ? 'selected' : ''}>${p.nome}</option>`).join('')}
+              </select>
+            </div>
+            <div style="text-align:right; margin-top:8px;"><strong>Subtotal: ${money(item.preco * item.quantidade)}</strong></div>
+          </div>`;
+      });
+      const total = comanda.reduce((s, i) => s + (Number(i.preco) * Number(i.quantidade)), 0);
+      document.getElementById('total-mesa').innerText = money(total);
+      renderizarPessoas();
+    }
+
+    function mudarQtd(localId, delta) {
+      const item = comanda.find(i => i.localId === localId);
+      if (!item) return;
+      item.quantidade += delta;
+      if (item.quantidade <= 0) comanda = comanda.filter(i => i.localId !== localId);
+      renderizarComanda();
+    }
+    function removerItem(localId) { comanda = comanda.filter(i => i.localId !== localId); renderizarComanda(); }
+    function atualizarObs(localId, valor) { const item = comanda.find(i => i.localId === localId); if (item) item.observacao = valor; }
+    function atribuirPessoa(localId, pessoa) { const item = comanda.find(i => i.localId === localId); if (item) item.pessoa = pessoa; renderizarPessoas(); }
+
+    function limparComanda() {
+      if (confirm('Limpar itens da comanda atual?')) {
+        comanda = [];
+        pessoas = [];
+        mesaAtualId = null;
+        document.getElementById('mesa-numero').value = '';
+        renderizarComanda();
+      }
+    }
+
+    function adicionarPessoa() {
+      const nome = prompt('Nome da pessoa / cliente da mesa:');
+      if (!nome) return;
+      pessoas.push({ id: uid(), nome: nome.trim() });
+      renderizarComanda();
+    }
+
+    function dividirIgual() {
+      const total = comanda.reduce((s, i) => s + (Number(i.preco) * Number(i.quantidade)), 0);
+      if (!pessoas.length) return alert('Adicione pelo menos uma pessoa.');
+      const valor = total / pessoas.length;
+      const box = document.getElementById('pessoas-container');
+      box.innerHTML = pessoas.map(p => `<div class="mesa-item"><strong>${p.nome}</strong><br><small>Parte estimada: ${money(valor)}</small></div>`).join('');
+    }
+
+    function renderizarPessoas() {
+      const box = document.getElementById('pessoas-container');
+      if (!pessoas.length) { box.innerHTML = '<p style="color:#666;">Nenhuma pessoa adicionada.</p>'; return; }
+      const totais = {};
+      pessoas.forEach(p => totais[p.nome] = 0);
+      comanda.forEach(i => { if (i.pessoa) totais[i.pessoa] = (totais[i.pessoa] || 0) + (Number(i.preco) * Number(i.quantidade)); });
+      box.innerHTML = pessoas.map(p => `
+        <div class="mesa-item">
+          <strong>${p.nome}</strong><br>
+          <small>Consumo marcado: ${money(totais[p.nome] || 0)}</small>
+        </div>`).join('');
+    }
+
+    async function salvarMesa() {
+      const numero = document.getElementById('mesa-numero').value.trim();
+      const garcom = document.getElementById('garcom-nome').value.trim();
+      if (!numero) return alert('Informe o número da mesa.');
+      if (!garcom) return alert('Informe o nome do garçom.');
+      const payload = {
+        numero, garcom, pessoas,
+        itens: comanda,
+        total: comanda.reduce((s, i) => s + (Number(i.preco) * Number(i.quantidade)), 0),
+        atualizadaEm: new Date()
+      };
+      if (mesaAtualId) {
+        await db.collection('mesas_abertas').doc(mesaAtualId).set(payload, { merge:true });
+      } else {
+        const existente = await db.collection('mesas_abertas').where('numero', '==', numero).limit(1).get();
+        if (!existente.empty) {
+          mesaAtualId = existente.docs[0].id;
+          const antigo = existente.docs[0].data();
+          payload.itens = [...(antigo.itens || []), ...comanda];
+          payload.pessoas = mesclarPessoas(antigo.pessoas || [], pessoas);
+          payload.total = payload.itens.reduce((s, i) => s + (Number(i.preco) * Number(i.quantidade)), 0);
+          await db.collection('mesas_abertas').doc(mesaAtualId).set(payload, { merge:true });
+          comanda = payload.itens;
+          pessoas = payload.pessoas;
+        } else {
+          const ref = await db.collection('mesas_abertas').add(payload);
+          mesaAtualId = ref.id;
+        }
+      }
+      alert('Mesa salva com sucesso.');
+      renderizarComanda();
+    }
+
+    function mesclarPessoas(a,b){
+      const nomes = new Set([...(a||[]).map(x=>x.nome), ...(b||[]).map(x=>x.nome)]);
+      return Array.from(nomes).map(nome => ({ id: uid(), nome }));
+    }
+
+    async function carregarMesa(id) {
+      const doc = await db.collection('mesas_abertas').doc(id).get();
+      if (!doc.exists) return;
+      const m = doc.data();
+      mesaAtualId = id;
+      document.getElementById('mesa-numero').value = m.numero || '';
+      document.getElementById('garcom-nome').value = m.garcom || '';
+      comanda = m.itens || [];
+      pessoas = m.pessoas || [];
+      renderizarComanda();
+    }
+
+    async function enviarParaCozinha() {
+      const numero = document.getElementById('mesa-numero').value.trim();
+      const garcom = document.getElementById('garcom-nome').value.trim();
+      if (!numero || !garcom) return alert('Informe mesa e garçom.');
+      if (!comanda.length) return alert('Adicione itens.');
+      await salvarMesa();
+      await db.collection('pedidos').add({
+        data: new Date(),
+        status: 'pendente',
+        origem: 'mesa',
+        mesaNumero: numero,
+        garcom: garcom,
+        pessoas: pessoas,
+        cliente: { nome: `Mesa ${numero}`, telefone: '' },
+        entrega: { tipo: 'mesa', endereco: `Mesa ${numero}` },
+        pagamento: { metodo: 'mesa', troco: '' },
+        itens: comanda,
+        subtotal: comanda.reduce((s, i) => s + (Number(i.preco) * Number(i.quantidade)), 0),
+        total: comanda.reduce((s, i) => s + (Number(i.preco) * Number(i.quantidade)), 0)
+      });
+      alert('Pedido enviado para a cozinha.');
+    }
+
+    async function fecharMesa() {
+      if (!mesaAtualId) return alert('Selecione uma mesa aberta.');
+      const numero = document.getElementById('mesa-numero').value.trim();
+      const garcom = document.getElementById('garcom-nome').value.trim();
+      const total = comanda.reduce((s, i) => s + (Number(i.preco) * Number(i.quantidade)), 0);
+      await db.collection('historico_mesas').add({
+        numero, garcom, pessoas, itens: comanda, total,
+        fechadaEm: new Date()
+      });
+      await db.collection('mesas_abertas').doc(mesaAtualId).delete();
+      gerarResumoImpressao(numero, garcom, pessoas, comanda, total);
+      mesaAtualId = null;
+      comanda = [];
+      pessoas = [];
+      document.getElementById('mesa-numero').value = '';
+      renderizarComanda();
+    }
+
+    function gerarResumoImpressao(numero, garcom, pessoas, itens, total) {
+      const porPessoa = {};
+      pessoas.forEach(p => porPessoa[p.nome] = 0);
+      itens.forEach(i => { if (i.pessoa) porPessoa[i.pessoa] = (porPessoa[i.pessoa] || 0) + (Number(i.preco) * Number(i.quantidade)); });
+      document.getElementById('print-area').style.display = 'block';
+      document.getElementById('print-area').innerHTML = `
+        <h2>Resumo final da mesa ${numero}</h2>
+        <p>Garçom: ${garcom}</p>
+        <hr>
+        ${itens.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>${i.quantidade}x ${i.nome}${i.observacao ? ' - ' + i.observacao : ''}</span><strong>${money(i.preco * i.quantidade)}</strong></div>`).join('')}
+        <hr>
+        <h3>Total: ${money(total)}</h3>
+        <h4>Consumo por pessoa</h4>
+        ${(pessoas.length ? pessoas : [{nome:'Não separado'}]).map(p => `<div style="display:flex; justify-content:space-between;"><span>${p.nome}</span><strong>${money(porPessoa[p.nome] || 0)}</strong></div>`).join('')}
+      `;
+      setTimeout(() => { window.print(); document.getElementById('print-area').style.display = 'none'; }, 200);
+    }
+
+    window.adicionarPessoa = adicionarPessoa;
+    window.dividirIgual = dividirIgual;
+    window.mudarQtd = mudarQtd;
+    window.removerItem = removerItem;
+    window.atualizarObs = atualizarObs;
+    window.atribuirPessoa = atribuirPessoa;
+    window.limparComanda = limparComanda;
+    window.salvarMesa = salvarMesa;
+    window.carregarMesa = carregarMesa;
+    window.enviarParaCozinha = enviarParaCozinha;
+    window.fecharMesa = fecharMesa;
+
+    renderizarComanda();
+  </script>
+
+  <div style="position:fixed; bottom:18px; right:18px;">
+    <button class="btn btn-sec" onclick="fecharMesa()">Fechar conta e imprimir resumo</button>
+  </div>
+</body>
+</html>

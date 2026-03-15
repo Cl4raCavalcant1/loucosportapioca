@@ -8,26 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/imask"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <style>
-        .resumo-pedido-box { background:#fff8df; border:1px solid #f0e2a0; border-radius:14px; padding:15px; margin-top:22px; }
-        .linha-resumo { display:flex; justify-content:space-between; gap:10px; margin-bottom:8px; color:#444; }
-        .linha-resumo.total-final { margin-top:10px; padding-top:10px; border-top:1px dashed #d8c372; font-size:18px; font-weight:800; color:var(--brown-dark); }
-        .cupom-box { margin-top:18px; }
-        .cupom-linha { display:flex; gap:10px; }
-        .cupom-linha input { flex:1; }
-        .btn-cupom { background:var(--brown-dark); color:#fff; border:none; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer; }
-        .cupom-info { margin-top:10px; background:#e8f5e9; color:#1b5e20; border-radius:10px; padding:10px 12px; font-size:13px; display:none; }
-        .cupom-info.invalido { display:block; background:#ffebee; color:#c62828; }
-        .cupom-info.valido { display:block; }
-    </style>
 </head>
 <body>
-
     <header class="header-carrinho">
-        <a href="carrinho.html" class="btn-voltar">
-            <i class="fa-solid fa-chevron-left"></i>
-        </a>
+        <a href="carrinho.html" class="btn-voltar"><i class="fa-solid fa-chevron-left"></i></a>
         <span class="titulo-voltar">Finalizar</span>
         <div class="info-sacola">
             <span class="texto-sacola">Total</span>
@@ -37,48 +21,32 @@
 
     <main class="container-pagamento">
         <h3 class="titulo-secao"><i class="fa-regular fa-user"></i> Seus Dados</h3>
-        
         <div class="box-input-animado">
             <label>Seu Nome:</label>
-            <div class="input-icon">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" id="cliente-nome" placeholder="Como podemos te chamar?">
-            </div>
+            <div class="input-icon"><i class="fa-solid fa-user"></i><input type="text" id="cliente-nome" placeholder="Como podemos te chamar?"></div>
         </div>
-
         <div class="box-input-animado">
             <label>Seu Telefone / WhatsApp:</label>
-            <div class="input-icon">
-                <i class="fa-brands fa-whatsapp"></i>
-                <input type="tel" id="cliente-tel" placeholder="(81) 90000-0000">
-            </div>
+            <div class="input-icon"><i class="fa-brands fa-whatsapp"></i><input type="tel" id="cliente-tel" placeholder="(81) 90000-0000"></div>
         </div>
 
         <div class="divisor"></div>
 
         <h3 class="titulo-secao"><i class="fa-solid fa-map-location-dot"></i> Entrega ou Retirada?</h3>
-        
         <div class="grupo-opcoes">
             <label class="card-opcao">
                 <input type="radio" name="entrega" value="entrega" checked onchange="toggleEndereco()">
                 <div class="conteudo-card">
                     <div class="icone-card"><i class="fa-solid fa-motorcycle"></i></div>
-                    <div class="texto-card">
-                        <strong>Entrega</strong>
-                        <p>Receber em casa</p>
-                    </div>
+                    <div class="texto-card"><strong>Entrega</strong><p>Receber em casa</p></div>
                     <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
             </label>
-
             <label class="card-opcao">
                 <input type="radio" name="entrega" value="retirada" onchange="toggleEndereco()">
                 <div class="conteudo-card">
                     <div class="icone-card"><i class="fa-solid fa-bag-shopping"></i></div>
-                    <div class="texto-card">
-                        <strong>Retirada</strong>
-                        <p>Buscar no local</p>
-                    </div>
+                    <div class="texto-card"><strong>Retirada</strong><p>Buscar no local</p></div>
                     <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
             </label>
@@ -90,13 +58,22 @@
                 <div class="input-icon"><i class="fa-solid fa-road"></i><input type="text" id="end-rua" placeholder="Nome da rua"></div>
             </div>
             <div class="row-inputs">
-                <div class="box-input-animado" style="flex: 1;">
+                <div class="box-input-animado" style="flex:1;">
                     <label>Número:</label>
                     <div class="input-icon"><i class="fa-solid fa-hashtag"></i><input type="text" id="end-num" placeholder="Nº"></div>
                 </div>
-                <div class="box-input-animado" style="flex: 2;">
+                <div class="box-input-animado" style="flex:2;">
                     <label>Bairro:</label>
-                    <div class="input-icon"><i class="fa-solid fa-map-pin"></i><input type="text" id="end-bairro" placeholder="Bairro"></div>
+                    <div class="input-icon" style="position:relative;">
+                        <i class="fa-solid fa-map-pin"></i>
+                        <select id="end-bairro" onchange="calcularTotalComTaxa()" style="width:100%; padding:15px 15px 15px 45px; border:1px solid #ddd; border-radius:10px; background:#fafafa; outline:none;">
+                            <option value="">Selecione o Bairro...</option>
+                            <option value="0">Centro (Grátis)</option>
+                            <option value="5">Alto Santo Antônio (R$ 5,00)</option>
+                            <option value="7">Bonança (R$ 7,00)</option>
+                            <option value="10">Zona Rural (R$ 10,00)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="box-input-animado">
@@ -108,7 +85,6 @@
         <div class="divisor"></div>
 
         <h3 class="titulo-secao"><i class="fa-regular fa-credit-card"></i> Pagamento</h3>
-
         <div class="grupo-opcoes">
             <label class="card-opcao">
                 <input type="radio" name="pagamento" value="pix">
@@ -138,41 +114,24 @@
 
         <div id="box-troco" class="box-input-animado" style="display:none;">
             <label>Troco para quanto?</label>
-            <div class="input-icon">
-                <i class="fa-solid fa-hand-holding-dollar"></i>
-                <input type="tel" id="troco-cliente" placeholder="Ex: 50,00">
-            </div>
+            <div class="input-icon"><i class="fa-solid fa-hand-holding-dollar"></i><input type="tel" id="troco-cliente" placeholder="Ex: 50,00"></div>
         </div>
 
-        <div class="cupom-box">
-            <h3 class="titulo-secao"><i class="fa-solid fa-ticket"></i> Cupom de desconto</h3>
-            <div class="cupom-linha">
-                <div class="input-icon" style="flex:1;">
-                    <i class="fa-solid fa-tag"></i>
-                    <input type="text" id="codigo-cupom" placeholder="Digite seu cupom">
-                </div>
-                <button class="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
-            </div>
-            <div id="cupom-info" class="cupom-info"></div>
-        </div>
+        <div class="divisor"></div>
 
-        <div class="resumo-pedido-box">
-            <div class="linha-resumo"><span>Subtotal</span><strong id="resumo-subtotal">R$ 0,00</strong></div>
-            <div class="linha-resumo"><span>Desconto</span><strong id="resumo-desconto">R$ 0,00</strong></div>
-            <div class="linha-resumo total-final"><span>Total final</span><strong id="resumo-total">R$ 0,00</strong></div>
+        <div style="background:#fff7df; border:1px solid #f0d47a; border-radius:14px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Subtotal</span><strong id="resumo-subtotal">R$ 0,00</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Taxa de entrega</span><strong id="resumo-taxa">R$ 0,00</strong></div>
+            <div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px solid rgba(0,0,0,.08); font-size:18px;"><strong>Total</strong><strong id="resumo-total">R$ 0,00</strong></div>
         </div>
     </main>
 
     <footer class="footer-pagamento">
-        <button class="btn-finalizar" onclick="finalizarPedido()">
-            <span id="txt-btn">Enviar Pedido via WhatsApp</span> <i class="fa-brands fa-whatsapp"></i>
-        </button>
+        <button class="btn-finalizar" onclick="finalizarPedido()">Enviar Pedido via WhatsApp <i class="fa-brands fa-whatsapp"></i></button>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
     <script>
         const SEU_NUMERO = "5581991243260";
         const firebaseConfig = {
@@ -183,107 +142,43 @@
             messagingSenderId: "371332659198",
             appId: "1:371332659198:web:330626357653acc00772af"
         };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let cupomAplicado = null;
-
-        function formatarMoeda(valor) {
-            return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function obterCarrinho() {
-            return JSON.parse(localStorage.getItem('carrinho')) || [];
-        }
-
-        function calcularSubtotal() {
-            const carrinho = obterCarrinho();
-            return carrinho.reduce((sum, item) => sum + ((Number(item.preco) || 0) * (Number(item.quantidade) || 1)), 0);
-        }
-
-        function calcularDesconto(subtotal) {
-            if (!cupomAplicado) return 0;
-            if (cupomAplicado.tipo === 'percentual') {
-                return subtotal * (Number(cupomAplicado.valor) / 100);
-            }
-            return Number(cupomAplicado.valor || 0);
-        }
-
-        function atualizarResumo() {
-            const subtotal = calcularSubtotal();
-            let desconto = calcularDesconto(subtotal);
-            if (desconto > subtotal) desconto = subtotal;
-            const total = subtotal - desconto;
-
-            document.getElementById('valor-total-header').innerText = formatarMoeda(total);
-            document.getElementById('resumo-subtotal').innerText = formatarMoeda(subtotal);
-            document.getElementById('resumo-desconto').innerText = formatarMoeda(desconto);
-            document.getElementById('resumo-total').innerText = formatarMoeda(total);
-        }
+        function moeda(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+        function getCarrinho(){ return JSON.parse(localStorage.getItem('carrinho')) || []; }
+        function subtotalCarrinho(){ return getCarrinho().reduce((sum,i)=> sum + (Number(i.preco||0) * Number(i.quantidade||1)), 0); }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const elPhone = document.getElementById('cliente-tel');
-            IMask(elPhone, { mask: '(00) 00000-0000' });
-            atualizarResumo();
+            IMask(document.getElementById('cliente-tel'), { mask: '(00) 00000-0000' });
+            calcularTotalComTaxa();
         });
 
         function toggleEndereco() {
             const tipo = document.querySelector('input[name="entrega"]:checked').value;
             document.getElementById('box-endereco').style.display = (tipo === 'entrega') ? 'block' : 'none';
+            calcularTotalComTaxa();
         }
-
         function toggleTroco() {
             const tipo = document.querySelector('input[name="pagamento"]:checked').value;
             document.getElementById('box-troco').style.display = (tipo === 'dinheiro') ? 'block' : 'none';
         }
-        
         document.querySelectorAll('input[name="pagamento"]').forEach(r => r.addEventListener('change', toggleTroco));
 
-        function aplicarCupom() {
-            const codigo = document.getElementById('codigo-cupom').value.trim().toUpperCase();
-            const info = document.getElementById('cupom-info');
-            const subtotal = calcularSubtotal();
-
-            if (!codigo) {
-                info.className = 'cupom-info invalido';
-                info.textContent = 'Digite um código de cupom.';
-                return;
-            }
-
-            db.collection('cupons').where('codigo', '==', codigo).where('ativo', '==', true).get().then((snapshot) => {
-                if (snapshot.empty) {
-                    cupomAplicado = null;
-                    atualizarResumo();
-                    info.className = 'cupom-info invalido';
-                    info.textContent = 'Cupom inválido ou desativado.';
-                    return;
-                }
-
-                const cupom = snapshot.docs[0].data();
-                if (Number(cupom.minimo || 0) > subtotal) {
-                    cupomAplicado = null;
-                    atualizarResumo();
-                    info.className = 'cupom-info invalido';
-                    info.textContent = `Esse cupom exige compra mínima de ${formatarMoeda(cupom.minimo)}.`;
-                    return;
-                }
-
-                cupomAplicado = { id: snapshot.docs[0].id, ...cupom };
-                atualizarResumo();
-                info.className = 'cupom-info valido';
-                info.textContent = `Cupom ${cupom.codigo} aplicado com sucesso.`;
-            }).catch((error) => {
-                console.error(error);
-                info.className = 'cupom-info invalido';
-                info.textContent = 'Erro ao validar cupom.';
-            });
+        function calcularTotalComTaxa() {
+            const entrega = document.querySelector('input[name="entrega"]:checked').value;
+            const subtotal = subtotalCarrinho();
+            const taxa = entrega === 'entrega' ? Number(document.getElementById('end-bairro').value || 0) : 0;
+            const total = subtotal + taxa;
+            document.getElementById('resumo-subtotal').innerText = moeda(subtotal);
+            document.getElementById('resumo-taxa').innerText = moeda(taxa);
+            document.getElementById('resumo-total').innerText = moeda(total);
+            document.getElementById('valor-total-header').innerText = moeda(total);
         }
 
-        function finalizarPedido() {
-            const carrinho = obterCarrinho();
-            if(carrinho.length === 0) return alert('Seu carrinho está vazio!');
+        async function finalizarPedido() {
+            const carrinho = getCarrinho();
+            if (!carrinho.length) return alert("Seu carrinho está vazio!");
 
             const nome = document.getElementById('cliente-nome').value.trim();
             const telefone = document.getElementById('cliente-tel').value.trim();
@@ -291,93 +186,80 @@
             const pagamento = document.querySelector('input[name="pagamento"]:checked').value;
             const troco = document.getElementById('troco-cliente').value.trim();
 
-            if(!nome) return alert('Por favor, digite seu Nome!');
-            if(telefone.length < 14) return alert('Digite um telefone válido!');
+            if (!nome) return alert("Por favor, digite seu nome.");
+            if (telefone.length < 14) return alert("Digite um telefone válido.");
 
-            let enderecoCompleto = 'Retirada no Local';
-            if(entrega === 'entrega') {
+            let enderecoCompleto = "Retirada no Local";
+            let bairro = "";
+            let taxaEntrega = 0;
+
+            if (entrega === 'entrega') {
                 const rua = document.getElementById('end-rua').value.trim();
                 const num = document.getElementById('end-num').value.trim();
-                const bairro = document.getElementById('end-bairro').value.trim();
+                bairro = document.getElementById('end-bairro').selectedOptions[0].text;
+                taxaEntrega = Number(document.getElementById('end-bairro').value || 0);
                 const ref = document.getElementById('end-ref').value.trim();
 
-                if(!rua || !num || !bairro) return alert('Preencha o endereço completo!');
-                enderecoCompleto = `${rua}, Nº ${num}, ${bairro} ${ref ? '(' + ref + ')' : ''}`;
+                if (!rua || !num || !document.getElementById('end-bairro').value) return alert("Preencha o endereço completo.");
+                enderecoCompleto = `${rua}, Nº ${num}, ${bairro}${ref ? ' ('+ref+')' : ''}`;
             }
 
-            const subtotal = calcularSubtotal();
-            let desconto = calcularDesconto(subtotal);
-            if (desconto > subtotal) desconto = subtotal;
-            const total = subtotal - desconto;
+            const subtotal = subtotalCarrinho();
+            const total = subtotal + taxaEntrega;
 
             const btn = document.querySelector('.btn-finalizar');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
             btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
             const pedido = {
                 data: new Date(),
                 status: 'pendente',
+                origem: 'cliente',
                 cliente: { nome, telefone },
-                entrega: { tipo: entrega, endereco: enderecoCompleto },
-                pagamento: { metodo: pagamento, troco: troco || '' },
+                entrega: { tipo: entrega, endereco: enderecoCompleto, bairro, taxa: taxaEntrega },
+                pagamento: { metodo: pagamento, troco: troco || "" },
                 itens: carrinho,
                 subtotal,
-                desconto,
-                total,
-                cupom: cupomAplicado ? {
-                    codigo: cupomAplicado.codigo,
-                    tipo: cupomAplicado.tipo,
-                    valor: cupomAplicado.valor,
-                    minimo: cupomAplicado.minimo || 0
-                } : null
+                total
             };
 
-            db.collection('pedidos').add(pedido).then((docRef) => {
+            try {
+                const docRef = await db.collection("pedidos").add(pedido);
                 enviarZap(pedido, docRef.id);
-            }).catch((error) => {
-                console.error('Erro ao salvar:', error);
-                alert('Erro de conexão. Tente novamente.');
+            } catch (e) {
+                console.error(e);
+                alert("Erro ao salvar pedido.");
                 btn.disabled = false;
-                btn.innerHTML = 'Enviar Pedido via WhatsApp';
-            });
+                btn.innerHTML = 'Enviar Pedido via WhatsApp <i class="fa-brands fa-whatsapp"></i>';
+            }
         }
 
         function enviarZap(pedido, idPedido) {
-            const totalFormatado = formatarMoeda(pedido.total);
-            const subtotalFormatado = formatarMoeda(pedido.subtotal || pedido.total);
-            const descontoFormatado = formatarMoeda(pedido.desconto || 0);
             const idCurto = idPedido.slice(0, 5).toUpperCase();
+            let msg = `*PEDIDO #${idCurto}* 🌵
+`;
+            msg += `👤 ${pedido.cliente.nome}
+📞 ${pedido.cliente.telefone}
 
-            let msg = `*PEDIDO #${idCurto}* 🌵\n`;
-            msg += `👤 ${pedido.cliente.nome}\n`;
-            msg += `📞 ${pedido.cliente.telefone}\n\n`;
-            
-            pedido.itens.forEach(i => {
-                msg += `▪️ ${i.quantidade}x ${i.nome}\n`;
-            });
-
-            msg += `\n🧾 *Subtotal:* ${subtotalFormatado}\n`;
-            if ((pedido.desconto || 0) > 0) {
-                msg += `🎟️ *Desconto:* ${descontoFormatado}`;
-                if (pedido.cupom?.codigo) msg += ` (${pedido.cupom.codigo})`;
-                msg += `\n`;
-            }
-            msg += `💰 *Total: ${totalFormatado}*\n`;
-            msg += `--------------------------------\n`;
-            
-            if(pedido.entrega.tipo === 'entrega') {
-                msg += `🏠 *Entrega:*\n${pedido.entrega.endereco}\n`;
-            } else {
-                msg += `👜 *Retirada no Balcão*\n`;
-            }
-
+`;
+            pedido.itens.forEach(i => msg += `▪️ ${i.quantidade}x ${i.nome}
+`);
+            msg += `
+💰 *Subtotal:* ${moeda(pedido.subtotal)}
+`;
+            msg += `🛵 *Taxa:* ${moeda(pedido.entrega.taxa || 0)}
+`;
+            msg += `💵 *Total:* ${moeda(pedido.total)}
+`;
+            msg += `--------------------------------
+`;
+            msg += pedido.entrega.tipo === 'entrega' ? `🏠 *Entrega:*\n${pedido.entrega.endereco}\n` : `👜 *Retirada no Balcão*\n`;
             msg += `💳 *Pagamento:* ${pedido.pagamento.metodo.toUpperCase()}\n`;
-            if(pedido.pagamento.troco) msg += `💵 *Troco para:* ${pedido.pagamento.troco}\n`;
+            if (pedido.pagamento.troco) msg += `💵 *Troco para:* ${pedido.pagamento.troco}\n`;
 
             localStorage.removeItem('carrinho');
-            const linkZap = `https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(msg)}`;
-            window.open(linkZap, '_blank');
-            window.location.href = 'index.html';
+            window.open(`https://wa.me/${SEU_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.location.href = "index.html";
         }
     </script>
 </body>

@@ -1,235 +1,204 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cozinha - Pedidos em Tempo Real</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { background: #f3f4f8; font-family: 'Poppins', sans-serif; padding: 20px; }
-        .header-pedidos { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
-        h2 { color:#333; margin:0; }
-        .grid-pedidos { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; }
-        .card-pedido { background:white; border-radius:16px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,.06); border-left:6px solid #ccc; position:relative; }
-        .status-pendente { border-left-color:#ffb300; }
-        .status-pronto { border-left-color:#00C851; }
-        .status-rota { border-left-color:#2196f3; }
-        .status-retirada { border-left-color:#8e24aa; }
-        .pedido-header { display:flex; justify-content:space-between; gap:10px; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:10px; }
-        .pedido-id { font-weight:900; color:#555; font-size:18px; }
-        .pedido-hora { font-size:12px; color:#999; }
-        .status-pill { font-size:11px; font-weight:800; border-radius:999px; padding:6px 10px; display:inline-flex; align-items:center; gap:6px; }
-        .pill-pendente { background:#fff3cd; color:#8a5b00; }
-        .pill-pronto { background:#e8f5e9; color:#1b5e20; }
-        .pill-rota { background:#e3f2fd; color:#0d47a1; }
-        .pill-retirada { background:#f3e5f5; color:#6a1b9a; }
-        .info-cliente { font-size:14px; margin-bottom:10px; color:#333; }
-        .info-cliente strong { display:block; font-size:18px; }
-        .lista-itens { background:#fafafa; padding:12px; border-radius:10px; margin-bottom:12px; }
-        .item { display:flex; justify-content:space-between; font-size:15px; margin-bottom:8px; border-bottom:1px dashed #ddd; padding-bottom:6px; }
-        .item:last-child { margin-bottom:0; border-bottom:none; }
-        .item-qtd { font-weight:900; margin-right:10px; font-size:16px; }
-        .pedido-meta { display:grid; gap:8px; margin:12px 0; color:#444; font-size:14px; }
-        .pedido-footer { display:flex; justify-content:space-between; align-items:center; margin-top:15px; gap:10px; flex-wrap:wrap; }
-        .total { font-size:22px; font-weight:900; color:#333; }
-        .acoes-btns { display:flex; gap:10px; flex-wrap:wrap; }
-        .btn-acao, .btn-print { border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
-        .btn-print { background:#eceff1; color:#333; }
-        .btn-pronto { background:#00C851; color:white; }
-        .btn-rota { background:#2196f3; color:white; }
-        .btn-retirada { background:#8e24aa; color:white; }
-        .btn-arquivar { background:#333; color:white; }
-        @media print {
-            body * { visibility:hidden; height:0; overflow:hidden; background:white !important; }
-            .imprimindo-agora, .imprimindo-agora * { visibility:visible; height:auto; overflow:visible; color:black !important; }
-            .imprimindo-agora { position:fixed; left:0; top:0; width:100%; max-width:78mm; padding:5px 10px; margin:0; border:none !important; box-shadow:none !important; font-family:'Courier New', Courier, monospace; }
-            .imprimindo-agora .pedido-header { border-bottom:2px dashed black; }
-            .imprimindo-agora .pedido-id { font-size:24px; }
-            .imprimindo-agora .info-cliente strong { font-size:20px; }
-            .imprimindo-agora .lista-itens { background:transparent; padding:0; }
-            .imprimindo-agora .item { border-bottom:1px dotted black; }
-            .imprimindo-agora .total { font-size:22px; border-top:2px dashed black; padding-top:5px; display:block; width:100%; text-align:right; }
-            .imprimindo-agora .acoes-btns, .imprimindo-agora .btn-print { display:none !important; }
-            @page { size:auto; margin:0mm; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cozinha - Pedidos</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background:#f3f4f6; }
+    .header { background:#5A3E34; color:#fff; padding:18px; display:flex; justify-content:space-between; align-items:center; gap:12px; position:sticky; top:0; z-index:20; }
+    .container { max-width:1200px; margin:0 auto; padding:18px; }
+    .filtros { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+    .chip { background:#fff; border:1px solid #ddd; padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+    .card { background:#fff; border-radius:18px; padding:16px; box-shadow:0 10px 24px rgba(0,0,0,.06); border-left:8px solid #EEB91B; }
+    .card.pronto { border-left-color:#00C851; }
+    .card.saindo { border-left-color:#2979ff; }
+    .card.mesa { border-left-color:#9c27b0; }
+    .acoes { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .btn { border:none; border-radius:10px; padding:10px 12px; font-weight:700; cursor:pointer; }
+    .btn-pri { background:#EEB91B; color:#5A3E34; }
+    .btn-sec { background:#5A3E34; color:#fff; }
+    .btn-ok { background:#00C851; color:#fff; }
+    .btn-blue { background:#2979ff; color:#fff; }
+    .tag { display:inline-block; padding:4px 8px; border-radius:999px; background:#f4f4f4; font-size:12px; font-weight:700; }
+  </style>
 </head>
 <body>
-    <div class="header-pedidos">
-        <div>
-            <h2>Cozinha / Pedidos 👨‍🍳</h2>
-            <small>Quando marcar “Saiu para entrega”, abre o WhatsApp do cliente com a mensagem pronta.</small>
-        </div>
-        <a href="admin.html" style="text-decoration:none; color:#333; font-weight:bold;">
-            <i class="fa-solid fa-arrow-left"></i> Voltar pro Admin
-        </a>
+  <div class="header">
+    <div>
+      <h2 style="color:#fff;">Pedidos da cozinha</h2>
+      <small>Em tempo real</small>
     </div>
-
-    <div id="container-pedidos" class="grid-pedidos">
-        <p style="text-align:center; width:100%; color:#999;"><i class="fa-solid fa-spinner fa-spin"></i> Carregando pedidos...</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="admin.html" class="btn btn-pri" style="text-decoration:none;">Admin</a>
+      <a href="garcom.html" class="btn btn-pri" style="text-decoration:none;">Garçom / Mesas</a>
     </div>
+  </div>
 
-    <audio id="som-notificacao" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+  <div class="container">
+    <div class="filtros">
+      <button class="chip" onclick="setFiltro('todos')">Todos</button>
+      <button class="chip" onclick="setFiltro('cliente')">Delivery / retirada</button>
+      <button class="chip" onclick="setFiltro('mesa')">Mesas</button>
+      <button class="chip" onclick="setFiltro('pendente')">Pendentes</button>
+      <button class="chip" onclick="setFiltro('pronto')">Prontos</button>
+    </div>
+    <div id="lista" class="grid"><p>Carregando pedidos...</p></div>
+  </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
-            authDomain: "loucosportapioca-57964.firebaseapp.com",
-            projectId: "loucosportapioca-57964",
-            storageBucket: "loucosportapioca-57964.firebasestorage.app",
-            messagingSenderId: "371332659198",
-            appId: "1:371332659198:web:330626357653acc00772af"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+  <audio id="som-notificacao" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
-        if (sessionStorage.getItem('logado') !== 'sim') window.location.href = 'login.html';
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AlzaSyBp32ijeLw2LvNwKur5EaUj7B9WZ1G-AW0",
+      authDomain: "loucosportapioca-57964.firebaseapp.com",
+      projectId: "loucosportapioca-57964",
+      storageBucket: "loucosportapioca-57964.firebasestorage.app",
+      messagingSenderId: "371332659198",
+      appId: "1:371332659198:web:330626357653acc00772af"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        function formatarMoeda(valor) {
-            return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    let pedidos = [];
+    let filtro = 'todos';
+    const NUMERO_RESTAURANTE = '5581991243260';
+
+    function money(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+    function setFiltro(f){ filtro = f; render(); }
+    window.setFiltro = setFiltro;
+
+    db.collection("pedidos").orderBy("data", "desc").onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added" && !change.doc.metadata.fromCache) {
+          document.getElementById('som-notificacao').play().catch(()=>{});
         }
+      });
+      pedidos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      render();
+    });
 
-        function limparTelefone(numero) {
-            return String(numero || '').replace(/\D/g, '');
+    function passaFiltro(p) {
+      if (filtro === 'todos') return true;
+      if (filtro === 'cliente') return p.origem !== 'mesa';
+      if (filtro === 'mesa') return p.origem === 'mesa';
+      if (filtro === 'pendente') return p.status === 'pendente';
+      if (filtro === 'pronto') return p.status === 'pronto';
+      return true;
+    }
+
+    function render() {
+      const box = document.getElementById('lista');
+      const lista = pedidos.filter(passaFiltro);
+      if (!lista.length) { box.innerHTML = '<p>Nenhum pedido encontrado.</p>'; return; }
+      box.innerHTML = '';
+      lista.forEach(p => {
+        const data = p.data && p.data.toDate ? p.data.toDate().toLocaleTimeString('pt-BR',{hour:'2-digit', minute:'2-digit'}) : '';
+        const classe = p.origem === 'mesa' ? 'mesa' : (p.status === 'saindo_entrega' ? 'saindo' : (p.status === 'pronto' ? 'pronto' : ''));
+        const itens = (p.itens || []).map(i => `<div style="margin-bottom:8px;"><strong>${i.quantidade}x</strong> ${i.nome}${i.observacao ? `<br><small style="opacity:.7;">Obs: ${i.observacao}</small>` : ''}${i.pessoa ? `<br><small style="opacity:.7;">Pessoa: ${i.pessoa}</small>` : ''}</div>`).join('');
+        let subtipo = '🛵 Entrega';
+        if (p.entrega && p.entrega.tipo === 'retirada') subtipo = '👜 Retirada';
+        if (p.entrega && p.entrega.tipo === 'mesa') subtipo = `🍽️ Mesa ${p.mesaNumero || ''}`;
+
+        let acoes = '';
+        if (p.origem === 'mesa') {
+          acoes += p.status === 'pendente'
+            ? `<button class="btn btn-ok" onclick="mudarStatus('${p.id}','pronto')">Pronto</button>`
+            : `<button class="btn btn-sec" onclick="mudarStatus('${p.id}','entregue_mesa')">Entregue na mesa</button>`;
+        } else {
+          acoes += p.status === 'pendente'
+            ? `<button class="btn btn-ok" onclick="mudarStatus('${p.id}','pronto')">Pronto</button>`
+            : '';
+          if (p.entrega && p.entrega.tipo === 'entrega') {
+            acoes += `<button class="btn btn-blue" onclick="avisarSaindoEntrega('${p.id}')">Saiu para entrega</button>`;
+          }
+          if (p.entrega && p.entrega.tipo === 'retirada') {
+            acoes += `<button class="btn btn-blue" onclick="avisarRetirada('${p.id}')">Avisar retirada</button>`;
+          }
         }
+        acoes += `<button class="btn btn-pri" onclick="imprimirResumo('${p.id}')">Imprimir</button>`;
+        acoes += `<button class="btn btn-sec" onclick="arquivar('${p.id}')">Arquivar</button>`;
 
-        function obterInfoStatus(pedido) {
-            if (pedido.status === 'rota') return { classe: 'status-rota', pill: 'pill-rota', texto: 'Saiu para entrega' };
-            if (pedido.status === 'aguardando_retirada') return { classe: 'status-retirada', pill: 'pill-retirada', texto: 'Aguardando retirada' };
-            if (pedido.status === 'pronto') return { classe: 'status-pronto', pill: 'pill-pronto', texto: 'Pronto' };
-            return { classe: 'status-pendente', pill: 'pill-pendente', texto: 'Pendente' };
-        }
+        box.innerHTML += `
+          <div class="card ${classe}" id="pedido-${p.id}">
+            <div style="display:flex; justify-content:space-between; gap:10px; margin-bottom:10px;">
+              <strong>#${p.id.slice(0,5).toUpperCase()}</strong>
+              <span>${data}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:10px;">
+              <div>
+                <strong>${p.cliente?.nome || 'Cliente'}</strong><br>
+                <small>${subtipo}</small><br>
+                ${p.garcom ? `<small>Garçom: ${p.garcom}</small><br>` : ''}
+                ${p.cliente?.telefone ? `<small>Tel: ${p.cliente.telefone}</small>` : ''}
+              </div>
+              <span class="tag">${p.status || 'pendente'}</span>
+            </div>
+            <div style="border-top:1px solid #eee; border-bottom:1px solid #eee; padding:10px 0;">${itens}</div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+              <span>Total</span><strong>${money(p.total || 0)}</strong>
+            </div>
+            <div class="acoes">${acoes}</div>
+          </div>`;
+      });
+    }
 
-        function montarMensagemCliente(pedido, id, tipoAviso) {
-            const idCurto = id.slice(0, 5).toUpperCase();
-            let texto = `Olá, ${pedido.cliente?.nome || 'cliente'}! Seu pedido *#${idCurto}* `;
-            if (tipoAviso === 'rota') {
-                texto += 'já saiu para entrega e está a caminho. 🛵';
-            } else {
-                texto += 'já está pronto para retirada. 🛍️';
-            }
-            texto += `\n\nTotal: ${formatarMoeda(pedido.total)}`;
-            if (pedido.entrega?.endereco) texto += `\n${tipoAviso === 'rota' ? 'Endereço de entrega' : 'Retirada'}: ${pedido.entrega.endereco}`;
-            texto += '\n\nObrigado por pedir com a gente!';
-            return texto;
-        }
+    async function mudarStatus(id, status) {
+      await db.collection('pedidos').doc(id).update({ status });
+      render();
+    }
+    window.mudarStatus = mudarStatus;
 
-        function abrirWhatsCliente(pedido, id, tipoAviso) {
-            const telefone = limparTelefone(pedido.cliente?.telefone);
-            if (!telefone) {
-                alert('Esse pedido não tem telefone válido do cliente.');
-                return;
-            }
-            const mensagem = montarMensagemCliente(pedido, id, tipoAviso);
-            window.open(`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`, '_blank');
-        }
+    async function avisarSaindoEntrega(id) {
+      const doc = await db.collection('pedidos').doc(id).get();
+      if (!doc.exists) return;
+      const p = doc.data();
+      await db.collection('pedidos').doc(id).update({ status: 'saindo_entrega' });
+      const msg = `Olá, ${p.cliente?.nome || ''}! Seu pedido #${id.slice(0,5).toUpperCase()} saiu para rota de entrega e em breve chegará até você.`;
+      const fone = String(p.cliente?.telefone || '').replace(/\D/g,'');
+      if (fone) window.open(`https://wa.me/55${fone.length===11?fone:fone}?text=${encodeURIComponent(msg)}`,'_blank');
+    }
+    window.avisarSaindoEntrega = avisarSaindoEntrega;
 
-        db.collection('pedidos').orderBy('data', 'desc').onSnapshot((snapshot) => {
-            const container = document.getElementById('container-pedidos');
+    async function avisarRetirada(id) {
+      const doc = await db.collection('pedidos').doc(id).get();
+      if (!doc.exists) return;
+      const p = doc.data();
+      await db.collection('pedidos').doc(id).update({ status: 'pronto_retirada' });
+      const msg = `Olá, ${p.cliente?.nome || ''}! Seu pedido #${id.slice(0,5).toUpperCase()} já está pronto para retirada.`;
+      const fone = String(p.cliente?.telefone || '').replace(/\D/g,'');
+      if (fone) window.open(`https://wa.me/55${fone.length===11?fone:fone}?text=${encodeURIComponent(msg)}`,'_blank');
+    }
+    window.avisarRetirada = avisarRetirada;
 
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added' && !change.doc.metadata.fromCache) {
-                    document.getElementById('som-notificacao').play().catch(() => {});
-                }
-            });
+    async function arquivar(id) {
+      if (!confirm('Arquivar este pedido?')) return;
+      await db.collection('pedidos').doc(id).delete();
+    }
+    window.arquivar = arquivar;
 
-            if (snapshot.empty) {
-                container.innerHTML = '<p style="text-align:center; width:100%; color:#999; padding:50px;">Nenhum pedido por enquanto.</p>';
-                return;
-            }
-
-            container.innerHTML = '';
-            snapshot.forEach((doc) => {
-                const p = doc.data();
-                const id = doc.id;
-                const data = p.data?.toDate ? p.data.toDate().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '--:--';
-                const statusInfo = obterInfoStatus(p);
-
-                let itensHtml = '';
-                (p.itens || []).forEach(i => {
-                    const desc = i.descricao ? `<br><small style="color:#666; font-style:italic;">(${i.descricao})</small>` : '';
-                    itensHtml += `<div class="item"><div><span class="item-qtd">${i.quantidade}x</span><span>${i.nome}</span> ${desc}</div></div>`;
-                });
-
-                let btnAcao = '';
-                if (p.status === 'pendente') {
-                    btnAcao = `<button class="btn-acao btn-pronto" onclick="mudarStatus('${id}', 'pronto')">✅ Marcar pronto</button>`;
-                } else if (p.status === 'pronto' && p.entrega?.tipo === 'entrega') {
-                    btnAcao = `<button class="btn-acao btn-rota" onclick="enviarParaRota('${id}')">🛵 Saiu para entrega</button>`;
-                } else if (p.status === 'pronto' && p.entrega?.tipo !== 'entrega') {
-                    btnAcao = `<button class="btn-acao btn-retirada" onclick="avisarRetirada('${id}')">🛍️ Avisar retirada</button>`;
-                } else {
-                    btnAcao = `<button class="btn-acao btn-arquivar" onclick="arquivar('${id}')">📁 Arquivar</button>`;
-                }
-
-                container.innerHTML += `
-                    <div id="card-${id}" class="card-pedido ${statusInfo.classe}">
-                        <div class="pedido-header">
-                            <div>
-                                <span class="pedido-id">#${id.slice(0,5).toUpperCase()}</span><br>
-                                <span class="status-pill ${statusInfo.pill}">${statusInfo.texto}</span>
-                            </div>
-                            <span class="pedido-hora">${data}</span>
-                        </div>
-                        <div class="info-cliente">
-                            <strong>${p.cliente?.nome || 'Cliente'}</strong>
-                            <span>${p.entrega?.tipo === 'entrega' ? '🛵 Entrega' : '👜 Retirada'}</span>
-                            <div style="font-size:13px; margin-top:5px;">📍 ${p.entrega?.endereco || 'Não informado'}</div>
-                            ${p.cupom?.codigo ? `<div style="font-size:13px; color:#2e7d32; font-weight:700;">🎟️ Cupom: ${p.cupom.codigo}</div>` : ''}
-                            <div style="font-size:13px;">📞 ${p.cliente?.telefone || 'Sem telefone'}</div>
-                        </div>
-                        <div class="lista-itens">${itensHtml}</div>
-                        <div class="pedido-meta">
-                            <div><strong>Pagamento:</strong> ${(p.pagamento?.metodo || '').toUpperCase()} ${p.pagamento?.troco ? `(Troco: ${p.pagamento.troco})` : ''}</div>
-                            <div><strong>Subtotal:</strong> ${formatarMoeda(p.subtotal || p.total || 0)}</div>
-                            ${(p.desconto || 0) > 0 ? `<div><strong>Desconto:</strong> ${formatarMoeda(p.desconto)}</div>` : ''}
-                        </div>
-                        <div class="pedido-footer">
-                            <span class="total">${formatarMoeda(p.total || 0)}</span>
-                            <div class="acoes-btns">
-                                <button class="btn-print" onclick="imprimirPedido('${id}')"><i class="fa-solid fa-print"></i></button>
-                                ${btnAcao}
-                            </div>
-                        </div>
-                    </div>`;
-            });
-        });
-
-        function imprimirPedido(id) {
-            const card = document.getElementById('card-' + id);
-            card.classList.add('imprimindo-agora');
-            window.print();
-            card.classList.remove('imprimindo-agora');
-        }
-
-        function mudarStatus(id, status) {
-            db.collection('pedidos').doc(id).update({ status });
-        }
-
-        function enviarParaRota(id) {
-            db.collection('pedidos').doc(id).get().then((doc) => {
-                if (!doc.exists) return;
-                const pedido = doc.data();
-                return db.collection('pedidos').doc(id).update({ status: 'rota' }).then(() => abrirWhatsCliente(pedido, id, 'rota'));
-            });
-        }
-
-        function avisarRetirada(id) {
-            db.collection('pedidos').doc(id).get().then((doc) => {
-                if (!doc.exists) return;
-                const pedido = doc.data();
-                return db.collection('pedidos').doc(id).update({ status: 'aguardando_retirada' }).then(() => abrirWhatsCliente(pedido, id, 'retirada'));
-            });
-        }
-
-        function arquivar(id) {
-            if (confirm('Arquivar este pedido? Ele sumirá da tela.')) {
-                db.collection('pedidos').doc(id).delete();
-            }
-        }
-    </script>
+    async function imprimirResumo(id) {
+      const doc = await db.collection('pedidos').doc(id).get();
+      if (!doc.exists) return;
+      const p = doc.data();
+      const win = window.open('', '_blank', 'width=400,height=700');
+      win.document.write(`
+        <html><head><title>Pedido</title></head><body style="font-family:Arial;padding:16px;">
+        <h2>Pedido #${id.slice(0,5).toUpperCase()}</h2>
+        <p><strong>Cliente:</strong> ${p.cliente?.nome || ''}</p>
+        <p><strong>Origem:</strong> ${p.origem === 'mesa' ? 'Mesa ' + (p.mesaNumero || '') : (p.entrega?.tipo || '')}</p>
+        ${(p.itens || []).map(i => `<div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;"><span>${i.quantidade}x ${i.nome}${i.observacao ? ' - ' + i.observacao : ''}</span><strong>${money((i.preco||0) * (i.quantidade||1))}</strong></div>`).join('')}
+        <hr><h3>Total: ${money(p.total || 0)}</h3>
+        </body></html>`);
+      win.document.close();
+      win.print();
+    }
+    window.imprimirResumo = imprimirResumo;
+  </script>
 </body>
 </html>

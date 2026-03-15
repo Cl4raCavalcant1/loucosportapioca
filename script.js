@@ -15,54 +15,13 @@ const db = firebase.firestore();
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 let menuGlobal = [];
 
+function obterPreco(item) {
+    const promoValida = item.emPromocao && Number(item.precoPromocional) > 0 && Number(item.precoPromocional) < Number(item.preco);
+    return promoValida ? Number(item.precoPromocional) : Number(item.preco || 0);
+}
+
 function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-function obterPrecoAplicado(produto) {
-    const preco = Number(produto.preco || 0);
-    const promo = Number(produto.precoPromocional || 0);
-    if (produto.emPromocao && promo > 0 && promo < preco) {
-        return promo;
-    }
-    return preco;
-}
-
-function montarItemCarrinho(produto) {
-    return {
-        ...produto,
-        precoBase: Number(produto.preco || 0),
-        precoPromocional: produto.precoPromocional ? Number(produto.precoPromocional) : null,
-        emPromocao: !!produto.emPromocao,
-        pratoDoDia: !!produto.pratoDoDia,
-        descontoSemana: !!produto.descontoSemana,
-        preco: obterPrecoAplicado(produto),
-        quantidade: 1
-    };
-}
-
-function salvarCarrinho() {
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
-}
-
-function atualizarResumoCarrinho(total, qtd) {
-    const subtotalEl = document.getElementById('subtotal-carrinho');
-    const totalEl = document.getElementById('total-carrinho');
-    const qtdEl = document.getElementById('itens-carrinho-resumo');
-    const btnProsseguir = document.querySelector('.btn-prosseguir');
-
-    if (subtotalEl) subtotalEl.innerText = formatarMoeda(total);
-    if (totalEl) totalEl.innerText = formatarMoeda(total);
-    if (qtdEl) qtdEl.innerText = `${qtd} item(ns)`;
-    if (btnProsseguir) {
-        if (qtd === 0) {
-            btnProsseguir.classList.add('desabilitado');
-            btnProsseguir.setAttribute('aria-disabled', 'true');
-        } else {
-            btnProsseguir.classList.remove('desabilitado');
-            btnProsseguir.removeAttribute('aria-disabled');
-        }
-    }
 }
 
 db.collection("produtos").onSnapshot((querySnapshot) => {
@@ -84,18 +43,14 @@ db.collection("produtos").onSnapshot((querySnapshot) => {
 
     if (loading) loading.style.display = 'none';
     renderizarMenu('todos');
-}, (error) => {
-    console.error("Erro ao buscar cardápio:", error);
-});
+}, (error) => console.error("Erro ao buscar cardápio:", error));
 
 window.renderizarMenu = function(filtro = 'todos') {
     const container = document.getElementById('itens-cardapio');
     if (!container) return;
 
     container.innerHTML = '';
-
-    const listaBase = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
-    const lista = [...listaBase].sort((a, b) => Number(!!b.pratoDoDia) - Number(!!a.pratoDoDia));
+    const lista = filtro === 'todos' ? menuGlobal : menuGlobal.filter(p => p.categoria === filtro);
 
     if (lista.length === 0) {
         container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#666;">Nenhum item nesta categoria.</div>';
@@ -105,56 +60,56 @@ window.renderizarMenu = function(filtro = 'todos') {
     lista.forEach(item => {
         const img = item.imagem ? item.imagem : "https://via.placeholder.com/150";
         const desc = item.descricao ? item.descricao : '';
-        const emPromocao = item.emPromocao && Number(item.precoPromocional) > 0 && Number(item.precoPromocional) < Number(item.preco);
-        const blocoPreco = emPromocao
-            ? `<div class="box-preco"><span class="price-old">${formatarMoeda(item.preco)}</span><p class="price promo">${formatarMoeda(item.precoPromocional)}</p></div>`
-            : `<p class="price">${formatarMoeda(item.preco)}</p>`;
+        const precoBase = Number(item.preco || 0);
+        const precoFinal = obterPreco(item);
+        const emPromo = precoFinal < precoBase;
+        const badges = [
+            item.pratoDoDia ? '<span style="background:#5A3E34;color:#fff;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;">Prato do dia</span>' : '',
+            item.descontoSemana ? '<span style="background:#00C851;color:#fff;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;">Desconto da semana</span>' : '',
+        ].join(' ');
 
-        const badges = [];
-        if (item.pratoDoDia) badges.push('<span class="badge-extra-card badge-dia">Prato do dia</span>');
-        if (item.descontoSemana) badges.push('<span class="badge-extra-card badge-semana">Desconto da semana</span>');
-        if (emPromocao) badges.push('<span class="badge-extra-card badge-promo-card">Promoção</span>');
-        const badgesHtml = badges.length ? `<div class="badges-produto">${badges.join('')}</div>` : '';
-        
         container.innerHTML += `
-            <div class="card-produto ${item.pratoDoDia ? 'card-destaque' : ''}">
+            <div class="card-produto">
                 <div class="img-wrapper">
                     <img src="${img}" alt="${item.nome}" loading="lazy">
                 </div>
                 <div class="info-wrapper">
                     <div>
-                        ${badgesHtml}
                         <h3>${item.nome}</h3>
                         <p class="desc">${desc}</p>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">${badges}</div>
                     </div>
                     <div>
-                        ${blocoPreco}
-                        <button class="btn-add" onclick="adicionarAoCarrinho('${item.id}')">
-                            Adicionar
-                        </button>
+                        ${
+                            emPromo
+                            ? `<p class="price" style="margin-bottom:2px;"><span style="text-decoration:line-through;opacity:.6;font-size:14px;">${formatarMoeda(precoBase)}</span><br><strong>${formatarMoeda(precoFinal)}</strong></p>`
+                            : `<p class="price">${formatarMoeda(precoFinal)}</p>`
+                        }
+                        <button class="btn-add" onclick="adicionarAoCarrinho('${item.id}')">Adicionar</button>
                     </div>
                 </div>
             </div>
         `;
     });
-}
+};
 
 window.adicionarAoCarrinho = function(id) {
     const produto = menuGlobal.find(p => p.id == id);
+    if (!produto) return;
 
-    if (produto) {
-        const itemNoCarrinho = carrinho.find(item => item.id == id);
-        
-        if (itemNoCarrinho) {
-            itemNoCarrinho.quantidade = Number(itemNoCarrinho.quantidade) + 1;
-            msgSucesso(`+1 ${produto.nome}`);
-        } else {
-            carrinho.push(montarItemCarrinho(produto));
-            msgSucesso(`${produto.nome} na sacola!`);
-        }
-        atualizarInterface();
+    const precoAplicado = obterPreco(produto);
+    const itemNoCarrinho = carrinho.find(item => item.id == id);
+
+    if (itemNoCarrinho) {
+        itemNoCarrinho.quantidade = Number(itemNoCarrinho.quantidade) + 1;
+        itemNoCarrinho.preco = precoAplicado;
+        msgSucesso(`+1 ${produto.nome}`);
+    } else {
+        carrinho.push({ ...produto, preco: precoAplicado, quantidade: 1 });
+        msgSucesso(`${produto.nome} na sacola!`);
     }
-}
+    atualizarInterface();
+};
 
 function atualizarInterface() {
     const labelQtd = document.querySelector('.qtd-itens');
@@ -162,6 +117,7 @@ function atualizarInterface() {
     const labelTotalSacola = document.querySelector('.valor-sacola');
     const labelQtdSacola = document.querySelector('.texto-sacola');
     const containerCarrinho = document.getElementById('lista-carrinho');
+    const resumoCarrinho = document.getElementById('resumo-carrinho');
 
     let qtd = 0;
     let total = 0;
@@ -185,12 +141,14 @@ function atualizarInterface() {
         labelQtdSacola.innerText = `${qtd} itens na sacola`;
     }
 
-    atualizarResumoCarrinho(total, qtd);
-    salvarCarrinho();
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
 
-    if (containerCarrinho) {
-        renderizarListaCarrinho(containerCarrinho);
-    }
+    if (containerCarrinho) renderizarListaCarrinho(containerCarrinho);
+    if (resumoCarrinho) resumoCarrinho.innerHTML = `
+        <div style="display:flex; justify-content:space-between; padding:10px 0; border-top:1px solid #eee;">
+            <strong>Total</strong><strong>${totalFormatado}</strong>
+        </div>
+    `;
 }
 
 function renderizarListaCarrinho(container) {
@@ -203,28 +161,22 @@ function renderizarListaCarrinho(container) {
 
     carrinho.forEach(item => {
         const img = item.imagem || "https://via.placeholder.com/150";
-        const emPromocao = item.emPromocao && Number(item.precoPromocional) > 0 && Number(item.precoPromocional) < Number(item.precoBase || item.preco);
-        const subtotalItem = (Number(item.preco) || 0) * (Number(item.quantidade) || 1);
-        const precoHtml = emPromocao
-            ? `<p class="price"><span style="text-decoration:line-through; opacity:.7; font-size:13px; margin-right:6px;">${formatarMoeda(item.precoBase)}</span>${formatarMoeda(item.preco)}</p>`
-            : `<p class="price">${formatarMoeda(item.preco)}</p>`;
-        
+        const subtotal = (Number(item.preco) || 0) * (Number(item.quantidade) || 1);
+
         container.innerHTML += `
             <div class="card-carrinho">
                 <div class="img-carrinho"><img src="${img}" alt="${item.nome}"></div>
                 <div class="info-carrinho">
                     <div>
                         <h3>${item.nome}</h3>
-                        ${precoHtml}
-                        <div class="subtotal-item">Subtotal: ${formatarMoeda(subtotalItem)}</div>
+                        <p class="price">${formatarMoeda(item.preco)}</p>
+                        <small style="opacity:.85;">Subtotal: ${formatarMoeda(subtotal)}</small>
                     </div>
-                    
                     <div class="controles-carrinho">
                         <button class="btn-qtd" onclick="alterarQtd('${item.id}', -1)">-</button>
                         <span class="qtd-numero">${item.quantidade}</span>
                         <button class="btn-qtd" onclick="alterarQtd('${item.id}', 1)">+</button>
                     </div>
-
                     <i class="fa-solid fa-trash btn-lixo" onclick="removerItem('${item.id}')"></i>
                 </div>
             </div>
@@ -234,85 +186,39 @@ function renderizarListaCarrinho(container) {
 
 window.alterarQtd = function(id, mudanca) {
     const item = carrinho.find(i => i.id == id);
-    if (item) {
-        item.quantidade += mudanca;
-        if (item.quantidade <= 0) {
-            removerItem(id);
-        } else {
-            atualizarInterface();
-        }
+    if (!item) return;
+    item.quantidade += mudanca;
+    if (item.quantidade <= 0) {
+        carrinho = carrinho.filter(i => i.id != id);
     }
-}
+    atualizarInterface();
+};
 
 window.removerItem = function(id) {
     if (confirm("Tirar este item da sacola?")) {
         carrinho = carrinho.filter(item => item.id != id);
         atualizarInterface();
     }
-}
+};
 
 window.limparCarrinho = function() {
-    if (!carrinho.length) return;
-    if (confirm('Limpar toda a sacola?')) {
+    if (confirm("Limpar toda a sacola?")) {
         carrinho = [];
+        localStorage.removeItem('carrinho');
         atualizarInterface();
-        msgSucesso('Sacola limpa com sucesso!');
     }
-}
+};
 
 function msgSucesso(texto) {
-    if (typeof Toastify === 'function') {
+    if (typeof Toastify !== 'undefined') {
         Toastify({
-            text: texto, duration: 3000, gravity: "top", position: "center",
+            text: texto,
+            duration: 2500,
+            gravity: "top",
+            position: "center",
             style: { background: "#00C851", borderRadius: "10px", fontWeight: "bold" }
         }).showToast();
     }
 }
 
 atualizarInterface();
-
-function verificarHorario() {
-    const agora = new Date();
-    const hora = agora.getHours();
-    const horarioAbertura = 16;
-    const horarioFechamento = 23;
-
-    const estaAberto = hora >= horarioAbertura && hora < horarioFechamento;
-    const badge = document.querySelector('.status-badge');
-    const botoes = document.querySelectorAll('.btn-add');
-
-    if (badge) {
-        if (estaAberto) {
-            badge.innerHTML = '<span class="pulsar"></span> Estamos Abertos';
-            badge.style.background = '#e6f4ea';
-            badge.style.color = '#00C851';
-            badge.style.borderColor = '#00C851';
-            
-            botoes.forEach(btn => {
-                btn.disabled = false;
-                btn.innerText = 'Adicionar';
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-            });
-        } else {
-            badge.innerHTML = '<span class="pulsar" style="background:red"></span> Fechado Agora';
-            badge.style.background = '#ffebee';
-            badge.style.color = '#ff4444';
-            badge.style.borderColor = '#ff4444';
-
-            botoes.forEach(btn => {
-                btn.disabled = true;
-                btn.innerText = 'Fechado';
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
-            });
-        }
-    }
-}
-
-setInterval(verificarHorario, 60000);
-const originalRender = window.renderizarMenu;
-window.renderizarMenu = function(filtro) {
-    originalRender(filtro);
-    setTimeout(verificarHorario, 100);
-};
